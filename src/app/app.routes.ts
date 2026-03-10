@@ -1,15 +1,10 @@
 import { Routes } from '@angular/router';
 import { authGuard } from './core/guards/auth.guard';
+import { roleGuard } from './core/guards/role.guard';
 
 export const routes: Routes = [
-  // ─── Redirect par défaut ───
-  {
-    path: '',
-    redirectTo: 'dashboard',
-    pathMatch: 'full'
-  },
+  { path: '', redirectTo: 'dashboard', pathMatch: 'full' },
 
-  // ─── Login ───
   {
     path: 'login',
     loadComponent: () =>
@@ -17,58 +12,59 @@ export const routes: Routes = [
         .then(m => m.LoginComponent)
   },
 
-  // ─── Routes protégées ───
+  // ─── Admin + RH ───
   {
     path: 'dashboard',
-    canActivate: [authGuard],
+    canActivate: [roleGuard(['ROLE_ADMIN', 'ROLE_RESPONSABLE_RH'])],
     loadComponent: () =>
       import('./features/dashboard/dashboard.component')
         .then(m => m.DashboardComponent)
   },
   {
     path: 'employees',
-    canActivate: [authGuard],
+    canActivate: [roleGuard(['ROLE_ADMIN', 'ROLE_RESPONSABLE_RH', 'ROLE_MANAGER'])],
     loadComponent: () =>
       import('./features/employees/employee-list/employee-list.component')
         .then(m => m.EmployeeListComponent)
   },
   {
     path: 'alertes',
-    canActivate: [authGuard],
+    canActivate: [roleGuard(['ROLE_ADMIN', 'ROLE_RESPONSABLE_RH'])],
     loadComponent: () =>
       import('./features/alertes/alerte-list/alerte-list.component')
         .then(m => m.AlerteListComponent)
   },
   {
     path: 'simulation',
-    canActivate: [authGuard],
+    canActivate: [roleGuard(['ROLE_ADMIN', 'ROLE_RESPONSABLE_RH'])],
     loadComponent: () =>
       import('./features/simulation/simulation-comparaison/simulation-comparaison.component')
         .then(m => m.SimulationComparaisonComponent)
   },
   {
     path: 'recommandations',
-    canActivate: [authGuard],
+    canActivate: [roleGuard(['ROLE_ADMIN', 'ROLE_RESPONSABLE_RH', 'ROLE_MANAGER'])],
     loadComponent: () =>
       import('./features/recommandations/recommandations.component')
         .then(m => m.RecommandationsComponent)
   },
 
+  // ─── Manager uniquement ───
   {
     path: 'team',
-    canActivate: [authGuard],
+    canActivate: [roleGuard(['ROLE_ADMIN', 'ROLE_MANAGER'])],
     loadComponent: () =>
       import('./features/employees/team-view/team-view.component')
         .then(m => m.TeamViewComponent)
   },
 
-  // ─── Redirect inconnu ───
+  // ─── Unauthorized ───
   {
-    path: '**',
-    redirectTo: 'dashboard'
-  }
+    path: 'unauthorized',
+    loadComponent: () =>
+      import('./features/auth/unauthorized/unauthorized.component')
+        .then(m => m.UnauthorizedComponent)
+  },
 
-
-
-
+  { path: '**', redirectTo: 'dashboard' }
 ];

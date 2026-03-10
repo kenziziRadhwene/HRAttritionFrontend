@@ -49,9 +49,20 @@ export class LoginComponent {
     this.errorMessage = '';
 
     this.authService.login(this.email, this.motDePasse).subscribe({
-      next: () => {
+      next: (response: any) => {
         this.loading = false;
-        this.router.navigate(['/dashboard']);
+        // Redirection selon le rôle
+        switch (response.role) {
+          case 'ROLE_ADMIN':
+          case 'ROLE_RESPONSABLE_RH':
+            this.router.navigate(['/dashboard']);
+            break;
+          case 'ROLE_MANAGER':
+            this.router.navigate(['/team']);
+            break;
+          default:
+            this.router.navigate(['/dashboard']);
+        }
       },
       error: (err) => {
         this.loading = false;

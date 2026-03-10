@@ -1,0 +1,32 @@
+.unauthorized-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  min-height: 100vh;
+  background: #f5f5f5;
+  gap: 16px;
+  text-align: center;
+
+  .lock-icon {
+    font-size: 80px;
+    width: 80px;
+    height: 80px;
+    color: #c62828;
+  }
+
+  h1 { color: #333; margin: 0; }
+  p  { color: #888; margin: 0; }
+
+  button {
+    margin-top: 16px;
+    height: 48px;
+    padding: 0 24px;
+    background-color: #c62828 !important;
+    color: white !important;
+    border-radius: 8px !important;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+}

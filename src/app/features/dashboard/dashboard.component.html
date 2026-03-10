@@ -6,29 +6,51 @@
     <span class="app-name">HR Attrition Predictor</span>
   </div>
   <div class="toolbar-right">
-    <button mat-icon-button (click)="navigateTo('/employees')">
+
+    <!-- Admin + RH uniquement -->
+    <button mat-icon-button
+            *ngIf="isAdmin || isRH"
+            (click)="navigateTo('/employees')"
+            matTooltip="Employés">
       <mat-icon>people</mat-icon>
     </button>
-    <button mat-icon-button (click)="navigateTo('/alertes')"
+
+    <button mat-icon-button
+            *ngIf="isAdmin || isRH"
+            (click)="navigateTo('/alertes')"
+            matTooltip="Alertes"
             [matBadge]="stats?.alertesNonLues"
             matBadgeColor="warn"
             [matBadgeHidden]="!stats?.alertesNonLues">
       <mat-icon>notifications</mat-icon>
     </button>
-    <button mat-icon-button (click)="navigateTo('/simulation')">
+
+    <button mat-icon-button
+            *ngIf="isAdmin || isRH"
+            (click)="navigateTo('/simulation')"
+            matTooltip="Simulation ML">
       <mat-icon>science</mat-icon>
     </button>
-    <button mat-icon-button (click)="navigateTo('/recommandations')"
+
+    <!-- Tous les rôles -->
+    <button mat-icon-button
+            (click)="navigateTo('/recommandations')"
             matTooltip="Recommandations">
       <mat-icon>lightbulb</mat-icon>
     </button>
-    <button mat-icon-button (click)="navigateTo('/team')"
-            matTooltip="Vue Équipe Manager">
+
+    <!-- Admin + Manager -->
+    <button mat-icon-button
+            *ngIf="isAdmin || isManager"
+            (click)="navigateTo('/team')"
+            matTooltip="Vue Équipe">
       <mat-icon>groups</mat-icon>
     </button>
-    <button mat-icon-button (click)="logout()">
+
+    <button mat-icon-button (click)="logout()" matTooltip="Déconnexion">
       <mat-icon>logout</mat-icon>
     </button>
+
   </div>
 </mat-toolbar>
 

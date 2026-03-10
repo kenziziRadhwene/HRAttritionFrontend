@@ -1,8 +1,5 @@
 <!-- Toolbar -->
 <mat-toolbar color="primary" class="toolbar">
-  <button mat-icon-button (click)="goBack()">
-    <mat-icon>arrow_back</mat-icon>
-  </button>
   <span class="logo">Ooredoo</span>
   <span class="separator">|</span>
   <span class="page-title">Vue Équipe — Manager</span>
@@ -10,6 +7,19 @@
   <span class="count-badge" *ngIf="employees.length > 0">
     {{ totalEquipe }} employé(s)
   </span>
+
+  <!-- Navigation Manager -->
+  <button mat-icon-button
+          (click)="router.navigate(['/recommandations'])"
+          matTooltip="Recommandations">
+    <mat-icon>lightbulb</mat-icon>
+  </button>
+
+  <button mat-icon-button
+          (click)="logout()"
+          matTooltip="Déconnexion">
+    <mat-icon>logout</mat-icon>
+  </button>
 </mat-toolbar>
 
 <div class="container">

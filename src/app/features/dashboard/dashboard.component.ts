@@ -76,11 +76,23 @@ export class DashboardComponent implements OnInit {
   selectedNiveauRisque = '';
   // ===== FIN DES NOUVELLES PROPRIÉTÉS =====
 
+  // ===== NOUVELLES PROPRIÉTÉS POUR LES RÔLES =====
+  isAdmin = false;
+  isRH = false;
+  isManager = false;
+  // ===== FIN DES NOUVELLES PROPRIÉTÉS =====
+
   constructor(
     private dashboardService: DashboardService,
     private authService: AuthService,
     private router: Router
-  ) {}
+  ) {
+    // ===== INITIALISATION DES RÔLES =====
+    this.isAdmin = this.authService.isAdmin();
+    this.isRH = this.authService.isRH();
+    this.isManager = this.authService.isManager();
+    // ===== FIN DE L'INITIALISATION =====
+  }
 
   ngOnInit(): void {
     this.loadStats();

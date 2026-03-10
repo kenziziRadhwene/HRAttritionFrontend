@@ -52,4 +52,27 @@ export class AuthService {
     const user = localStorage.getItem('user');
     return user ? JSON.parse(user) : null;
   }
+
+
+
+  getRole(): string | null {
+    const user = this.getCurrentUser();
+    return user ? user.role : null;
+  }
+
+  isAdmin(): boolean {
+    return this.getRole() === 'ROLE_ADMIN';
+  }
+
+  isRH(): boolean {
+    return this.getRole() === 'ROLE_RESPONSABLE_RH';
+  }
+
+  isManager(): boolean {
+    return this.getRole() === 'ROLE_MANAGER';
+  }
+
+  hasRole(roles: string[]): boolean {
+    return roles.includes(this.getRole() || '');
+  }
 }

@@ -14,6 +14,7 @@ import { MatToolbarModule } from '@angular/material/toolbar';
 import { MatSnackBarModule, MatSnackBar } from '@angular/material/snack-bar';
 import { EmployeeService } from '../../../core/services/employee.service';
 import { Employee } from '../../../shared/models/employee.model';
+import { AuthService } from '../../../core/services/auth.service';   // ← ligne AJOUTÉE
 
 @Component({
   selector: 'app-team-view',
@@ -81,7 +82,8 @@ export class TeamViewComponent implements OnInit {
   constructor(
     private employeeService: EmployeeService,
     private snackBar: MatSnackBar,
-    private router: Router
+    public router: Router,        // ← "private" devient "public"
+    private authService: AuthService   // ← ligne AJOUTÉE
   ) {}
 
   ngOnInit(): void {}
@@ -127,5 +129,10 @@ export class TeamViewComponent implements OnInit {
 
   goBack(): void {
     this.router.navigate(['/dashboard']);
+  }
+
+  logout(): void {
+    this.authService.logout();
+    this.router.navigate(['/login']);
   }
 }
