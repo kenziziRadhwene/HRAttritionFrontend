@@ -1,0 +1,202 @@
+<!-- Toolbar -->
+<mat-toolbar color="primary" class="toolbar">
+  <button mat-icon-button (click)="goBack()">
+    <mat-icon>arrow_back</mat-icon>
+  </button>
+  <span class="logo">Ooredoo</span>
+  <span class="separator">|</span>
+  <span class="page-title">Vue Équipe — Manager</span>
+  <span class="spacer"></span>
+  <span class="count-badge" *ngIf="employees.length > 0">
+    {{ totalEquipe }} employé(s)
+  </span>
+</mat-toolbar>
+
+<div class="container">
+
+  <!-- Sélection département -->
+  <mat-card class="selection-card">
+    <mat-card-header>
+      <mat-card-title>
+        <mat-icon>business</mat-icon>
+        Sélectionner un département
+      </mat-card-title>
+    </mat-card-header>
+    <mat-card-content>
+      <div class="selection-form">
+        <mat-form-field appearance="outline" class="dept-select">
+          <mat-label>Département</mat-label>
+          <mat-select [(ngModel)]="selectedDepartement">
+            <mat-option *ngFor="let d of departements" [value]="d">
+              {{ d }}
+            </mat-option>
+          </mat-select>
+          <mat-icon matPrefix>domain</mat-icon>
+        </mat-form-field>
+
+        <button mat-raised-button
+                color="primary"
+                class="load-btn"
+                (click)="chargerEquipe()"
+                [disabled]="loading || !selectedDepartement">
+          <mat-icon>groups</mat-icon>
+          {{ loading ? 'Chargement...' : 'Afficher l\'équipe' }}
+        </button>
+      </div>
+    </mat-card-content>
+  </mat-card>
+
+  <!-- Stats équipe -->
+  <div class="kpi-grid" *ngIf="employees.length > 0">
+    <mat-card class="kpi-card kpi-total">
+      <mat-card-content>
+        <div class="kpi-content">
+          <div class="kpi-info">
+            <span class="kpi-value">{{ totalEquipe }}</span>
+            <span class="kpi-label">Total Équipe</span>
+          </div>
+          <mat-icon class="kpi-icon">groups</mat-icon>
+        </div>
+      </mat-card-content>
+    </mat-card>
+
+    <mat-card class="kpi-card kpi-eleve">
+      <mat-card-content>
+        <div class="kpi-content">
+          <div class="kpi-info">
+            <span class="kpi-value">{{ risqueEleve }}</span>
+            <span class="kpi-label">Risque Élevé</span>
+          </div>
+          <mat-icon class="kpi-icon">dangerous</mat-icon>
+        </div>
+      </mat-card-content>
+    </mat-card>
+
+    <mat-card class="kpi-card kpi-moyen">
+      <mat-card-content>
+        <div class="kpi-content">
+          <div class="kpi-info">
+            <span class="kpi-value">{{ risqueMoyen }}</span>
+            <span class="kpi-label">Risque Moyen</span>
+          </div>
+          <mat-icon class="kpi-icon">warning</mat-icon>
+        </div>
+      </mat-card-content>
+    </mat-card>
+
+    <mat-card class="kpi-card kpi-faible">
+      <mat-card-content>
+        <div class="kpi-content">
+          <div class="kpi-info">
+            <span class="kpi-value">{{ risqueFaible }}</span>
+            <span class="kpi-label">Risque Faible</span>
+          </div>
+          <mat-icon class="kpi-icon">check_circle</mat-icon>
+        </div>
+      </mat-card-content>
+    </mat-card>
+  </div>
+
+  <!-- Table équipe -->
+  <mat-card class="table-card" *ngIf="employees.length > 0">
+    <mat-card-header>
+      <mat-card-title>
+        <mat-icon>people</mat-icon>
+        Employés — {{ selectedDepartement }}
+      </mat-card-title>
+    </mat-card-header>
+    <mat-card-content>
+      <table mat-table [dataSource]="employees" class="team-table">
+
+        <!-- Matricule -->
+        <ng-container matColumnDef="matricule">
+          <th mat-header-cell *matHeaderCellDef>Matricule</th>
+          <td mat-cell *matCellDef="let e">
+            <strong>{{ e.matricule }}</strong>
+          </td>
+        </ng-container>
+
+        <!-- Nom -->
+        <ng-container matColumnDef="nom">
+          <th mat-header-cell *matHeaderCellDef>Employé</th>
+          <td mat-cell *matCellDef="let e">
+            <div class="employee-cell">
+              <div class="avatar">
+                {{ e.firstName[0] }}{{ e.lastName[0] }}
+              </div>
+              <div>
+                <div class="emp-name">{{ e.firstName }} {{ e.lastName }}</div>
+                <div class="emp-email">{{ e.email }}</div>
+              </div>
+            </div>
+          </td>
+        </ng-container>
+
+        <!-- Poste -->
+        <ng-container matColumnDef="poste">
+          <th mat-header-cell *matHeaderCellDef>Poste</th>
+          <td mat-cell *matCellDef="let e">{{ e.jobRole }}</td>
+        </ng-container>
+
+        <!-- Risque -->
+        <ng-container matColumnDef="risque">
+          <th mat-header-cell *matHeaderCellDef>Niveau Risque</th>
+          <td mat-cell *matCellDef="let e">
+            <mat-chip *ngIf="e.dernierNiveauRisque"
+                      [color]="getRisqueColor(e.dernierNiveauRisque)"
+                      highlighted>
+              <mat-icon matChipAvatar>
+                {{ getRisqueIcon(e.dernierNiveauRisque) }}
+              </mat-icon>
+              {{ e.dernierNiveauRisque }}
+            </mat-chip>
+            <span *ngIf="!e.dernierNiveauRisque" class="no-score">
+              Non évalué
+            </span>
+          </td>
+        </ng-container>
+
+        <!-- Probabilité -->
+        <ng-container matColumnDef="probabilite">
+          <th mat-header-cell *matHeaderCellDef>Probabilité</th>
+          <td mat-cell *matCellDef="let e">
+            <div *ngIf="e.derniereProbabilite" class="prob-cell">
+              <mat-progress-bar
+                mode="determinate"
+                [value]="e.derniereProbabilite * 100"
+                [color]="getRisqueColor(e.dernierNiveauRisque || '')">
+              </mat-progress-bar>
+              <span>{{ e.derniereProbabilite * 100 | number:'1.1-1' }}%</span>
+            </div>
+            <span *ngIf="!e.derniereProbabilite">—</span>
+          </td>
+        </ng-container>
+
+        <!-- Satisfaction -->
+        <ng-container matColumnDef="satisfaction">
+          <th mat-header-cell *matHeaderCellDef>Satisfaction</th>
+          <td mat-cell *matCellDef="let e">
+            <div class="satisfaction-cell">
+              <mat-icon [style.color]="e.jobSatisfaction >= 3 ? '#2e7d32' : '#c62828'">
+                {{ e.jobSatisfaction >= 3 ? 'sentiment_satisfied' : 'sentiment_dissatisfied' }}
+              </mat-icon>
+              <span>{{ e.jobSatisfaction }}/4</span>
+            </div>
+          </td>
+        </ng-container>
+
+        <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
+        <tr mat-row *matRowDef="let row; columns: displayedColumns;"
+            [class.high-risk]="row.dernierNiveauRisque === 'ÉLEVÉ'"></tr>
+      </table>
+    </mat-card-content>
+  </mat-card>
+
+  <!-- Empty state -->
+  <div class="empty-state"
+       *ngIf="employees.length === 0 && !loading && selectedDepartement">
+    <mat-icon>people_outline</mat-icon>
+    <p>Aucun employé dans ce département</p>
+  </div>
+
+</div>

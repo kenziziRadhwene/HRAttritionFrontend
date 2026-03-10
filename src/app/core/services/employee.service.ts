@@ -34,4 +34,8 @@ export class EmployeeService {
   predict(id: number): Observable<any> {
     return this.http.post<any>(`${this.apiUrl}/${id}/predict`, {});
   }
+
+  getByDepartment(department: string): Observable<Employee[]> {
+    return this.http.get<Employee[]>(`${this.apiUrl}/by-department/${department}`);
+  }
 }

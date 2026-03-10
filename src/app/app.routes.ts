@@ -54,6 +54,14 @@ export const routes: Routes = [
         .then(m => m.RecommandationsComponent)
   },
 
+  {
+    path: 'team',
+    canActivate: [authGuard],
+    loadComponent: () =>
+      import('./features/employees/team-view/team-view.component')
+        .then(m => m.TeamViewComponent)
+  },
+
   // ─── Redirect inconnu ───
   {
     path: '**',
