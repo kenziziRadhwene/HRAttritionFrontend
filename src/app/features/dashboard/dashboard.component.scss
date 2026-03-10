@@ -151,3 +151,38 @@
     height: 48px;
   }
 }
+
+
+.filters-bar {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  padding: 16px 24px;
+  background: white;
+  border-bottom: 1px solid #e0e0e0;
+  flex-wrap: wrap;
+
+  .filter-field {
+    min-width: 250px;
+  }
+
+  .filter-btn {
+    height: 56px;
+    padding: 0 20px;
+    background-color: #c62828 !important;
+    color: white !important;
+    border-radius: 8px !important;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+
+  .reset-btn {
+    height: 56px;
+    padding: 0 20px;
+    border-radius: 8px !important;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+}

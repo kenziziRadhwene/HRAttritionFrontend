@@ -14,4 +14,11 @@ export class DashboardService {
   getStats(): Observable<DashboardStats> {
     return this.http.get<DashboardStats>(`${this.apiUrl}/stats`);
   }
+
+  getStatsFiltered(departement?: string, niveauRisque?: string): Observable<DashboardStats> {
+    let params = '';
+    if (departement) params += `?departement=${departement}`;
+    if (niveauRisque) params += `${params ? '&' : '?'}niveauRisque=${niveauRisque}`;
+    return this.http.get<DashboardStats>(`${this.apiUrl}/stats/filtered${params}`);
+  }
 }

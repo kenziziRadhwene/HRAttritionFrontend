@@ -32,6 +32,41 @@
   </div>
 </mat-toolbar>
 
+<!-- Barre de filtres -->
+<div class="filters-bar">
+  <mat-form-field appearance="outline" class="filter-field">
+    <mat-label>Département</mat-label>
+    <mat-select [(ngModel)]="selectedDepartement">
+      <mat-option value="">Tous les départements</mat-option>
+      <mat-option *ngFor="let d of departements" [value]="d">{{ d }}</mat-option>
+    </mat-select>
+    <mat-icon matPrefix>business</mat-icon>
+  </mat-form-field>
+
+  <mat-form-field appearance="outline" class="filter-field">
+    <mat-label>Niveau de risque</mat-label>
+    <mat-select [(ngModel)]="selectedNiveauRisque">
+      <mat-option value="">Tous les niveaux</mat-option>
+      <mat-option *ngFor="let n of niveauxRisque" [value]="n">{{ n }}</mat-option>
+    </mat-select>
+    <mat-icon matPrefix>warning</mat-icon>
+  </mat-form-field>
+
+  <button mat-raised-button color="primary"
+          class="filter-btn"
+          (click)="appliquerFiltres()">
+    <mat-icon>filter_list</mat-icon>
+    Filtrer
+  </button>
+
+  <button mat-stroked-button
+          class="reset-btn"
+          (click)="reinitialiserFiltres()">
+    <mat-icon>refresh</mat-icon>
+    Réinitialiser
+  </button>
+</div>
+
 <!-- Contenu principal -->
 <div class="dashboard-container" *ngIf="!loading && stats">
 
