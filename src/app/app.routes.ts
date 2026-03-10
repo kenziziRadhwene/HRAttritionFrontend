@@ -46,10 +46,21 @@ export const routes: Routes = [
       import('./features/simulation/simulation-comparaison/simulation-comparaison.component')
         .then(m => m.SimulationComparaisonComponent)
   },
+  {
+    path: 'recommandations',
+    canActivate: [authGuard],
+    loadComponent: () =>
+      import('./features/recommandations/recommandations.component')
+        .then(m => m.RecommandationsComponent)
+  },
 
   // ─── Redirect inconnu ───
   {
     path: '**',
     redirectTo: 'dashboard'
   }
+
+
+
+
 ];

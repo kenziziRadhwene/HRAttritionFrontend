@@ -1,0 +1,125 @@
+<!-- Toolbar -->
+<mat-toolbar color="primary" class="toolbar">
+  <button mat-icon-button (click)="goBack()">
+    <mat-icon>arrow_back</mat-icon>
+  </button>
+  <span class="logo">Ooredoo</span>
+  <span class="separator">|</span>
+  <span class="page-title">Recommandations Préventives</span>
+  <span class="spacer"></span>
+  <span class="count-badge" *ngIf="scores.length > 0">
+    {{ scores.length }} employé(s) à risque
+  </span>
+</mat-toolbar>
+
+<div class="container" *ngIf="!loading">
+
+  <!-- Empty state -->
+  <div class="empty-state" *ngIf="scores.length === 0">
+    <mat-icon>check_circle</mat-icon>
+    <h2>Aucun employé à risque</h2>
+    <p>Tous les employés ont un niveau de risque faible.</p>
+  </div>
+
+  <!-- Carte par employé -->
+  <div class="employee-card-wrapper" *ngFor="let score of scores">
+    <mat-card class="employee-card"
+              [class.eleve]="score.niveauRisque === 'ÉLEVÉ'"
+              [class.moyen]="score.niveauRisque === 'MOYEN'">
+
+      <!-- En-tête employé -->
+      <mat-card-header>
+        <div class="avatar" mat-card-avatar
+             [class.avatar-eleve]="score.niveauRisque === 'ÉLEVÉ'"
+             [class.avatar-moyen]="score.niveauRisque === 'MOYEN'">
+          {{ score.employeeNom.split(' ')[0][0] }}{{ score.employeeNom.split(' ')[1][0] }}
+        </div>
+        <mat-card-title>{{ score.employeeNom }}</mat-card-title>
+        <mat-card-subtitle>
+          {{ score.employeeMatricule }} —
+          {{ score.dateCalcul | date:'dd/MM/yyyy HH:mm' }}
+        </mat-card-subtitle>
+        <div class="header-right">
+          <div class="prob-circle"
+               [class.prob-eleve]="score.niveauRisque === 'ÉLEVÉ'"
+               [class.prob-moyen]="score.niveauRisque === 'MOYEN'">
+            {{ score.probabilite * 100 | number:'1.1-1' }}%
+          </div>
+          <mat-chip [color]="getRisqueColor(score.niveauRisque)" highlighted>
+            {{ score.niveauRisque }}
+          </mat-chip>
+        </div>
+      </mat-card-header>
+
+      <mat-card-content>
+        <mat-accordion>
+
+          <!-- Facteurs de risque -->
+          <mat-expansion-panel>
+            <mat-expansion-panel-header>
+              <mat-panel-title>
+                <mat-icon>analytics</mat-icon>
+                Facteurs de Risque (SHAP)
+              </mat-panel-title>
+              <mat-panel-description>
+                {{ getFacteurs(score).length }} facteurs identifiés
+              </mat-panel-description>
+            </mat-expansion-panel-header>
+
+            <div class="facteurs-list">
+              <div class="facteur-item"
+                   *ngFor="let f of getFacteurs(score)">
+                <div class="facteur-header">
+                  <mat-icon [style.color]="getShapColor(f.impact)">
+                    {{ getShapIcon(f.impact) }}
+                  </mat-icon>
+                  <span class="facteur-name">{{ f.feature }}</span>
+                  <span class="facteur-value"
+                        [style.color]="getShapColor(f.impact)">
+                    {{ f.shap_value > 0 ? '+' : '' }}{{ f.shap_value | number:'1.2-2' }}
+                  </span>
+                </div>
+                <mat-progress-bar
+                  mode="determinate"
+                  [value]="getShapWidth(f.shap_value)"
+                  [color]="f.impact === 'AUGMENTE' ? 'warn' : 'primary'">
+                </mat-progress-bar>
+              </div>
+            </div>
+          </mat-expansion-panel>
+
+          <!-- Recommandations -->
+          <mat-expansion-panel [expanded]="true">
+            <mat-expansion-panel-header>
+              <mat-panel-title>
+                <mat-icon>lightbulb</mat-icon>
+                Actions Préventives Recommandées
+              </mat-panel-title>
+              <mat-panel-description>
+                {{ getRecommandationsList(score).length }} actions suggérées
+              </mat-panel-description>
+            </mat-expansion-panel-header>
+
+            <div class="recommandations-list">
+              <div class="recommandation-item"
+                   *ngFor="let rec of getRecommandationsList(score); let i = index">
+                <div class="rec-number">{{ i + 1 }}</div>
+                <span class="rec-text">{{ rec }}</span>
+              </div>
+            </div>
+
+          </mat-expansion-panel>
+
+        </mat-accordion>
+      </mat-card-content>
+
+    </mat-card>
+  </div>
+
+</div>
+
+<!-- Loading -->
+<div class="loading-container" *ngIf="loading">
+  <mat-icon class="loading-icon">hourglass_empty</mat-icon>
+  <p>Chargement des recommandations...</p>
+</div>
