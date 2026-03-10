@@ -1,0 +1,68 @@
+<div class="login-container">
+  <mat-card class="login-card">
+
+    <!-- Logo Ooredoo -->
+    <div class="login-header">
+      <div class="logo-container">
+        <span class="logo-text">Ooredoo</span>
+      </div>
+      <h1 class="app-title">HR Attrition Predictor</h1>
+      <p class="app-subtitle">Système Intelligent de Prédiction du Turnover</p>
+    </div>
+
+    <mat-card-content>
+
+      <!-- Message d'erreur -->
+      <div class="error-message" *ngIf="errorMessage">
+        <mat-icon>error_outline</mat-icon>
+        <span>{{ errorMessage }}</span>
+      </div>
+
+      <!-- Formulaire -->
+      <div class="login-form">
+
+        <mat-form-field appearance="outline" class="full-width">
+          <mat-label>Adresse Email</mat-label>
+          <input matInput
+                 type="email"
+                 [(ngModel)]="email"
+                 placeholder="exemple@ooredoo.tn"
+                 [disabled]="loading"/>
+          <mat-icon matPrefix>email</mat-icon>
+        </mat-form-field>
+
+        <mat-form-field appearance="outline" class="full-width">
+          <mat-label>Mot de passe</mat-label>
+          <input matInput
+                 [type]="hidePassword ? 'password' : 'text'"
+                 [(ngModel)]="motDePasse"
+                 placeholder="••••••••"
+                 [disabled]="loading"/>
+          <mat-icon matPrefix>lock</mat-icon>
+          <button mat-icon-button matSuffix
+                  (click)="hidePassword = !hidePassword"
+                  type="button">
+            <mat-icon>{{ hidePassword ? 'visibility_off' : 'visibility' }}</mat-icon>
+          </button>
+        </mat-form-field>
+
+        <!-- Bouton Login -->
+        <button mat-raised-button
+                color="primary"
+                class="login-btn"
+                (click)="onLogin()"
+                [disabled]="loading">
+          <mat-spinner diameter="20" *ngIf="loading"></mat-spinner>
+          <mat-icon *ngIf="!loading">login</mat-icon>
+          <span>{{ loading ? 'Connexion...' : 'Se connecter' }}</span>
+        </button>
+
+      </div>
+    </mat-card-content>
+
+    <mat-card-footer class="login-footer">
+      <p>© 2026 Ooredoo Tunisie — HR Attrition Predictor</p>
+    </mat-card-footer>
+
+  </mat-card>
+</div>

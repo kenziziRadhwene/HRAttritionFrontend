@@ -1,0 +1,174 @@
+<!-- Toolbar -->
+<mat-toolbar color="primary" class="toolbar">
+  <div class="toolbar-left">
+    <span class="logo">Ooredoo</span>
+    <span class="separator">|</span>
+    <span class="app-name">HR Attrition Predictor</span>
+  </div>
+  <div class="toolbar-right">
+    <button mat-icon-button (click)="navigateTo('/employees')">
+      <mat-icon>people</mat-icon>
+    </button>
+    <button mat-icon-button (click)="navigateTo('/alertes')"
+            [matBadge]="stats?.alertesNonLues"
+            matBadgeColor="warn"
+            [matBadgeHidden]="!stats?.alertesNonLues">
+      <mat-icon>notifications</mat-icon>
+    </button>
+    <button mat-icon-button (click)="navigateTo('/simulation')">
+      <mat-icon>science</mat-icon>
+    </button>
+    <button mat-icon-button (click)="logout()">
+      <mat-icon>logout</mat-icon>
+    </button>
+  </div>
+</mat-toolbar>
+
+<!-- Contenu principal -->
+<div class="dashboard-container" *ngIf="!loading && stats">
+
+  <!-- KPI Cards -->
+  <div class="kpi-grid">
+
+    <mat-card class="kpi-card kpi-total">
+      <mat-card-content>
+        <div class="kpi-content">
+          <div class="kpi-info">
+            <span class="kpi-value">{{ stats.totalActifs }}</span>
+            <span class="kpi-label">Employés Actifs</span>
+          </div>
+          <mat-icon class="kpi-icon">people</mat-icon>
+        </div>
+      </mat-card-content>
+    </mat-card>
+
+    <mat-card class="kpi-card kpi-risque">
+      <mat-card-content>
+        <div class="kpi-content">
+          <div class="kpi-info">
+            <span class="kpi-value">{{ stats.risqueEleve }}</span>
+            <span class="kpi-label">Risque Élevé</span>
+          </div>
+          <mat-icon class="kpi-icon">dangerous</mat-icon>
+        </div>
+        <mat-progress-bar mode="determinate"
+                          [value]="stats.tauxRisqueEleve"
+                          color="warn">
+        </mat-progress-bar>
+        <span class="kpi-percent">{{ stats.tauxRisqueEleve | number:'1.1-1' }}%</span>
+      </mat-card-content>
+    </mat-card>
+
+    <mat-card class="kpi-card kpi-alertes">
+      <mat-card-content>
+        <div class="kpi-content">
+          <div class="kpi-info">
+            <span class="kpi-value">{{ stats.alertesNonLues }}</span>
+            <span class="kpi-label">Alertes Non Lues</span>
+          </div>
+          <mat-icon class="kpi-icon">notifications_active</mat-icon>
+        </div>
+      </mat-card-content>
+    </mat-card>
+
+    <mat-card class="kpi-card kpi-predictions">
+      <mat-card-content>
+        <div class="kpi-content">
+          <div class="kpi-info">
+            <span class="kpi-value">{{ stats.totalPredictions }}</span>
+            <span class="kpi-label">Prédictions ML</span>
+          </div>
+          <mat-icon class="kpi-icon">psychology</mat-icon>
+        </div>
+      </mat-card-content>
+    </mat-card>
+
+  </div>
+
+  <!-- Top 5 Employés à Risque -->
+  <mat-card class="table-card">
+    <mat-card-header>
+      <mat-card-title>
+        <mat-icon>warning</mat-icon>
+        Top 5 Employés les Plus à Risque
+      </mat-card-title>
+    </mat-card-header>
+    <mat-card-content>
+      <table mat-table [dataSource]="stats.top5Risque" class="risk-table">
+
+        <ng-container matColumnDef="nom">
+          <th mat-header-cell *matHeaderCellDef>Employé</th>
+          <td mat-cell *matCellDef="let e">
+            <div class="employee-cell">
+              <mat-icon>person</mat-icon>
+              <span>{{ e.nom }}</span>
+            </div>
+          </td>
+        </ng-container>
+
+        <ng-container matColumnDef="matricule">
+          <th mat-header-cell *matHeaderCellDef>Matricule</th>
+          <td mat-cell *matCellDef="let e">{{ e.matricule }}</td>
+        </ng-container>
+
+        <ng-container matColumnDef="departement">
+          <th mat-header-cell *matHeaderCellDef>Département</th>
+          <td mat-cell *matCellDef="let e">{{ e.departement }}</td>
+        </ng-container>
+
+        <ng-container matColumnDef="probabilite">
+          <th mat-header-cell *matHeaderCellDef>Probabilité</th>
+          <td mat-cell *matCellDef="let e">
+            <mat-progress-bar mode="determinate"
+                              [value]="e.probabilite * 100"
+                              color="warn">
+            </mat-progress-bar>
+            <span>{{ e.probabilite * 100 | number:'1.1-1' }}%</span>
+          </td>
+        </ng-container>
+
+        <ng-container matColumnDef="niveauRisque">
+          <th mat-header-cell *matHeaderCellDef>Niveau</th>
+          <td mat-cell *matCellDef="let e">
+            <mat-chip [color]="getRisqueColor(e.niveauRisque)" highlighted>
+              <mat-icon matChipAvatar>{{ getRisqueIcon(e.niveauRisque) }}</mat-icon>
+              {{ e.niveauRisque }}
+            </mat-chip>
+          </td>
+        </ng-container>
+
+        <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
+        <tr mat-row *matRowDef="let row; columns: displayedColumns;"></tr>
+      </table>
+    </mat-card-content>
+  </mat-card>
+
+  <!-- Répartition par département -->
+  <mat-card class="dept-card">
+    <mat-card-header>
+      <mat-card-title>
+        <mat-icon>business</mat-icon>
+        Répartition par Département
+      </mat-card-title>
+    </mat-card-header>
+    <mat-card-content>
+      <div class="dept-list">
+        <div class="dept-item"
+             *ngFor="let dept of stats.repartitionDepartement | keyvalue">
+          <span class="dept-name">{{ dept.key }}</span>
+          <mat-progress-bar mode="determinate"
+                            [value]="(dept.value / stats.totalActifs) * 100">
+          </mat-progress-bar>
+          <span class="dept-count">{{ dept.value }}</span>
+        </div>
+      </div>
+    </mat-card-content>
+  </mat-card>
+
+</div>
+
+<!-- Loading -->
+<div class="loading-container" *ngIf="loading">
+  <mat-icon class="loading-icon">hourglass_empty</mat-icon>
+  <p>Chargement du dashboard...</p>
+</div>
