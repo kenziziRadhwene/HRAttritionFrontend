@@ -46,6 +46,12 @@
             matTooltip="Vue Équipe">
       <mat-icon>groups</mat-icon>
     </button>
+    <button mat-icon-button
+            *ngIf="isAdmin"
+            (click)="navigateTo('/users')"
+            matTooltip="Gestion Utilisateurs">
+      <mat-icon>manage_accounts</mat-icon>
+    </button>
 
     <button mat-icon-button (click)="logout()" matTooltip="Déconnexion">
       <mat-icon>logout</mat-icon>

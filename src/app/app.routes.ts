@@ -58,6 +58,15 @@ export const routes: Routes = [
         .then(m => m.TeamViewComponent)
   },
 
+
+  {
+    path: 'users',
+    canActivate: [roleGuard(['ROLE_ADMIN'])],
+    loadComponent: () =>
+      import('./features/users/users.component')
+        .then(m => m.UsersComponent)
+  },
+
   // ─── Unauthorized ───
   {
     path: 'unauthorized',
