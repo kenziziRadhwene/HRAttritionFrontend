@@ -1,0 +1,92 @@
+<div class="app-layout">
+
+  <!-- Sidebar (copie de celle du dashboard) -->
+  <aside class="sidebar">
+    <div class="sidebar-brand">
+      <div class="brand-logo">
+        <span class="brand-name">ooredoo</span>
+      </div>
+      <span class="brand-subtitle">HR Attrition Predictor</span>
+    </div>
+
+    <mat-divider class="brand-divider"></mat-divider>
+
+    <nav class="sidebar-nav">
+      <p class="nav-section-title">Tableau de bord</p>
+      <button class="nav-item" [class.active]="isActive('/dashboard')" (click)="navigateTo('/dashboard')">
+        <mat-icon>dashboard</mat-icon>
+        <span>Dashboard</span>
+      </button>
+
+      <ng-container *ngIf="isAdmin || isRH">
+        <p class="nav-section-title">Gestion RH</p>
+        <button class="nav-item" [class.active]="isActive('/employees')" (click)="navigateTo('/employees')">
+          <mat-icon>people</mat-icon>
+          <span>Employés</span>
+        </button>
+        <button class="nav-item" [class.active]="isActive('/alertes')" (click)="navigateTo('/alertes')">
+          <mat-icon>notifications</mat-icon>
+          <span>Alertes</span>
+        </button>
+        <button class="nav-item" [class.active]="isActive('/simulation')" (click)="navigateTo('/simulation')">
+          <mat-icon>science</mat-icon>
+          <span>Simulation ML</span>
+        </button>
+      </ng-container>
+
+      <p class="nav-section-title">Analyse</p>
+      <button class="nav-item" [class.active]="isActive('/recommandations')" (click)="navigateTo('/recommandations')">
+        <mat-icon>lightbulb</mat-icon>
+        <span>Recommandations</span>
+      </button>
+
+      <ng-container *ngIf="isAdmin || isManager">
+        <p class="nav-section-title">Équipe</p>
+        <button class="nav-item" [class.active]="isActive('/team')" (click)="navigateTo('/team')">
+          <mat-icon>groups</mat-icon>
+          <span>Vue Équipe</span>
+        </button>
+      </ng-container>
+
+      <ng-container *ngIf="isAdmin">
+        <p class="nav-section-title">Administration</p>
+        <button class="nav-item" [class.active]="isActive('/users')" (click)="navigateTo('/users')">
+          <mat-icon>manage_accounts</mat-icon>
+          <span>Gestion Utilisateurs</span>
+        </button>
+      </ng-container>
+    </nav>
+
+    <div class="sidebar-footer">
+      <mat-divider></mat-divider>
+      <button class="nav-item nav-logout" (click)="logout()">
+        <mat-icon>logout</mat-icon>
+        <span>Déconnexion</span>
+      </button>
+    </div>
+  </aside>
+
+  <!-- Main content -->
+  <div class="main-content">
+    <mat-toolbar class="toolbar">
+      <div class="toolbar-left">
+        <mat-icon class="toolbar-icon">{{ currentIcon }}</mat-icon>
+        <span class="toolbar-title">{{ currentPageTitle }}</span>
+      </div>
+      <div class="toolbar-right">
+        <span class="toolbar-user">
+          <mat-icon>account_circle</mat-icon>
+          {{ currentUser }}
+        </span>
+        <button mat-icon-button (click)="logout()" matTooltip="Déconnexion">
+          <mat-icon>logout</mat-icon>
+        </button>
+      </div>
+    </mat-toolbar>
+
+    <div class="page-content">
+      <router-outlet></router-outlet>
+    </div>
+  </div>
+
+</div>

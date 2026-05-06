@@ -8,9 +8,11 @@ import { Employee } from '../../shared/models/employee.model';
 export class EmployeeService {
 
   private apiUrl = `${environment.apiUrl}/employees`;
+  private scoresUrl = `${environment.apiUrl}/scores`; // ⭐ Ajouté
 
   constructor(private http: HttpClient) {}
 
+  // Employees
   getAll(): Observable<Employee[]> {
     return this.http.get<Employee[]>(this.apiUrl);
   }
@@ -38,4 +40,40 @@ export class EmployeeService {
   getByDepartment(department: string): Observable<Employee[]> {
     return this.http.get<Employee[]>(`${this.apiUrl}/by-department/${department}`);
   }
+
+  // ⭐ Scores / Historique
+  getScoreHistory(employeeId: number): Observable<any[]> {
+    return this.http.get<any[]>(`${this.scoresUrl}/employee/${employeeId}`);
+  }
+
+  getLatestScore(employeeId: number): Observable<any> {
+    return this.http.get<any>(`${this.scoresUrl}/employee/${employeeId}/latest`);
+  }
+
+  getRecommendations(): Observable<any[]> {
+    return this.http.get<any[]>(`${this.scoresUrl}/recommandations`);
+  }
+
+  getRecommendationsForEmployee(employeeId: number): Observable<any> {
+    return this.http.get<any>(`${environment.apiUrl}/recommendations/employee/${employeeId}`);
+  }
+
+
+  // ⭐ Prédiction batch (tous les employés)
+  predictAll(): Observable<any> {
+    return this.http.post<any>(`${environment.apiUrl}/batch-predictions/all`, {});
+  }
+
+// ⭐ Prédiction batch par département
+  predictByDepartment(department: string): Observable<any> {
+    return this.http.post<any>(`${environment.apiUrl}/batch-predictions/department/${department}`, {});
+  }
+
+// ⭐ Vérifier le statut du batch
+  getBatchStatus(): Observable<any> {
+    return this.http.get<any>(`${environment.apiUrl}/batch-predictions/status`);
+  }
+
+
+
 }

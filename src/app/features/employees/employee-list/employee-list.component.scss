@@ -1,142 +1,263 @@
 .toolbar {
-  background: linear-gradient(135deg, #c62828, #880e0e) !important;
-
-  .logo {
-    font-size: 18px;
-    font-weight: 900;
-    letter-spacing: 2px;
-    margin-left: 8px;
+  .spacer {
+    flex: 1 1 auto;
   }
 
-  .separator { opacity: 0.5; margin: 0 8px; }
-
-  .page-title { font-size: 15px; opacity: 0.9; }
-
-  .spacer { flex: 1; }
-
   .employee-count {
-    font-size: 13px;
-    opacity: 0.8;
-    background: rgba(255,255,255,0.2);
-    padding: 4px 12px;
-    border-radius: 20px;
+    margin-left: 16px;
+    font-size: 14px;
+    opacity: 0.9;
+  }
+
+  button[color="accent"] {
+    margin-right: 16px;
   }
 }
 
 .container {
   padding: 24px;
-  background: #f5f5f5;
-  min-height: calc(100vh - 64px);
+  max-width: 1400px;
+  margin: 0 auto;
 }
 
-.search-card {
-  border-radius: 12px !important;
-  margin-bottom: 20px;
+.filters-card {
+  margin-bottom: 24px;
 
-  .search-bar {
+  .filters-row {
     display: flex;
     gap: 16px;
+    flex-wrap: wrap;
     align-items: center;
-  }
 
-  .search-field {
-    flex: 1;
+    .filter-field {
+      flex: 1;
+      min-width: 200px;
+    }
   }
 }
+
+// ═══════════════════════════════════════════
+// STYLE TABLEAU (IDENTIQUE AU DASHBOARD TOP 5)
+// ═══════════════════════════════════════════
 
 .table-card {
-  border-radius: 12px !important;
+  border-radius: 10px !important;
+  box-shadow: 0 1px 6px rgba(0,0,0,0.07) !important;
+  background-color: #FFFFFF !important;
+  overflow-x: auto;
+
+  mat-card-header {
+    justify-content: center !important;
+    text-align: center !important;
+  }
+
+  mat-card-title {
+    justify-content: center !important;
+    text-align: center !important;
+    width: 100% !important;
+    color: #000000 !important;
+    font-size: 16px !important;
+    font-weight: 700 !important;
+  }
 }
 
-.employee-table {
+.risk-table {
+  background-color: #FFFFFF !important;
   width: 100%;
 
-  .employee-cell {
+  // En-tête rouge Ooredoo
+  .mat-mdc-header-row {
+    background-color: #D40000 !important;
+  }
+
+  .mat-mdc-header-cell {
+    background-color: #D40000 !important;
+    color: #FFFFFF !important;
+    font-weight: 700 !important;
+    font-size: 12px !important;
+    text-transform: uppercase !important;
+    letter-spacing: 0.5px !important;
+    border-bottom-color: #AA0000 !important;
+    border-bottom-width: 2px !important;
+    border-bottom-style: solid !important;
+  }
+
+  // Cellules
+  .mat-mdc-cell {
+    border-bottom-color: #E0E0E0 !important;
+    border-bottom-width: 1px !important;
+    border-bottom-style: solid !important;
+  }
+
+  // Dernière ligne sans bordure
+  .mat-mdc-row:last-child .mat-mdc-cell {
+    border-bottom-color: transparent !important;
+    border-bottom-width: 0px !important;
+  }
+
+  // Hover sur les lignes
+  .employee-row {
+    cursor: pointer;
+    transition: background-color 0.2s;
+
+    &:hover {
+      background-color: #FFF0F0 !important;
+    }
+  }
+}
+
+// Style des chips (identique dashboard)
+.risk-table .mat-mdc-chip {
+  width: 80px !important;
+  min-width: 80px !important;
+  max-width: 80px !important;
+  justify-content: center !important;
+  text-align: center !important;
+  display: inline-flex !important;
+  box-shadow: none !important;
+
+  &.mat-warn {
+    background-color: #ffebee !important;
+    color: #c62828 !important;
+  }
+
+  &.mat-accent {
+    background-color: #fff3e0 !important;
+    color: #ef6c00 !important;
+  }
+
+  &.mat-primary {
+    background-color: #e8f5e9 !important;
+    color: #2e7d32 !important;
+  }
+}
+
+// Badge matricule
+.matricule-badge {
+  background: #f0f0f0;
+  color: #494848;
+  padding: 4px 8px;
+  border-radius: 5px;
+  font-size: 12px;
+  font-weight: 600;
+  font-family: monospace;
+}
+
+// Cellule employé
+.employee-cell {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+
+  .avatar {
+    width: 36px;
+    height: 36px;
+    border-radius: 50%;
+    background: #FFF0F0;
+    color: #D40000;
+    font-weight: 700;
+    font-size: 14px;
     display: flex;
     align-items: center;
-    gap: 12px;
-    padding: 8px 0;
-
-    .avatar {
-      width: 36px;
-      height: 36px;
-      border-radius: 50%;
-      background: linear-gradient(135deg, #c62828, #880e0e);
-      color: white;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      font-size: 12px;
-      font-weight: 700;
-      flex-shrink: 0;
-    }
-
-    .emp-name {
-      font-weight: 600;
-      font-size: 14px;
-    }
-
-    .emp-email {
-      font-size: 12px;
-      color: #888;
-    }
+    justify-content: center;
+    border: 1px solid rgba(212, 0, 0, 0.2);
+    text-transform: uppercase;
   }
 
-  .dept-badge {
-    background: #e3f2fd;
-    color: #1565c0;
-    padding: 4px 10px;
-    border-radius: 20px;
-    font-size: 11px;
+  .emp-name {
     font-weight: 500;
+    color: #000000;
   }
 
-  .no-score {
-    color: #bbb;
-    font-size: 12px;
-    font-style: italic;
-  }
-
-  .prob-cell {
-    display: flex;
-    flex-direction: column;
-    gap: 4px;
-    min-width: 120px;
-
-    span {
-      font-size: 12px;
-      color: #555;
-    }
+  .emp-email {
+    font-size: 11px;
+    color: #888888;
   }
 }
 
-.empty-state {
+// Badge département
+.dept-badge {
+  background: #ffffff;
+  padding: 4px 10px;
+  border-radius: 16px;
+  font-size: 12px;
+  color: #494848;
+  font-weight: 500;
+}
+
+// Cellule probabilité
+.prob-cell {
   display: flex;
-  flex-direction: column;
   align-items: center;
+  gap: 12px;
+  min-width: 100px;
+
+  mat-progress-bar {
+    flex: 1;
+    height: 6px;
+    border-radius: 3px;
+  }
+
+  span {
+    min-width: 45px;
+    font-size: 12px;
+    font-weight: 600;
+    color: #494848;
+  }
+}
+
+.no-score {
+  color: #888888;
+  font-style: italic;
+  font-size: 12px;
+}
+
+// Empty state
+.empty-state {
+  text-align: center;
   padding: 48px;
-  color: #bbb;
 
   mat-icon {
-    font-size: 48px;
-    width: 48px;
-    height: 48px;
-    margin-bottom: 16px;
+    font-size: 64px;
+    width: 64px;
+    height: 64px;
+    color: #ccc;
+  }
+
+  p {
+    margin: 16px 0;
+    color: #666;
   }
 }
 
+// Loading
 .loading-container {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(255, 255, 255, 0.9);
   display: flex;
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  height: calc(100vh - 64px);
-  gap: 16px;
-  color: #888;
+  z-index: 1000;
 
   .loading-icon {
     font-size: 48px;
-    width: 48px;
-    height: 48px;
+    animation: spin 1s linear infinite;
   }
+}
+
+@keyframes spin {
+  from { transform: rotate(0deg); }
+  to { transform: rotate(360deg); }
+}
+
+
+.prob-value {
+  font-weight: 600;
+  color: #494848;
+  font-size: 14px;
 }

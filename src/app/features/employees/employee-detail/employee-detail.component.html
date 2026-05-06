@@ -1,0 +1,177 @@
+<!-- Toolbar -->
+<mat-toolbar color="primary" class="toolbar">
+  <button mat-icon-button (click)="goBack()">
+    <mat-icon>arrow_back</mat-icon>
+  </button>
+  <span class="logo">Ooredoo</span>
+  <span class="separator">|</span>
+  <span class="page-title">Fiche Employé</span>
+  <span class="spacer"></span>
+</mat-toolbar>
+
+<div class="container" *ngIf="!loading && employee">
+
+  <!-- Bloc 1 — Identité -->
+  <mat-card class="identity-card">
+    <mat-card-content>
+      <div class="identity-header">
+        <div class="avatar-large">
+          {{ employee.firstName[0] }}{{ employee.lastName[0] }}
+        </div>
+        <div class="identity-info">
+          <h1>{{ employee.firstName }} {{ employee.lastName }}</h1>
+          <div class="badge-group">
+            <mat-chip>Matricule: {{ employee.matricule }}</mat-chip>
+            <mat-chip>{{ employee.department }}</mat-chip>
+            <mat-chip>{{ employee.jobRole }}</mat-chip>
+          </div>
+          <div class="details-grid">
+            <div><strong>Email:</strong> {{ employee.email }}</div>
+            <div><strong>Âge:</strong> {{ employee.age }} ans</div>
+            <div><strong>Ancienneté:</strong> {{ employee.yearsAtCompany }} ans</div>
+            <div><strong>Dernière augmentation:</strong> {{ employee.percentSalaryHike }}%</div>
+          </div>
+        </div>
+      </div>
+    </mat-card-content>
+  </mat-card>
+
+  <!-- Bloc 2 — Score actuel -->
+  <mat-card class="score-card">
+    <mat-card-header>
+      <mat-icon mat-card-avatar>trending_up</mat-icon>
+      <mat-card-title>Score de risque actuel</mat-card-title>
+    </mat-card-header>
+    <mat-card-content>
+      <div class="score-container">
+        <div class="gauge">
+          <div class="gauge-value">
+            <span class="score-number">{{ (employee.derniereProbabilite || 0) * 100 | number:'1.0-0' }}%</span>
+            <mat-chip [color]="getRiskColor(getRiskLevel(employee.derniereProbabilite))" highlighted>
+              <mat-icon>{{ getRiskIcon(getRiskLevel(employee.derniereProbabilite)) }}</mat-icon>
+              {{ getRiskLevel(employee.derniereProbabilite) }}
+            </mat-chip>
+          </div>
+          <mat-progress-bar
+            mode="determinate"
+            [value]="(employee.derniereProbabilite || 0) * 100"
+            [color]="getRiskColor(getRiskLevel(employee.derniereProbabilite))">
+          </mat-progress-bar>
+          <p class="risk-explanation">
+            <span *ngIf="getRiskLevel(employee.derniereProbabilite) === 'ÉLEVÉ'">
+              ⚠️ Risque <strong>élevé</strong> de départ dans les 6 prochains mois. Action recommandée.
+            </span>
+            <span *ngIf="getRiskLevel(employee.derniereProbabilite) === 'MOYEN'">
+              🟠 Risque <strong>moyen</strong>. Une attention régulière est conseillée.
+            </span>
+            <span *ngIf="getRiskLevel(employee.derniereProbabilite) === 'FAIBLE'">
+              🟢 Risque <strong>faible</strong>. Situation stable.
+            </span>
+          </p>
+        </div>
+      </div>
+    </mat-card-content>
+  </mat-card>
+
+  <!-- Bloc 3 — Historique scores (TABLEAU) -->
+  <mat-card class="history-card">
+    <mat-card-header>
+      <mat-icon mat-card-avatar>history</mat-icon>
+      <mat-card-title>Historique des scores</mat-card-title>
+    </mat-card-header>
+    <mat-card-content>
+      <div class="table-container">
+        <table mat-table [dataSource]="historiqueDataSource" class="history-table">
+
+          <!-- Date -->
+          <ng-container matColumnDef="date">
+            <th mat-header-cell *matHeaderCellDef>Date</th>
+            <td mat-cell *matCellDef="let score">
+              {{ formatDate(score.dateCalcul) }}
+            </td>
+          </ng-container>
+
+          <!-- Probabilité -->
+          <ng-container matColumnDef="probabilite">
+            <th mat-header-cell *matHeaderCellDef>Probabilité</th>
+            <td mat-cell *matCellDef="let score">
+              <div class="prob-cell">
+                <mat-progress-bar
+                  mode="determinate"
+                  [value]="score.probabilite * 100"
+                  [color]="getRiskColor(getRiskLevel(score.probabilite))">
+                </mat-progress-bar>
+                <span>{{ score.probabilite * 100 | number:'1.0-0' }}%</span>
+              </div>
+            </td>
+          </ng-container>
+
+          <!-- Niveau risque -->
+          <ng-container matColumnDef="niveauRisque">
+            <th mat-header-cell *matHeaderCellDef>Niveau risque</th>
+            <td mat-cell *matCellDef="let score">
+              <mat-chip [color]="getRiskColor(score.niveauRisque)" highlighted>
+                <mat-icon>{{ getRiskIcon(score.niveauRisque) }}</mat-icon>
+                {{ score.niveauRisque }}
+              </mat-chip>
+            </td>
+          </ng-container>
+
+          <tr mat-header-row *matHeaderRowDef="displayedColumnsHistory"></tr>
+          <tr mat-row *matRowDef="let row; columns: displayedColumnsHistory;"></tr>
+        </table>
+
+        <div *ngIf="historiqueScores.length === 0" class="empty-history">
+          <mat-icon>history</mat-icon>
+          <p>Aucun historique disponible</p>
+          <button mat-stroked-button color="primary" (click)="launchPrediction()">
+            Lancer une première prédiction
+          </button>
+        </div>
+      </div>
+    </mat-card-content>
+  </mat-card>
+
+  <!-- Bloc 4 — Recommandations -->
+  <mat-card class="recommendations-card">
+    <mat-card-header>
+      <mat-icon mat-card-avatar>lightbulb</mat-icon>
+      <mat-card-title>Recommandations préventives</mat-card-title>
+    </mat-card-header>
+    <mat-card-content>
+      <ul class="recommendations-list">
+        <li *ngFor="let rec of recommandations">{{ rec }}</li>
+      </ul>
+      <button mat-stroked-button color="primary" (click)="viewAllRecommendations()">
+        Voir toutes les recommandations
+      </button>
+    </mat-card-content>
+  </mat-card>
+
+  <!-- Bloc 5 — Actions -->
+  <mat-card class="actions-card">
+    <mat-card-header>
+      <mat-icon mat-card-avatar>build</mat-icon>
+      <mat-card-title>Actions RH</mat-card-title>
+    </mat-card-header>
+    <mat-card-content>
+      <div class="actions-buttons">
+        <button mat-raised-button color="primary" (click)="goToSimulation()">
+          <mat-icon>timeline</mat-icon>
+          Simuler une décision RH
+        </button>
+        <button mat-raised-button color="accent" (click)="launchPrediction()">
+          <mat-icon>psychology</mat-icon>
+          Lancer une prédiction ML
+        </button>
+      </div>
+    </mat-card-content>
+  </mat-card>
+
+</div>
+
+<!-- Loading -->
+<div class="loading-container" *ngIf="loading">
+  <mat-icon class="loading-icon">hourglass_empty</mat-icon>
+  <p>Chargement...</p>
+</div>

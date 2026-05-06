@@ -1,0 +1,175 @@
+.toolbar {
+  .spacer {
+    flex: 1 1 auto;
+  }
+}
+
+.container {
+  padding: 24px;
+  max-width: 1200px;
+  margin: 0 auto;
+}
+
+mat-card {
+  margin-bottom: 24px;
+}
+
+// Bloc identité
+.identity-card {
+  .identity-header {
+    display: flex;
+    gap: 24px;
+    flex-wrap: wrap;
+
+    .avatar-large {
+      width: 100px;
+      height: 100px;
+      border-radius: 50%;
+      background: linear-gradient(135deg, #c62828, #880e0e);
+      color: white;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 36px;
+      font-weight: bold;
+      text-transform: uppercase;
+    }
+
+    .identity-info {
+      flex: 1;
+
+      h1 {
+        margin: 0 0 12px 0;
+        font-size: 28px;
+      }
+
+      .badge-group {
+        display: flex;
+        gap: 8px;
+        flex-wrap: wrap;
+        margin-bottom: 16px;
+      }
+
+      .details-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+        gap: 12px;
+        font-size: 14px;
+      }
+    }
+  }
+}
+
+// Bloc score
+.score-card {
+  .score-container {
+    text-align: center;
+
+    .gauge {
+      max-width: 400px;
+      margin: 0 auto;
+
+      .gauge-value {
+        margin-bottom: 20px;
+
+        .score-number {
+          font-size: 48px;
+          font-weight: bold;
+          margin-right: 16px;
+        }
+      }
+
+      .risk-explanation {
+        margin-top: 20px;
+        font-size: 14px;
+        color: rgba(0, 0, 0, 0.7);
+      }
+    }
+  }
+}
+
+// Graphique
+.history-card {
+  .chart-container {
+    height: 350px;
+    position: relative;
+  }
+}
+
+// Alertes
+.alerts-card {
+  .alerts-table {
+    width: 100%;
+    border-collapse: collapse;
+
+    th, td {
+      padding: 12px;
+      text-align: left;
+      border-bottom: 1px solid #eee;
+    }
+
+    th {
+      font-weight: 600;
+      background: #f5f5f5;
+    }
+
+    .success-icon {
+      color: #4caf50;
+      font-size: 18px;
+      vertical-align: middle;
+      margin-right: 4px;
+    }
+  }
+}
+
+// Recommandations
+.recommendations-card {
+  .recommendations-list {
+    margin: 0 0 16px 0;
+    padding-left: 24px;
+
+    li {
+      margin: 8px 0;
+      color: rgba(0, 0, 0, 0.8);
+    }
+  }
+}
+
+// Actions
+.actions-card {
+  .actions-buttons {
+    display: flex;
+    gap: 16px;
+    flex-wrap: wrap;
+
+    button {
+      flex: 1;
+      min-width: 180px;
+    }
+  }
+}
+
+// Loading
+.loading-container {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(255, 255, 255, 0.9);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+
+  .loading-icon {
+    font-size: 48px;
+    animation: spin 1s linear infinite;
+  }
+}
+
+@keyframes spin {
+  from { transform: rotate(0deg); }
+  to { transform: rotate(360deg); }
+}
