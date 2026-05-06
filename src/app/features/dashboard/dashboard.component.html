@@ -1,245 +1,305 @@
-<!-- Toolbar -->
-<mat-toolbar color="primary" class="toolbar">
-  <div class="toolbar-left">
-    <span class="logo">Ooredoo</span>
-    <span class="separator">|</span>
-    <span class="app-name">HR Attrition Predictor</span>
-  </div>
-  <div class="toolbar-right">
+<!-- Layout principal -->
+<div class="app-layout">
 
-    <!-- Admin + RH uniquement -->
-    <button mat-icon-button
-            *ngIf="isAdmin || isRH"
-            (click)="navigateTo('/employees')"
-            matTooltip="Employés">
-      <mat-icon>people</mat-icon>
-    </button>
+  <!-- ═══════════════════════════════════════ -->
+  <!-- SIDEBAR GAUCHE                          -->
+  <!-- ═══════════════════════════════════════ -->
+  <aside class="sidebar">
 
-    <button mat-icon-button
-            *ngIf="isAdmin || isRH"
-            (click)="navigateTo('/alertes')"
-            matTooltip="Alertes"
+    <!-- Logo sidebar -->
+    <div class="sidebar-brand">
+      <span class="sidebar-logo">Ooredoo</span>
+      <span class="sidebar-subtitle">HR Attrition Predictor</span>
+    </div>
+
+    <mat-divider></mat-divider>
+
+    <!-- Navigation -->
+    <nav class="sidebar-nav">
+
+      <!-- Dashboard (toujours visible) -->
+      <div class="nav-section-title">Tableau de bord</div>
+      <button class="nav-item active">
+        <mat-icon>dashboard</mat-icon>
+        <span>Dashboard</span>
+      </button>
+
+      <!-- Section RH — Admin + RH -->
+      <ng-container *ngIf="isAdmin || isRH">
+        <div class="nav-section-title">Gestion RH</div>
+
+        <button class="nav-item"
+                (click)="navigateTo('/employees')">
+          <mat-icon>people</mat-icon>
+          <span>Employés</span>
+        </button>
+
+        <button class="nav-item"
+                (click)="navigateTo('/alertes')">
+          <mat-icon
             [matBadge]="stats?.alertesNonLues"
             matBadgeColor="warn"
             [matBadgeHidden]="!stats?.alertesNonLues">
-      <mat-icon>notifications</mat-icon>
-    </button>
+            notifications
+          </mat-icon>
+          <span>Alertes</span>
+          <span class="badge-count"
+                *ngIf="stats?.alertesNonLues">
+            {{ stats?.alertesNonLues }}
+          </span>
+        </button>
 
-    <button mat-icon-button
-            *ngIf="isAdmin || isRH"
-            (click)="navigateTo('/simulation')"
-            matTooltip="Simulation ML">
-      <mat-icon>science</mat-icon>
-    </button>
+        <button class="nav-item"
+                (click)="navigateTo('/simulation')">
+          <mat-icon>science</mat-icon>
+          <span>Simulation ML</span>
+        </button>
+      </ng-container>
 
-    <!-- Tous les rôles -->
-    <button mat-icon-button
-            (click)="navigateTo('/recommandations')"
-            matTooltip="Recommandations">
-      <mat-icon>lightbulb</mat-icon>
-    </button>
+      <!-- Section Analyse — tous rôles -->
+      <div class="nav-section-title">Analyse</div>
 
-    <!-- Admin + Manager -->
-    <button mat-icon-button
-            *ngIf="isAdmin || isManager"
-            (click)="navigateTo('/team')"
-            matTooltip="Vue Équipe">
-      <mat-icon>groups</mat-icon>
-    </button>
-    <button mat-icon-button
-            *ngIf="isAdmin"
-            (click)="navigateTo('/users')"
-            matTooltip="Gestion Utilisateurs">
-      <mat-icon>manage_accounts</mat-icon>
-    </button>
+      <button class="nav-item"
+              (click)="navigateTo('/recommandations')">
+        <mat-icon>lightbulb</mat-icon>
+        <span>Recommandations</span>
+      </button>
 
-    <button mat-icon-button (click)="logout()" matTooltip="Déconnexion">
-      <mat-icon>logout</mat-icon>
-    </button>
+      <!-- Section Équipe — Admin + Manager -->
+      <ng-container *ngIf="isAdmin || isManager">
+        <div class="nav-section-title">Équipe</div>
 
-  </div>
-</mat-toolbar>
+        <button class="nav-item"
+                (click)="navigateTo('/team')">
+          <mat-icon>groups</mat-icon>
+          <span>Vue Équipe</span>
+        </button>
+      </ng-container>
 
-<!-- Barre de filtres -->
-<div class="filters-bar">
-  <mat-form-field appearance="outline" class="filter-field">
-    <mat-label>Département</mat-label>
-    <mat-select [(ngModel)]="selectedDepartement">
-      <mat-option value="">Tous les départements</mat-option>
-      <mat-option *ngFor="let d of departements" [value]="d">{{ d }}</mat-option>
-    </mat-select>
-    <mat-icon matPrefix>business</mat-icon>
-  </mat-form-field>
+      <!-- Section Administration — Admin uniquement -->
+      <ng-container *ngIf="isAdmin">
+        <div class="nav-section-title">Administration</div>
 
-  <mat-form-field appearance="outline" class="filter-field">
-    <mat-label>Niveau de risque</mat-label>
-    <mat-select [(ngModel)]="selectedNiveauRisque">
-      <mat-option value="">Tous les niveaux</mat-option>
-      <mat-option *ngFor="let n of niveauxRisque" [value]="n">{{ n }}</mat-option>
-    </mat-select>
-    <mat-icon matPrefix>warning</mat-icon>
-  </mat-form-field>
+        <button class="nav-item"
+                (click)="navigateTo('/users')">
+          <mat-icon>manage_accounts</mat-icon>
+          <span>Gestion Utilisateurs</span>
+        </button>
+      </ng-container>
 
-  <button mat-raised-button color="primary"
-          class="filter-btn"
-          (click)="appliquerFiltres()">
-    <mat-icon>filter_list</mat-icon>
-    Filtrer
-  </button>
+    </nav>
 
-  <button mat-stroked-button
-          class="reset-btn"
-          (click)="reinitialiserFiltres()">
-    <mat-icon>refresh</mat-icon>
-    Réinitialiser
-  </button>
-</div>
+    <!-- Déconnexion en bas de sidebar -->
+    <div class="sidebar-footer">
+      <mat-divider></mat-divider>
+      <button class="nav-item logout-btn" (click)="logout()">
+        <mat-icon>logout</mat-icon>
+        <span>Déconnexion</span>
+      </button>
+    </div>
 
-<!-- Contenu principal -->
-<div class="dashboard-container" *ngIf="!loading && stats">
+  </aside>
 
-  <!-- KPI Cards -->
-  <div class="kpi-grid">
+  <!-- ═══════════════════════════════════════ -->
+  <!-- CONTENU PRINCIPAL                       -->
+  <!-- ═══════════════════════════════════════ -->
+  <div class="main-content">
 
-    <mat-card class="kpi-card kpi-total">
-      <mat-card-content>
-        <div class="kpi-content">
-          <div class="kpi-info">
-            <span class="kpi-value">{{ stats.totalActifs }}</span>
-            <span class="kpi-label">Employés Actifs</span>
-          </div>
-          <mat-icon class="kpi-icon">people</mat-icon>
-        </div>
-      </mat-card-content>
-    </mat-card>
+    <!-- Toolbar -->
+    <mat-toolbar color="primary" class="toolbar">
+      <div class="toolbar-left">
+        <span class="app-name">Tableau de Bord</span>
+      </div>
+      <div class="toolbar-right">
+        <button mat-icon-button (click)="logout()" matTooltip="Déconnexion">
+          <mat-icon>logout</mat-icon>
+        </button>
+      </div>
+    </mat-toolbar>
 
-    <mat-card class="kpi-card kpi-risque">
-      <mat-card-content>
-        <div class="kpi-content">
-          <div class="kpi-info">
-            <span class="kpi-value">{{ stats.risqueEleve }}</span>
-            <span class="kpi-label">Risque Élevé</span>
-          </div>
-          <mat-icon class="kpi-icon">dangerous</mat-icon>
-        </div>
-        <mat-progress-bar mode="determinate"
-                          [value]="stats.tauxRisqueEleve"
-                          color="warn">
-        </mat-progress-bar>
-        <span class="kpi-percent">{{ stats.tauxRisqueEleve | number:'1.1-1' }}%</span>
-      </mat-card-content>
-    </mat-card>
+    <!-- Barre de filtres -->
+    <div class="filters-bar">
+      <mat-form-field appearance="outline" class="filter-field">
+        <mat-label>Département</mat-label>
+        <mat-select [(ngModel)]="selectedDepartement">
+          <mat-option value="">Tous les départements</mat-option>
+          <mat-option *ngFor="let d of departements" [value]="d">{{ d }}</mat-option>
+        </mat-select>
+        <mat-icon matPrefix>business</mat-icon>
+      </mat-form-field>
 
-    <mat-card class="kpi-card kpi-alertes">
-      <mat-card-content>
-        <div class="kpi-content">
-          <div class="kpi-info">
-            <span class="kpi-value">{{ stats.alertesNonLues }}</span>
-            <span class="kpi-label">Alertes Non Lues</span>
-          </div>
-          <mat-icon class="kpi-icon">notifications_active</mat-icon>
-        </div>
-      </mat-card-content>
-    </mat-card>
+      <mat-form-field appearance="outline" class="filter-field">
+        <mat-label>Niveau de risque</mat-label>
+        <mat-select [(ngModel)]="selectedNiveauRisque">
+          <mat-option value="">Tous les niveaux</mat-option>
+          <mat-option *ngFor="let n of niveauxRisque" [value]="n">{{ n }}</mat-option>
+        </mat-select>
+        <mat-icon matPrefix>warning</mat-icon>
+      </mat-form-field>
 
-    <mat-card class="kpi-card kpi-predictions">
-      <mat-card-content>
-        <div class="kpi-content">
-          <div class="kpi-info">
-            <span class="kpi-value">{{ stats.totalPredictions }}</span>
-            <span class="kpi-label">Prédictions ML</span>
-          </div>
-          <mat-icon class="kpi-icon">psychology</mat-icon>
-        </div>
-      </mat-card-content>
-    </mat-card>
+      <button mat-raised-button color="primary"
+              class="filter-btn"
+              (click)="appliquerFiltres()">
+        <mat-icon>filter_list</mat-icon>
+        Filtrer
+      </button>
 
-  </div>
+      <button mat-stroked-button
+              class="reset-btn"
+              (click)="reinitialiserFiltres()">
+        <mat-icon>refresh</mat-icon>
+        Réinitialiser
+      </button>
+    </div>
 
-  <!-- Top 5 Employés à Risque -->
-  <mat-card class="table-card">
-    <mat-card-header>
-      <mat-card-title>
-        <mat-icon>warning</mat-icon>
-        Top 5 Employés les Plus à Risque
-      </mat-card-title>
-    </mat-card-header>
-    <mat-card-content>
-      <table mat-table [dataSource]="stats.top5Risque" class="risk-table">
+    <!-- Contenu dashboard -->
+    <div class="dashboard-container" *ngIf="!loading && stats">
 
-        <ng-container matColumnDef="nom">
-          <th mat-header-cell *matHeaderCellDef>Employé</th>
-          <td mat-cell *matCellDef="let e">
-            <div class="employee-cell">
-              <mat-icon>person</mat-icon>
-              <span>{{ e.nom }}</span>
+      <!-- KPI Cards -->
+      <div class="kpi-grid">
+
+        <mat-card class="kpi-card kpi-total">
+          <mat-card-content>
+            <div class="kpi-content">
+              <div class="kpi-info">
+                <span class="kpi-value">{{ stats.totalActifs }}</span>
+                <span class="kpi-label">Employés Actifs</span>
+              </div>
+              <mat-icon class="kpi-icon">people</mat-icon>
             </div>
-          </td>
-        </ng-container>
+          </mat-card-content>
+        </mat-card>
 
-        <ng-container matColumnDef="matricule">
-          <th mat-header-cell *matHeaderCellDef>Matricule</th>
-          <td mat-cell *matCellDef="let e">{{ e.matricule }}</td>
-        </ng-container>
-
-        <ng-container matColumnDef="departement">
-          <th mat-header-cell *matHeaderCellDef>Département</th>
-          <td mat-cell *matCellDef="let e">{{ e.departement }}</td>
-        </ng-container>
-
-        <ng-container matColumnDef="probabilite">
-          <th mat-header-cell *matHeaderCellDef>Probabilité</th>
-          <td mat-cell *matCellDef="let e">
+        <mat-card class="kpi-card kpi-risque">
+          <mat-card-content>
+            <div class="kpi-content">
+              <div class="kpi-info">
+                <span class="kpi-value">{{ stats.risqueEleve }}</span>
+                <span class="kpi-label">Risque Élevé</span>
+              </div>
+              <mat-icon class="kpi-icon">dangerous</mat-icon>
+            </div>
             <mat-progress-bar mode="determinate"
-                              [value]="e.probabilite * 100"
+                              [value]="stats.tauxRisqueEleve"
                               color="warn">
             </mat-progress-bar>
-            <span>{{ e.probabilite * 100 | number:'1.1-1' }}%</span>
-          </td>
-        </ng-container>
+            <span class="kpi-percent">{{ stats.tauxRisqueEleve | number:'1.1-1' }}%</span>
+          </mat-card-content>
+        </mat-card>
 
-        <ng-container matColumnDef="niveauRisque">
-          <th mat-header-cell *matHeaderCellDef>Niveau</th>
-          <td mat-cell *matCellDef="let e">
-            <mat-chip [color]="getRisqueColor(e.niveauRisque)" highlighted>
-              <mat-icon matChipAvatar>{{ getRisqueIcon(e.niveauRisque) }}</mat-icon>
-              {{ e.niveauRisque }}
-            </mat-chip>
-          </td>
-        </ng-container>
+        <mat-card class="kpi-card kpi-moyen">
+          <mat-card-content>
+            <div class="kpi-content">
+              <div class="kpi-info">
+                <span class="kpi-value">{{ stats.risqueMoyen }}</span>
+                <span class="kpi-label">Risque Moyen</span>
+              </div>
+              <mat-icon class="kpi-icon">warning</mat-icon>
+            </div>
+          </mat-card-content>
+        </mat-card>
 
-        <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
-        <tr mat-row *matRowDef="let row; columns: displayedColumns;"></tr>
-      </table>
-    </mat-card-content>
-  </mat-card>
+        <mat-card class="kpi-card kpi-faible">
+          <mat-card-content>
+            <div class="kpi-content">
+              <div class="kpi-info">
+                <span class="kpi-value">{{ stats.risqueFaible }}</span>
+                <span class="kpi-label">Risque Faible</span>
+              </div>
+              <mat-icon class="kpi-icon">check_circle</mat-icon>
+            </div>
+          </mat-card-content>
+        </mat-card>
 
-  <!-- Répartition par département -->
-  <mat-card class="dept-card">
-    <mat-card-header>
-      <mat-card-title>
-        <mat-icon>business</mat-icon>
-        Répartition par Département
-      </mat-card-title>
-    </mat-card-header>
-    <mat-card-content>
-      <div class="dept-list">
-        <div class="dept-item"
-             *ngFor="let dept of stats.repartitionDepartement | keyvalue">
-          <span class="dept-name">{{ dept.key }}</span>
-          <mat-progress-bar mode="determinate"
-                            [value]="(dept.value / stats.totalActifs) * 100">
-          </mat-progress-bar>
-          <span class="dept-count">{{ dept.value }}</span>
-        </div>
       </div>
-    </mat-card-content>
-  </mat-card>
 
-</div>
+      <!-- Top 5 Employés à Risque -->
+      <mat-card class="table-card">
+        <mat-card-header>
+          <mat-card-title>
+            <mat-icon>warning</mat-icon>
+            Top 5 Employés les Plus à Risque
+          </mat-card-title>
+        </mat-card-header>
+        <mat-card-content>
+          <table mat-table [dataSource]="stats.top5Risque" class="risk-table">
 
-<!-- Loading -->
-<div class="loading-container" *ngIf="loading">
-  <mat-icon class="loading-icon">hourglass_empty</mat-icon>
-  <p>Chargement du dashboard...</p>
+            <ng-container matColumnDef="nom">
+              <th mat-header-cell *matHeaderCellDef>Employé</th>
+              <td mat-cell *matCellDef="let e">
+                <div class="employee-cell">
+                  <mat-icon>person</mat-icon>
+                  <span>{{ e.nom }}</span>
+                </div>
+              </td>
+            </ng-container>
+
+            <ng-container matColumnDef="matricule">
+              <th mat-header-cell *matHeaderCellDef>Matricule</th>
+              <td mat-cell *matCellDef="let e">{{ e.matricule }}</td>
+            </ng-container>
+
+            <ng-container matColumnDef="departement">
+              <th mat-header-cell *matHeaderCellDef>Département</th>
+              <td mat-cell *matCellDef="let e">{{ e.departement }}</td>
+            </ng-container>
+
+            <ng-container matColumnDef="probabilite">
+              <th mat-header-cell *matHeaderCellDef>Probabilité</th>
+              <td mat-cell *matCellDef="let e">
+                <mat-progress-bar mode="determinate"
+                                  [value]="e.probabilite * 100"
+                                  color="warn">
+                </mat-progress-bar>
+                <span>{{ e.probabilite * 100 | number:'1.1-1' }}%</span>
+              </td>
+            </ng-container>
+
+            <ng-container matColumnDef="niveauRisque">
+              <th mat-header-cell *matHeaderCellDef>Niveau</th>
+              <td mat-cell *matCellDef="let e">
+                <mat-chip [color]="getRisqueColor(e.niveauRisque)" highlighted>
+                  <mat-icon matChipAvatar>{{ getRisqueIcon(e.niveauRisque) }}</mat-icon>
+                  {{ e.niveauRisque }}
+                </mat-chip>
+              </td>
+            </ng-container>
+
+            <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
+            <tr mat-row *matRowDef="let row; columns: displayedColumns;"></tr>
+          </table>
+        </mat-card-content>
+      </mat-card>
+
+      <!-- Répartition par département -->
+      <mat-card class="dept-card">
+        <mat-card-header>
+          <mat-card-title>
+            <mat-icon>business</mat-icon>
+            Répartition par Département
+          </mat-card-title>
+        </mat-card-header>
+        <mat-card-content>
+          <div class="dept-list">
+            <div class="dept-item"
+                 *ngFor="let dept of stats.repartitionDepartement | keyvalue">
+              <span class="dept-name">{{ dept.key }}</span>
+              <mat-progress-bar mode="determinate"
+                                [value]="(dept.value / stats.totalActifs) * 100">
+              </mat-progress-bar>
+              <span class="dept-count">{{ dept.value }}</span>
+            </div>
+          </div>
+        </mat-card-content>
+      </mat-card>
+
+    </div>
+
+    <!-- Loading -->
+    <div class="loading-container" *ngIf="loading">
+      <mat-icon class="loading-icon">hourglass_empty</mat-icon>
+      <p>Chargement du dashboard...</p>
+    </div>
+
+  </div>
 </div>

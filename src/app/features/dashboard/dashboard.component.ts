@@ -18,6 +18,7 @@ import { MatFormFieldModule } from '@angular/material/form-field';
 import { DashboardService } from '../../core/services/dashboard.service';
 import { AuthService } from '../../core/services/auth.service';
 import { DashboardStats } from '../../shared/models/dashboard.model';
+import { MatDividerModule } from '@angular/material/divider';
 
 @Component({
   selector: 'app-dashboard',
@@ -35,6 +36,7 @@ import { DashboardStats } from '../../shared/models/dashboard.model';
     // ===== NOUVEAUX MODULES À AJOUTER =====
     FormsModule,
     MatSelectModule,
+    MatDividerModule,
     MatFormFieldModule
     // ===== FIN DES NOUVEAUX MODULES =====
   ],

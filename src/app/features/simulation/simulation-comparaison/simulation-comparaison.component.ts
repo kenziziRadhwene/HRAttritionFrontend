@@ -133,6 +133,11 @@ export class SimulationComparaisonComponent implements OnInit {
     return this.comparaison?.typeSimulationRecommande === type;
   }
 
+  isMeilleureSalaire(sim: SimulationResponse): boolean {
+    return this.comparaison?.typeSimulationRecommande === 'AUGMENTATION_SALAIRE'
+      && sim.impactPourcentage === this.comparaison?.meilleurImpact;
+  }
+
   goBack(): void {
     this.router.navigate(['/dashboard']);
   }

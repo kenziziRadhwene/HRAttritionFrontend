@@ -82,25 +82,65 @@
       </mat-card-content>
     </mat-card>
 
-    <!-- 3 Scénarios -->
+    <!-- 5 Scénarios -->
     <div class="scenarios-grid">
 
-      <!-- Scénario Salaire -->
+      <!-- Scénario Salaire +10% -->
       <mat-card class="scenario-card"
-                [class.best]="isMeilleure('AUGMENTATION_SALAIRE')">
+                [class.best]="isMeilleureSalaire(comparaison.simulationSalaire10)">
         <mat-card-header>
           <mat-icon mat-card-avatar>payments</mat-icon>
-          <mat-card-title>Augmentation Salaire</mat-card-title>
+          <mat-card-title>Augmentation Salaire +10%</mat-card-title>
           <mat-card-subtitle>
-            {{ comparaison.simulationSalaire.descriptionScenario }}
+            {{ comparaison.simulationSalaire10.descriptionScenario }}
           </mat-card-subtitle>
-          <div class="best-badge" *ngIf="isMeilleure('AUGMENTATION_SALAIRE')">
+          <div class="best-badge" *ngIf="isMeilleureSalaire(comparaison.simulationSalaire10)">
             <mat-icon>star</mat-icon> Recommandé
           </div>
         </mat-card-header>
         <mat-card-content>
           <ng-container *ngTemplateOutlet="scenarioResult;
-            context: { sim: comparaison.simulationSalaire }">
+            context: { sim: comparaison.simulationSalaire10 }">
+          </ng-container>
+        </mat-card-content>
+      </mat-card>
+
+      <!-- Scénario Salaire +20% -->
+      <mat-card class="scenario-card"
+                [class.best]="isMeilleureSalaire(comparaison.simulationSalaire20)">
+        <mat-card-header>
+          <mat-icon mat-card-avatar>payments</mat-icon>
+          <mat-card-title>Augmentation Salaire +20%</mat-card-title>
+          <mat-card-subtitle>
+            {{ comparaison.simulationSalaire20.descriptionScenario }}
+          </mat-card-subtitle>
+          <div class="best-badge" *ngIf="isMeilleureSalaire(comparaison.simulationSalaire20)">
+            <mat-icon>star</mat-icon> Recommandé
+          </div>
+        </mat-card-header>
+        <mat-card-content>
+          <ng-container *ngTemplateOutlet="scenarioResult;
+            context: { sim: comparaison.simulationSalaire20 }">
+          </ng-container>
+        </mat-card-content>
+      </mat-card>
+
+      <!-- Scénario Salaire +30% -->
+      <mat-card class="scenario-card"
+                [class.best]="isMeilleureSalaire(comparaison.simulationSalaire30)">
+        <mat-card-header>
+          <mat-icon mat-card-avatar>payments</mat-icon>
+          <mat-card-title>Augmentation Salaire +30%</mat-card-title>
+          <mat-card-subtitle>
+            {{ comparaison.simulationSalaire30.descriptionScenario }}
+          </mat-card-subtitle>
+          <div class="best-badge" *ngIf="isMeilleureSalaire(comparaison.simulationSalaire30)">
+            <mat-icon>star</mat-icon> Recommandé
+          </div>
+        </mat-card-header>
+        <mat-card-content>
+          <ng-container *ngTemplateOutlet="scenarioResult;
+            context: { sim: comparaison.simulationSalaire30 }">
           </ng-container>
         </mat-card-content>
       </mat-card>

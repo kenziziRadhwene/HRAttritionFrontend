@@ -19,7 +19,9 @@ export interface ComparaisonSimulation {
   employeeMatricule: string;
   probabiliteActuelle: number;
   niveauRisqueActuel: string;
-  simulationSalaire: SimulationResponse;
+  simulationSalaire10: SimulationResponse;
+  simulationSalaire20: SimulationResponse;
+  simulationSalaire30: SimulationResponse;
   simulationPoste: SimulationResponse;
   simulationFormation: SimulationResponse;
   meilleureAction: string;
