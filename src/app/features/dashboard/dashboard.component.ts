@@ -9,16 +9,15 @@ import { MatChipsModule } from '@angular/material/chips';
 import { MatProgressBarModule } from '@angular/material/progress-bar';
 import { MatToolbarModule } from '@angular/material/toolbar';
 import { MatBadgeModule } from '@angular/material/badge';
-// ===== NOUVEAUX IMPORTS À AJOUTER =====
 import { FormsModule } from '@angular/forms';
 import { MatSelectModule } from '@angular/material/select';
 import { MatFormFieldModule } from '@angular/material/form-field';
-// ===== FIN DES NOUVEAUX IMPORTS =====
+import { MatDividerModule } from '@angular/material/divider';
+import { MatTooltipModule } from '@angular/material/tooltip';
 
 import { DashboardService } from '../../core/services/dashboard.service';
 import { AuthService } from '../../core/services/auth.service';
 import { DashboardStats } from '../../shared/models/dashboard.model';
-import { MatDividerModule } from '@angular/material/divider';
 
 @Component({
   selector: 'app-dashboard',
@@ -33,12 +32,11 @@ import { MatDividerModule } from '@angular/material/divider';
     MatProgressBarModule,
     MatToolbarModule,
     MatBadgeModule,
-    // ===== NOUVEAUX MODULES À AJOUTER =====
     FormsModule,
     MatSelectModule,
+    MatFormFieldModule,
     MatDividerModule,
-    MatFormFieldModule
-    // ===== FIN DES NOUVEAUX MODULES =====
+    MatTooltipModule
   ],
   templateUrl: './dashboard.component.html',
   styleUrl: './dashboard.component.scss'
@@ -47,10 +45,9 @@ export class DashboardComponent implements OnInit {
 
   stats: DashboardStats | null = null;
   loading = true;
-  displayedColumns = ['nom', 'matricule', 'departement', 'probabilite', 'niveauRisque'];
+  displayedColumns = ['nom', 'matricule', 'probabilite', 'niveauRisque'];
+  currentUser = '';
 
-  // ===== NOUVELLES PROPRIÉTÉS POUR LES FILTRES =====
-  // Liste des départements
   departements = [
     'DIRECTION_GENERALE',
     'DIRECTION_RESSOURCES_HUMAINES',
@@ -70,30 +67,23 @@ export class DashboardComponent implements OnInit {
     'SERVICE_DASHBOARD_DATA_MINING'
   ];
 
-  // Niveaux de risque
   niveauxRisque = ['ÉLEVÉ', 'MOYEN', 'FAIBLE'];
-
-  // Valeurs sélectionnées
   selectedDepartement = '';
   selectedNiveauRisque = '';
-  // ===== FIN DES NOUVELLES PROPRIÉTÉS =====
 
-  // ===== NOUVELLES PROPRIÉTÉS POUR LES RÔLES =====
   isAdmin = false;
   isRH = false;
   isManager = false;
-  // ===== FIN DES NOUVELLES PROPRIÉTÉS =====
 
   constructor(
     private dashboardService: DashboardService,
     private authService: AuthService,
     private router: Router
   ) {
-    // ===== INITIALISATION DES RÔLES =====
     this.isAdmin = this.authService.isAdmin();
     this.isRH = this.authService.isRH();
     this.isManager = this.authService.isManager();
-    // ===== FIN DE L'INITIALISATION =====
+    this.currentUser = this.authService.getCurrentUser()?.email || '';
   }
 
   ngOnInit(): void {
@@ -114,10 +104,6 @@ export class DashboardComponent implements OnInit {
     });
   }
 
-  // ===== NOUVELLES MÉTHODES POUR LES FILTRES =====
-  /**
-   * Applique les filtres sélectionnés
-   */
   appliquerFiltres(): void {
     this.loading = true;
     this.dashboardService.getStatsFiltered(
@@ -135,15 +121,11 @@ export class DashboardComponent implements OnInit {
     });
   }
 
-  /**
-   * Réinitialise tous les filtres
-   */
   reinitialiserFiltres(): void {
     this.selectedDepartement = '';
     this.selectedNiveauRisque = '';
     this.loadStats();
   }
-  // ===== FIN DES NOUVELLES MÉTHODES =====
 
   getRisqueColor(niveau: string): string {
     switch (niveau) {
