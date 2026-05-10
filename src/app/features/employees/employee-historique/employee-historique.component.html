@@ -1,0 +1,247 @@
+<div class="historique-page">
+
+  <!-- ══════════════════════════════════════════════════
+       TOOLBAR
+  ══════════════════════════════════════════════════ -->
+  <div class="page-toolbar">
+    <div class="toolbar-left">
+      <button mat-icon-button (click)="goBack()" matTooltip="Retour à la fiche employé" class="btn-back">
+        <mat-icon>arrow_back</mat-icon>
+      </button>
+      <div class="toolbar-title">
+        <h1>Historique des scores de risque</h1>
+        <span class="toolbar-subtitle" *ngIf="employee">
+          {{ employee.firstName }} {{ employee.lastName }}
+          <span class="matricule-badge">{{ employee.matricule }}</span>
+        </span>
+      </div>
+    </div>
+    <div class="toolbar-actions">
+      <button mat-stroked-button (click)="goToSimulation()" class="btn-simulation">
+        <mat-icon>science</mat-icon>
+        Simuler une action
+      </button>
+    </div>
+  </div>
+
+  <!-- ══════════════════════════════════════════════════
+       LOADING / ERROR
+  ══════════════════════════════════════════════════ -->
+  <div class="loading-container" *ngIf="loading">
+    <mat-spinner diameter="48" color="warn"></mat-spinner>
+    <p>Chargement de l'historique…</p>
+  </div>
+
+  <div class="error-container" *ngIf="error && !loading">
+    <mat-icon>error_outline</mat-icon>
+    <p>Impossible de charger l'historique des scores.</p>
+    <button mat-stroked-button (click)="loadData()">Réessayer</button>
+  </div>
+
+  <!-- ══════════════════════════════════════════════════
+       CONTENU PRINCIPAL
+  ══════════════════════════════════════════════════ -->
+  <div class="historique-content" *ngIf="!loading && !error">
+
+    <!-- Aucun score -->
+    <div class="empty-state" *ngIf="historique.length === 0">
+      <mat-icon>analytics</mat-icon>
+      <h3>Aucune prédiction enregistrée</h3>
+      <p>Lancez une prédiction ML depuis la fiche de l'employé pour voir l'historique ici.</p>
+      <button mat-flat-button color="warn" (click)="goBack()">
+        <mat-icon>arrow_back</mat-icon>
+        Retour à la fiche
+      </button>
+    </div>
+
+    <ng-container *ngIf="historique.length > 0">
+
+      <!-- ── KPI CARDS ───────────────────────────────── -->
+      <div class="kpi-grid">
+
+        <div class="kpi-card">
+          <div class="kpi-icon kpi-icon--blue">
+            <mat-icon>history</mat-icon>
+          </div>
+          <div class="kpi-body">
+            <span class="kpi-value">{{ historique.length }}</span>
+            <span class="kpi-label">Prédictions effectuées</span>
+          </div>
+        </div>
+
+        <div class="kpi-card">
+          <div class="kpi-icon" [ngClass]="'kpi-icon--' + (scoreActuel >= 0.85 ? 'red' : scoreActuel >= 0.60 ? 'orange' : 'green')">
+            <mat-icon>{{ getNiveauIcon(historique[0].niveauRisque) }}</mat-icon>
+          </div>
+          <div class="kpi-body">
+            <span class="kpi-value">{{ formatProbabilite(scoreActuel) }}</span>
+            <span class="kpi-label">Score actuel</span>
+          </div>
+          <span class="kpi-badge" [ngClass]="getNiveauClass(historique[0].niveauRisque)">
+            {{ historique[0].niveauRisque }}
+          </span>
+        </div>
+
+        <div class="kpi-card">
+          <div class="kpi-icon kpi-icon--green">
+            <mat-icon>arrow_downward</mat-icon>
+          </div>
+          <div class="kpi-body">
+            <span class="kpi-value">{{ formatProbabilite(scoreMin) }}</span>
+            <span class="kpi-label">Score minimum</span>
+          </div>
+        </div>
+
+        <div class="kpi-card">
+          <div class="kpi-icon kpi-icon--red">
+            <mat-icon>arrow_upward</mat-icon>
+          </div>
+          <div class="kpi-body">
+            <span class="kpi-value">{{ formatProbabilite(scoreMax) }}</span>
+            <span class="kpi-label">Score maximum</span>
+          </div>
+        </div>
+
+        <div class="kpi-card">
+          <div class="kpi-icon"
+               [ngClass]="tendance === 'hausse' ? 'kpi-icon--red' : tendance === 'baisse' ? 'kpi-icon--green' : 'kpi-icon--blue'">
+            <mat-icon>
+              {{ tendance === 'hausse' ? 'trending_up' : tendance === 'baisse' ? 'trending_down' : 'trending_flat' }}
+            </mat-icon>
+          </div>
+          <div class="kpi-body">
+            <span class="kpi-value">
+              {{ tendance === 'hausse' ? 'En hausse' : tendance === 'baisse' ? 'En baisse' : 'Stable' }}
+            </span>
+            <span class="kpi-label">Tendance récente</span>
+          </div>
+        </div>
+
+      </div>
+
+      <!-- ── GRAPHIQUE COURBE ────────────────────────── -->
+      <mat-card class="chart-card">
+        <mat-card-header>
+          <mat-card-title>
+            <mat-icon class="card-icon">show_chart</mat-icon>
+            Évolution du score de risque dans le temps
+          </mat-card-title>
+          <mat-card-subtitle>
+            Seuil de décision : {{ formatProbabilite(historique[0].seuilUtilise) }}
+            — {{ historique.length }} prédiction{{ historique.length > 1 ? 's' : '' }}
+          </mat-card-subtitle>
+        </mat-card-header>
+        <mat-card-content>
+          <div class="chart-wrapper">
+
+            <!-- Ligne de seuil (indication visuelle) -->
+            <div class="seuil-label">
+              <span class="seuil-dot"></span>
+              Seuil de risque
+            </div>
+
+            <canvas baseChart
+                    [data]="chartData"
+                    [options]="chartOptions"
+                    type="line">
+            </canvas>
+          </div>
+
+          <!-- Légende couleurs -->
+          <div class="chart-legend">
+            <span class="legend-item">
+              <span class="legend-dot" style="background:#2E7D32"></span>
+              Risque faible (&lt; 60%)
+            </span>
+            <span class="legend-item">
+              <span class="legend-dot" style="background:#FF6B00"></span>
+              Risque moyen (60–85%)
+            </span>
+            <span class="legend-item">
+              <span class="legend-dot" style="background:#D40000"></span>
+              Risque élevé (≥ 85%)
+            </span>
+          </div>
+        </mat-card-content>
+      </mat-card>
+
+      <!-- ── TABLEAU HISTORIQUE ──────────────────────── -->
+      <mat-card class="table-card">
+        <mat-card-header>
+          <mat-card-title>
+            <mat-icon class="card-icon">table_chart</mat-icon>
+            Détail des prédictions
+          </mat-card-title>
+          <mat-card-subtitle>
+            Du plus récent au plus ancien
+          </mat-card-subtitle>
+        </mat-card-header>
+        <mat-card-content>
+          <table mat-table [dataSource]="historique" class="historique-table">
+
+            <!-- Date -->
+            <ng-container matColumnDef="date">
+              <th mat-header-cell *matHeaderCellDef>Date de prédiction</th>
+              <td mat-cell *matCellDef="let row">
+                <div class="date-cell">
+                  <mat-icon class="date-icon">calendar_today</mat-icon>
+                  {{ formatDate(row.dateCalcul) }}
+                </div>
+              </td>
+            </ng-container>
+
+            <!-- Probabilité -->
+            <ng-container matColumnDef="probabilite">
+              <th mat-header-cell *matHeaderCellDef>Probabilité</th>
+              <td mat-cell *matCellDef="let row">
+                <div class="proba-cell">
+                  <span class="proba-value" [style.color]="getNiveauColor(row.niveauRisque)">
+                    {{ formatProbabilite(row.probabilite) }}
+                  </span>
+                  <div class="proba-bar-bg">
+                    <div class="proba-bar-fill"
+                         [style.width.%]="row.probabilite * 100"
+                         [style.background]="getNiveauColor(row.niveauRisque)">
+                    </div>
+                  </div>
+                </div>
+              </td>
+            </ng-container>
+
+            <!-- Niveau risque -->
+            <ng-container matColumnDef="niveauRisque">
+              <th mat-header-cell *matHeaderCellDef>Niveau de risque</th>
+              <td mat-cell *matCellDef="let row">
+                <span class="niveau-badge" [ngClass]="getNiveauClass(row.niveauRisque)">
+                  <mat-icon class="badge-icon">{{ getNiveauIcon(row.niveauRisque) }}</mat-icon>
+                  {{ row.niveauRisque }}
+                </span>
+              </td>
+            </ng-container>
+
+            <!-- Seuil -->
+            <ng-container matColumnDef="seuil">
+              <th mat-header-cell *matHeaderCellDef>Seuil utilisé</th>
+              <td mat-cell *matCellDef="let row">
+                <span class="seuil-value">{{ formatProbabilite(row.seuilUtilise) }}</span>
+              </td>
+            </ng-container>
+
+            <!-- Version modèle -->
+            <ng-container matColumnDef="modele">
+              <th mat-header-cell *matHeaderCellDef>Version modèle</th>
+              <td mat-cell *matCellDef="let row">
+                <span class="model-badge">{{ row.modelVersion }}</span>
+              </td>
+            </ng-container>
+
+            <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
+            <tr mat-row *matRowDef="let row; columns: displayedColumns;"
+                class="table-row"></tr>
+          </table>
+        </mat-card-content>
+      </mat-card>
+
+    </ng-container>
+  </div>
+</div>

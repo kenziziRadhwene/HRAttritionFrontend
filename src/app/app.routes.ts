@@ -42,12 +42,23 @@ export const routes: Routes = [
           import('./features/employees/employee-list/employee-list.component')
             .then(m => m.EmployeeListComponent)
       },
+
+      // ⚠️ ORDRE CRITIQUE : routes spécifiques AVANT /:id
       {
         path: 'employees/import',
         canActivate: [roleGuard(['ROLE_ADMIN', 'ROLE_RESPONSABLE_RH'])],
         loadComponent: () =>
           import('./features/employees/import/import.component')
             .then(m => m.ImportComponent)
+      },
+
+      // ✅ NOUVEAU — Historique des scores
+      {
+        path: 'employees/:id/historique',
+        canActivate: [roleGuard(['ROLE_ADMIN', 'ROLE_RESPONSABLE_RH', 'ROLE_MANAGER'])],
+        loadComponent: () =>
+          import('./features/employees/employee-historique/employee-historique.component')
+            .then(m => m.EmployeeHistoriqueComponent)
       },
 
       {
@@ -57,6 +68,7 @@ export const routes: Routes = [
           import('./features/employees/employee-detail/employee-detail.component')
             .then(m => m.EmployeeDetailComponent)
       },
+
       {
         path: 'alertes',
         canActivate: [roleGuard(['ROLE_ADMIN', 'ROLE_RESPONSABLE_RH'])],
@@ -85,8 +97,6 @@ export const routes: Routes = [
           import('./features/employees/team-view/team-view.component')
             .then(m => m.TeamViewComponent)
       },
-
-
       {
         path: 'users',
         canActivate: [roleGuard(['ROLE_ADMIN'])],

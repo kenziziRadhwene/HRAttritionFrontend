@@ -1,177 +1,302 @@
 <!-- Toolbar -->
-<mat-toolbar color="primary" class="toolbar">
-  <button mat-icon-button (click)="goBack()">
+<mat-toolbar class="toolbar">
+  <button mat-icon-button (click)="goBack()" class="back-btn">
     <mat-icon>arrow_back</mat-icon>
   </button>
   <span class="logo">Ooredoo</span>
   <span class="separator">|</span>
   <span class="page-title">Fiche Employé</span>
   <span class="spacer"></span>
+  <button mat-stroked-button class="action-btn-outline" (click)="goToHistorique()" *ngIf="employee">
+    <mat-icon>timeline</mat-icon>
+    Historique
+  </button>
+  <button mat-stroked-button class="action-btn-outline" (click)="goToSimulation()" *ngIf="employee">
+    <mat-icon>science</mat-icon>
+    Simulation
+  </button>
+  <button mat-raised-button class="action-btn-primary" (click)="launchPrediction()" *ngIf="employee">
+    <mat-icon>psychology</mat-icon>
+    Prédire ML
+  </button>
 </mat-toolbar>
-
-<div class="container" *ngIf="!loading && employee">
-
-  <!-- Bloc 1 — Identité -->
-  <mat-card class="identity-card">
-    <mat-card-content>
-      <div class="identity-header">
-        <div class="avatar-large">
-          {{ employee.firstName[0] }}{{ employee.lastName[0] }}
-        </div>
-        <div class="identity-info">
-          <h1>{{ employee.firstName }} {{ employee.lastName }}</h1>
-          <div class="badge-group">
-            <mat-chip>Matricule: {{ employee.matricule }}</mat-chip>
-            <mat-chip>{{ employee.department }}</mat-chip>
-            <mat-chip>{{ employee.jobRole }}</mat-chip>
-          </div>
-          <div class="details-grid">
-            <div><strong>Email:</strong> {{ employee.email }}</div>
-            <div><strong>Âge:</strong> {{ employee.age }} ans</div>
-            <div><strong>Ancienneté:</strong> {{ employee.yearsAtCompany }} ans</div>
-            <div><strong>Dernière augmentation:</strong> {{ employee.percentSalaryHike }}%</div>
-          </div>
-        </div>
-      </div>
-    </mat-card-content>
-  </mat-card>
-
-  <!-- Bloc 2 — Score actuel -->
-  <mat-card class="score-card">
-    <mat-card-header>
-      <mat-icon mat-card-avatar>trending_up</mat-icon>
-      <mat-card-title>Score de risque actuel</mat-card-title>
-    </mat-card-header>
-    <mat-card-content>
-      <div class="score-container">
-        <div class="gauge">
-          <div class="gauge-value">
-            <span class="score-number">{{ (employee.derniereProbabilite || 0) * 100 | number:'1.0-0' }}%</span>
-            <mat-chip [color]="getRiskColor(getRiskLevel(employee.derniereProbabilite))" highlighted>
-              <mat-icon>{{ getRiskIcon(getRiskLevel(employee.derniereProbabilite)) }}</mat-icon>
-              {{ getRiskLevel(employee.derniereProbabilite) }}
-            </mat-chip>
-          </div>
-          <mat-progress-bar
-            mode="determinate"
-            [value]="(employee.derniereProbabilite || 0) * 100"
-            [color]="getRiskColor(getRiskLevel(employee.derniereProbabilite))">
-          </mat-progress-bar>
-          <p class="risk-explanation">
-            <span *ngIf="getRiskLevel(employee.derniereProbabilite) === 'ÉLEVÉ'">
-              ⚠️ Risque <strong>élevé</strong> de départ dans les 6 prochains mois. Action recommandée.
-            </span>
-            <span *ngIf="getRiskLevel(employee.derniereProbabilite) === 'MOYEN'">
-              🟠 Risque <strong>moyen</strong>. Une attention régulière est conseillée.
-            </span>
-            <span *ngIf="getRiskLevel(employee.derniereProbabilite) === 'FAIBLE'">
-              🟢 Risque <strong>faible</strong>. Situation stable.
-            </span>
-          </p>
-        </div>
-      </div>
-    </mat-card-content>
-  </mat-card>
-
-  <!-- Bloc 3 — Historique scores (TABLEAU) -->
-  <mat-card class="history-card">
-    <mat-card-header>
-      <mat-icon mat-card-avatar>history</mat-icon>
-      <mat-card-title>Historique des scores</mat-card-title>
-    </mat-card-header>
-    <mat-card-content>
-      <div class="table-container">
-        <table mat-table [dataSource]="historiqueDataSource" class="history-table">
-
-          <!-- Date -->
-          <ng-container matColumnDef="date">
-            <th mat-header-cell *matHeaderCellDef>Date</th>
-            <td mat-cell *matCellDef="let score">
-              {{ formatDate(score.dateCalcul) }}
-            </td>
-          </ng-container>
-
-          <!-- Probabilité -->
-          <ng-container matColumnDef="probabilite">
-            <th mat-header-cell *matHeaderCellDef>Probabilité</th>
-            <td mat-cell *matCellDef="let score">
-              <div class="prob-cell">
-                <mat-progress-bar
-                  mode="determinate"
-                  [value]="score.probabilite * 100"
-                  [color]="getRiskColor(getRiskLevel(score.probabilite))">
-                </mat-progress-bar>
-                <span>{{ score.probabilite * 100 | number:'1.0-0' }}%</span>
-              </div>
-            </td>
-          </ng-container>
-
-          <!-- Niveau risque -->
-          <ng-container matColumnDef="niveauRisque">
-            <th mat-header-cell *matHeaderCellDef>Niveau risque</th>
-            <td mat-cell *matCellDef="let score">
-              <mat-chip [color]="getRiskColor(score.niveauRisque)" highlighted>
-                <mat-icon>{{ getRiskIcon(score.niveauRisque) }}</mat-icon>
-                {{ score.niveauRisque }}
-              </mat-chip>
-            </td>
-          </ng-container>
-
-          <tr mat-header-row *matHeaderRowDef="displayedColumnsHistory"></tr>
-          <tr mat-row *matRowDef="let row; columns: displayedColumnsHistory;"></tr>
-        </table>
-
-        <div *ngIf="historiqueScores.length === 0" class="empty-history">
-          <mat-icon>history</mat-icon>
-          <p>Aucun historique disponible</p>
-          <button mat-stroked-button color="primary" (click)="launchPrediction()">
-            Lancer une première prédiction
-          </button>
-        </div>
-      </div>
-    </mat-card-content>
-  </mat-card>
-
-  <!-- Bloc 4 — Recommandations -->
-  <mat-card class="recommendations-card">
-    <mat-card-header>
-      <mat-icon mat-card-avatar>lightbulb</mat-icon>
-      <mat-card-title>Recommandations préventives</mat-card-title>
-    </mat-card-header>
-    <mat-card-content>
-      <ul class="recommendations-list">
-        <li *ngFor="let rec of recommandations">{{ rec }}</li>
-      </ul>
-      <button mat-stroked-button color="primary" (click)="viewAllRecommendations()">
-        Voir toutes les recommandations
-      </button>
-    </mat-card-content>
-  </mat-card>
-
-  <!-- Bloc 5 — Actions -->
-  <mat-card class="actions-card">
-    <mat-card-header>
-      <mat-icon mat-card-avatar>build</mat-icon>
-      <mat-card-title>Actions RH</mat-card-title>
-    </mat-card-header>
-    <mat-card-content>
-      <div class="actions-buttons">
-        <button mat-raised-button color="primary" (click)="goToSimulation()">
-          <mat-icon>timeline</mat-icon>
-          Simuler une décision RH
-        </button>
-        <button mat-raised-button color="accent" (click)="launchPrediction()">
-          <mat-icon>psychology</mat-icon>
-          Lancer une prédiction ML
-        </button>
-      </div>
-    </mat-card-content>
-  </mat-card>
-
-</div>
 
 <!-- Loading -->
 <div class="loading-container" *ngIf="loading">
-  <mat-icon class="loading-icon">hourglass_empty</mat-icon>
-  <p>Chargement...</p>
+  <div class="loading-spinner">
+    <mat-icon class="spin">refresh</mat-icon>
+    <p>Chargement de la fiche employé...</p>
+  </div>
+</div>
+
+<div class="page-container" *ngIf="!loading && employee">
+
+  <!-- ── BLOC IDENTITÉ ── -->
+  <div class="identity-section">
+
+    <!-- Avatar + Infos principales -->
+    <mat-card class="identity-card">
+      <div class="identity-content">
+        <div class="avatar-section">
+          <div class="avatar-circle" [class.avatar-eleve]="employee.dernierNiveauRisque === 'ÉLEVÉ'"
+               [class.avatar-moyen]="employee.dernierNiveauRisque === 'MOYEN'"
+               [class.avatar-faible]="employee.dernierNiveauRisque === 'FAIBLE'">
+            {{ employee.firstName[0] }}{{ employee.lastName[0] }}
+          </div>
+          <div class="identity-info">
+            <h1 class="employee-name">{{ employee.firstName }} {{ employee.lastName }}</h1>
+            <p class="employee-role">{{ employee.jobRole | formatEnum }}</p>
+            <p class="employee-dept">
+              <mat-icon class="dept-icon">business</mat-icon>
+              {{ employee.department | formatEnum }}
+            </p>
+            <div class="badges-row">
+              <span class="badge badge-matricule">{{ employee.matricule }}</span>
+              <span class="badge badge-email">{{ employee.email }}</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </mat-card>
+
+    <!-- Score de risque actuel -->
+    <mat-card class="risk-card" [class.risk-eleve]="employee.dernierNiveauRisque === 'ÉLEVÉ'"
+              [class.risk-moyen]="employee.dernierNiveauRisque === 'MOYEN'"
+              [class.risk-faible]="employee.dernierNiveauRisque === 'FAIBLE' || !employee.dernierNiveauRisque">
+      <div class="risk-content">
+        <div class="risk-header">
+          <mat-icon class="risk-icon-large">{{ getRiskIcon(employee.dernierNiveauRisque || '') }}</mat-icon>
+          <span class="risk-label">Score de Risque Actuel</span>
+        </div>
+
+        <div class="risk-probability" *ngIf="employee.derniereProbabilite !== undefined">
+          {{ employee.derniereProbabilite * 100 | number:'1.1-1' }}%
+        </div>
+        <div class="risk-probability no-score" *ngIf="employee.derniereProbabilite === undefined">
+          —
+        </div>
+
+        <div class="risk-level-badge" [class.badge-eleve]="employee.dernierNiveauRisque === 'ÉLEVÉ'"
+             [class.badge-moyen]="employee.dernierNiveauRisque === 'MOYEN'"
+             [class.badge-faible]="employee.dernierNiveauRisque === 'FAIBLE'">
+          {{ employee.dernierNiveauRisque || 'Non évalué' }}
+        </div>
+
+        <mat-progress-bar *ngIf="employee.derniereProbabilite !== undefined"
+                          class="risk-bar"
+                          mode="determinate"
+                          [value]="employee.derniereProbabilite * 100"
+                          [color]="getRiskColor(employee.dernierNiveauRisque || '')">
+        </mat-progress-bar>
+      </div>
+    </mat-card>
+
+  </div>
+
+  <!-- ── GRILLE INFORMATIONS ── -->
+  <div class="info-grid">
+
+    <!-- Informations personnelles -->
+    <mat-card class="info-card">
+      <mat-card-header>
+        <mat-icon mat-card-avatar class="card-icon">person</mat-icon>
+        <mat-card-title>Informations Personnelles</mat-card-title>
+      </mat-card-header>
+      <mat-card-content>
+        <div class="info-list">
+          <div class="info-item">
+            <span class="info-label">Âge</span>
+            <span class="info-value">{{ employee.age }} ans</span>
+          </div>
+          <div class="info-item">
+            <span class="info-label">Genre</span>
+            <span class="info-value">{{ employee.gender === 'Male' ? 'Homme' : 'Femme' }}</span>
+          </div>
+          <div class="info-item">
+            <span class="info-label">Situation familiale</span>
+            <span class="info-value">{{ formatMarital(employee.maritalStatus) }}</span>
+          </div>
+          <div class="info-item">
+            <span class="info-label">Distance domicile</span>
+            <span class="info-value">{{ employee.distanceFromHome }} km</span>
+          </div>
+          <div class="info-item">
+            <span class="info-label">Formation</span>
+            <span class="info-value">{{ employee.educationField }}</span>
+          </div>
+          <div class="info-item">
+            <span class="info-label">Niveau éducation</span>
+            <span class="info-value">{{ formatEducation(employee.education) }}</span>
+          </div>
+        </div>
+      </mat-card-content>
+    </mat-card>
+
+    <!-- Informations professionnelles -->
+    <mat-card class="info-card">
+      <mat-card-header>
+        <mat-icon mat-card-avatar class="card-icon">work</mat-icon>
+        <mat-card-title>Informations Professionnelles</mat-card-title>
+      </mat-card-header>
+      <mat-card-content>
+        <div class="info-list">
+          <div class="info-item">
+            <span class="info-label">Niveau de poste</span>
+            <span class="info-value">Niveau {{ employee.jobLevel }}</span>
+          </div>
+          <div class="info-item">
+            <span class="info-label">Déplacements</span>
+            <span class="info-value">{{ formatTravel(employee.businessTravel) }}</span>
+          </div>
+          <div class="info-item">
+            <span class="info-label">Heures supplémentaires</span>
+            <span class="info-value" [class.overtime-yes]="employee.overTime">
+              {{ employee.overTime ? 'Oui' : 'Non' }}
+            </span>
+          </div>
+          <div class="info-item">
+            <span class="info-label">Ancienneté</span>
+            <span class="info-value">{{ employee.yearsAtCompany }} ans</span>
+          </div>
+          <div class="info-item">
+            <span class="info-label">Années dans le rôle</span>
+            <span class="info-value">{{ employee.yearsInCurrentRole }} ans</span>
+          </div>
+          <div class="info-item">
+            <span class="info-label">Depuis dernière promotion</span>
+            <span class="info-value">{{ employee.yearsSinceLastPromotion }} ans</span>
+          </div>
+        </div>
+      </mat-card-content>
+    </mat-card>
+
+    <!-- Rémunération -->
+    <mat-card class="info-card">
+      <mat-card-header>
+        <mat-icon mat-card-avatar class="card-icon">payments</mat-icon>
+        <mat-card-title>Rémunération</mat-card-title>
+      </mat-card-header>
+      <mat-card-content>
+        <div class="info-list">
+          <div class="info-item highlight">
+            <span class="info-label">Salaire mensuel</span>
+            <span class="info-value salary">{{ employee.monthlyIncome | number }} TND</span>
+          </div>
+          <div class="info-item">
+            <span class="info-label">Taux journalier</span>
+            <span class="info-value">{{ employee.dailyRate | number }} TND</span>
+          </div>
+          <div class="info-item">
+            <span class="info-label">Augmentation</span>
+            <span class="info-value">{{ employee.percentSalaryHike }}%</span>
+          </div>
+          <div class="info-item">
+            <span class="info-label">Options actions</span>
+            <span class="info-value">Niveau {{ employee.stockOptionLevel }}</span>
+          </div>
+          <div class="info-item">
+            <span class="info-label">Entreprises précédentes</span>
+            <span class="info-value">{{ employee.numCompaniesWorked }}</span>
+          </div>
+          <div class="info-item">
+            <span class="info-label">Expérience totale</span>
+            <span class="info-value">{{ employee.totalWorkingYears }} ans</span>
+          </div>
+        </div>
+      </mat-card-content>
+    </mat-card>
+
+    <!-- Satisfaction -->
+    <mat-card class="info-card">
+      <mat-card-header>
+        <mat-icon mat-card-avatar class="card-icon">sentiment_satisfied</mat-icon>
+        <mat-card-title>Indicateurs de Satisfaction</mat-card-title>
+      </mat-card-header>
+      <mat-card-content>
+        <div class="satisfaction-list">
+          <div class="satisfaction-item" *ngFor="let item of getSatisfactionItems()">
+            <div class="satisfaction-header">
+              <span class="satisfaction-label">{{ item.label }}</span>
+              <span class="satisfaction-score" [class.score-low]="item.value <= 2">
+                {{ item.value }}/4
+              </span>
+            </div>
+            <mat-progress-bar
+              mode="determinate"
+              [value]="item.value * 25"
+              [color]="item.value >= 3 ? 'primary' : 'warn'">
+            </mat-progress-bar>
+          </div>
+        </div>
+      </mat-card-content>
+    </mat-card>
+
+  </div>
+
+  <!-- ── SCORE + RECOMMANDATIONS ── -->
+  <div class="analysis-section" *ngIf="latestScore">
+
+    <!-- Facteurs SHAP -->
+    <mat-card class="shap-card">
+      <mat-card-header>
+        <mat-icon mat-card-avatar class="card-icon">analytics</mat-icon>
+        <mat-card-title>Facteurs de Risque (SHAP)</mat-card-title>
+        <mat-card-subtitle>{{ getFacteurs().length }} facteurs identifiés</mat-card-subtitle>
+      </mat-card-header>
+      <mat-card-content>
+        <div class="facteurs-list">
+          <div class="facteur-item" *ngFor="let f of getFacteurs()">
+            <div class="facteur-header">
+              <mat-icon class="facteur-icon" [style.color]="getShapColor(f.impact)">
+                {{ f.impact === 'AUGMENTE' ? 'trending_up' : 'trending_down' }}
+              </mat-icon>
+              <span class="facteur-name">{{ formatFeature(f.feature) }}</span>
+              <span class="facteur-value" [style.color]="getShapColor(f.impact)">
+                {{ f.shap_value > 0 ? '+' : '' }}{{ f.shap_value | number:'1.2-2' }}
+              </span>
+            </div>
+            <mat-progress-bar
+              mode="determinate"
+              [value]="getShapWidth(f.shap_value)"
+              [color]="f.impact === 'AUGMENTE' ? 'warn' : 'primary'">
+            </mat-progress-bar>
+          </div>
+        </div>
+      </mat-card-content>
+    </mat-card>
+
+    <!-- Recommandations -->
+    <mat-card class="recommandations-card">
+      <mat-card-header>
+        <mat-icon mat-card-avatar class="card-icon-green">lightbulb</mat-icon>
+        <mat-card-title>Actions Préventives Recommandées</mat-card-title>
+        <mat-card-subtitle>{{ getRecommandations().length }} actions suggérées</mat-card-subtitle>
+      </mat-card-header>
+      <mat-card-content>
+        <div class="recommandations-list">
+          <div class="recommandation-item" *ngFor="let rec of getRecommandations(); let i = index">
+            <div class="rec-number">{{ i + 1 }}</div>
+            <span class="rec-text">{{ rec }}</span>
+          </div>
+        </div>
+      </mat-card-content>
+    </mat-card>
+
+  </div>
+
+  <!-- Message si pas encore de score -->
+  <mat-card class="no-score-card" *ngIf="!latestScore">
+    <mat-card-content>
+      <div class="no-score-content">
+        <mat-icon>psychology</mat-icon>
+        <h3>Aucune prédiction disponible</h3>
+        <p>Lancez une prédiction ML pour voir les facteurs de risque et recommandations.</p>
+        <button mat-raised-button class="action-btn-primary" (click)="launchPrediction()">
+          <mat-icon>psychology</mat-icon>
+          Lancer la prédiction
+        </button>
+      </div>
+    </mat-card-content>
+  </mat-card>
+
 </div>

@@ -10,22 +10,23 @@ import { MatToolbarModule } from '@angular/material/toolbar';
 import { MatTooltipModule } from '@angular/material/tooltip';
 import { MatSnackBarModule, MatSnackBar } from '@angular/material/snack-bar';
 import { MatDividerModule } from '@angular/material/divider';
-import { MatTableModule, MatTableDataSource } from '@angular/material/table';
+import { MatTableModule } from '@angular/material/table';
 import { EmployeeService } from '../../../core/services/employee.service';
+import { ScoreRisqueService } from '../../../core/services/score-risque.service';
 import { Employee } from '../../../shared/models/employee.model';
+import { ScoreRisque, FacteurRisque } from '../../../shared/models/score-risque.model';
+import { Pipe, PipeTransform } from '@angular/core';
 
-export interface ScoreHistory {
-  id: number;
-  employeeId: number;
-  employeeNom: string;
-  employeeMatricule: string;
-  probabilite: number;
-  niveauRisque: string;
-  seuilUtilise: number;
-  facteursPrincipaux?: string;
-  recommandations?: string;
-  dateCalcul: string;
-  modelVersion?: string;
+// ── Pipe formatage SNAKE_CASE → Texte lisible ──
+@Pipe({ name: 'formatEnum', standalone: true })
+export class FormatEnumPipe implements PipeTransform {
+  transform(value: string): string {
+    if (!value) return '';
+    return value
+      .replace(/_/g, ' ')
+      .toLowerCase()
+      .replace(/\b\w/g, c => c.toUpperCase());
+  }
 }
 
 @Component({
@@ -42,7 +43,8 @@ export interface ScoreHistory {
     MatTooltipModule,
     MatSnackBarModule,
     MatDividerModule,
-    MatTableModule
+    MatTableModule,
+    FormatEnumPipe,
   ],
   templateUrl: './employee-detail.component.html',
   styleUrl: './employee-detail.component.scss'
@@ -50,29 +52,22 @@ export interface ScoreHistory {
 export class EmployeeDetailComponent implements OnInit {
 
   employee: Employee | null = null;
+  latestScore: ScoreRisque | null = null;
   loading = true;
-
-  // Historique scores
-  historiqueScores: ScoreHistory[] = [];
-  historiqueDataSource = new MatTableDataSource<ScoreHistory>([]);
-  displayedColumnsHistory = ['date', 'probabilite', 'niveauRisque'];
-
-  // Recommandations
-  recommandations: string[] = [];
 
   constructor(
     private route: ActivatedRoute,
     private router: Router,
     private employeeService: EmployeeService,
+    private scoreRisqueService: ScoreRisqueService,
     private snackBar: MatSnackBar
   ) {}
 
   ngOnInit(): void {
-    const id = this.route.snapshot.params['id'];
+    const id = +this.route.snapshot.params['id'];
     if (id) {
       this.loadEmployee(id);
-      this.loadHistory(id);
-      this.loadRecommendations(id);  // ← AJOUTE L'ID ICI
+      this.loadLatestScore(id);
     }
   }
 
@@ -91,47 +86,111 @@ export class EmployeeDetailComponent implements OnInit {
     });
   }
 
-  loadHistory(id: number): void {
-    this.employeeService.getScoreHistory(id).subscribe({
-      next: (data: ScoreHistory[]) => {
-        this.historiqueScores = data;
-        this.historiqueDataSource.data = data;
-      },
-      error: (err) => {
-        console.error('Erreur chargement historique:', err);
-      }
-    });
-  }
-
-  loadRecommendations(employeeId: number): void {
-    this.employeeService.getRecommendationsForEmployee(employeeId).subscribe({
-      next: (data: any) => {
-        if (data?.recommendations && data.recommendations.length > 0) {
-          this.recommandations = data.recommendations;
-          console.log('✅ Recommandations chargées:', this.recommandations);
-        } else {
-          this.recommandations = ['📈 Suivi mensuel recommandé', '🎓 Évaluation des compétences'];
+  loadLatestScore(id: number): void {
+    this.scoreRisqueService.getHistorique(id).subscribe({
+      next: (data: ScoreRisque[]) => {
+        if (data && data.length > 0) {
+          // Prendre le score le plus récent
+          this.latestScore = data.sort((a, b) =>
+            new Date(b.dateCalcul).getTime() - new Date(a.dateCalcul).getTime()
+          )[0];
         }
       },
-      error: (err) => {
-        console.error('❌ Erreur chargement recommandations:', err);
-        this.recommandations = ['📈 Suivi mensuel recommandé', '🎓 Évaluation des compétences'];
-      }
+      error: (err) => console.error('Erreur chargement score:', err)
     });
   }
 
-  getRiskLevel(score: number | undefined): string {
-    if (!score && score !== 0) return 'NON ÉVALUÉ';
-    if (score >= 0.85) return 'ÉLEVÉ';
-    if (score >= 0.76) return 'MOYEN';
-    return 'FAIBLE';
+  // ── Getters SHAP + Recommandations ──
+  getFacteurs(): FacteurRisque[] {
+    if (!this.latestScore?.facteursPrincipaux) return [];
+    try {
+      return JSON.parse(this.latestScore.facteursPrincipaux);
+    } catch { return []; }
   }
 
+  getRecommandations(): string[] {
+    if (!this.latestScore?.recommandations) return [];
+    try {
+      return JSON.parse(this.latestScore.recommandations);
+    } catch { return []; }
+  }
+
+  // ── Satisfaction ──
+  getSatisfactionItems(): { label: string; value: number }[] {
+    if (!this.employee) return [];
+    return [
+      { label: 'Satisfaction au travail',     value: this.employee.jobSatisfaction },
+      { label: 'Satisfaction environnement',  value: this.employee.environmentSatisfaction },
+      { label: 'Satisfaction relations',      value: this.employee.relationshipSatisfaction },
+      { label: 'Implication au travail',      value: this.employee.jobInvolvement },
+      { label: 'Équilibre vie pro/perso',     value: this.employee.workLifeBalance },
+      { label: 'Performance',                 value: this.employee.performanceRating },
+    ];
+  }
+
+  // ── Formatage ──
+  formatMarital(val: string): string {
+    switch (val) {
+      case 'Single':   return 'Célibataire';
+      case 'Married':  return 'Marié(e)';
+      case 'Divorced': return 'Divorcé(e)';
+      default:         return val;
+    }
+  }
+
+  formatEducation(val: number): string {
+    switch (val) {
+      case 1: return 'Bac';
+      case 2: return 'Bac+2';
+      case 3: return 'Licence';
+      case 4: return 'Master';
+      case 5: return 'Doctorat';
+      default: return `Niveau ${val}`;
+    }
+  }
+
+  formatTravel(val: string): string {
+    switch (val) {
+      case 'Non-Travel':        return 'Aucun déplacement';
+      case 'Travel_Rarely':     return 'Rarement';
+      case 'Travel_Frequently': return 'Fréquemment';
+      default:                  return val;
+    }
+  }
+
+  formatFeature(feature: string): string {
+    const map: { [key: string]: string } = {
+      'JobSatisfaction':           'Satisfaction au travail',
+      'tenure_category':           'Catégorie ancienneté',
+      'overtime_x_joblevel':       'Heures sup × Niveau poste',
+      'WorkLifeBalance':           'Équilibre vie pro/perso',
+      'EnvironmentSatisfaction':   'Satisfaction environnement',
+      'JobInvolvement':            'Implication au travail',
+      'YearsAtCompany':            'Années dans l\'entreprise',
+      'Age':                       'Âge',
+      'tenure_satisfaction':       'Ancienneté × Satisfaction',
+      'NumCompaniesWorked':        'Nombre d\'entreprises',
+      'MonthlyIncome':             'Salaire mensuel',
+      'StockOptionLevel':          'Options sur actions',
+      'satisfaction_score':        'Score satisfaction global',
+      'promotion_rate':            'Taux de promotion',
+      'YearsSinceLastPromotion':   'Depuis dernière promotion',
+      'YearsWithCurrManager':      'Années avec manager actuel',
+      'job_hopping_score':         'Score mobilité entreprises',
+      'work_life_balance_score':   'Score équilibre vie',
+      'DistanceFromHome':          'Distance domicile',
+      'MonthlyRate': 'Taux mensuel',
+      'TotalWorkingYears':         'Années d\'expérience totale',
+    };
+    return map[feature] || feature;
+  }
+
+  // ── Risk helpers ──
   getRiskColor(level: string): string {
     switch (level) {
       case 'ÉLEVÉ': return 'warn';
       case 'MOYEN': return 'accent';
-      default: return 'primary';
+      default:      return 'primary';
     }
   }
 
@@ -139,20 +198,20 @@ export class EmployeeDetailComponent implements OnInit {
     switch (level) {
       case 'ÉLEVÉ': return 'dangerous';
       case 'MOYEN': return 'warning';
-      default: return 'check_circle';
+      case 'FAIBLE': return 'check_circle';
+      default:       return 'help_outline';
     }
   }
 
-  formatDate(dateStr: string): string {
-    if (!dateStr) return 'N/A';
-    const date = new Date(dateStr);
-    return date.toLocaleDateString('fr-FR');
+  getShapColor(impact: string): string {
+    return impact === 'AUGMENTE' ? '#D40000' : '#2e7d32';
   }
 
-  goToSimulation(): void {
-    this.router.navigate(['/simulation'], { queryParams: { employeeId: this.employee?.id } });
+  getShapWidth(value: number): number {
+    return Math.min(Math.abs(value) * 60, 100);
   }
 
+  // ── Navigation ──
   launchPrediction(): void {
     if (!this.employee?.id) return;
     this.snackBar.open('Prédiction en cours...', '', { duration: 2000 });
@@ -160,19 +219,24 @@ export class EmployeeDetailComponent implements OnInit {
       next: () => {
         this.snackBar.open('✅ Prédiction effectuée !', 'Fermer', { duration: 3000 });
         this.loadEmployee(this.employee!.id!);
-        this.loadHistory(this.employee!.id!);
+        this.loadLatestScore(this.employee!.id!);
       },
-      error: () => {
-        this.snackBar.open('❌ Erreur prédiction', 'Fermer', { duration: 3000 });
-      }
+      error: () => this.snackBar.open('❌ Erreur prédiction', 'Fermer', { duration: 3000 })
     });
+  }
+
+  goToSimulation(): void {
+    this.router.navigate(['/simulation'], { queryParams: { employeeId: this.employee?.id } });
+  }
+
+  goToHistorique(): void {
+    this.router.navigate(['/employees', this.employee?.id, 'historique']);
   }
 
   goBack(): void {
     this.router.navigate(['/employees']);
   }
 
-  viewAllRecommendations(): void {
-    this.router.navigate(['/recommandations'], { queryParams: { employeeId: this.employee?.id } });
-  }
+
+
 }
