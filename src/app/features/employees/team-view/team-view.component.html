@@ -25,7 +25,8 @@
 <div class="container">
 
   <!-- Sélection département -->
-  <mat-card class="selection-card">
+  <!-- Sélection département — visible uniquement pour ADMIN et RESPONSABLE_RH -->
+  <mat-card class="selection-card" *ngIf="!authService.isManager()">
     <mat-card-header>
       <mat-card-title>
         <mat-icon>business</mat-icon>

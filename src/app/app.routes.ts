@@ -43,6 +43,14 @@ export const routes: Routes = [
             .then(m => m.EmployeeListComponent)
       },
       {
+        path: 'employees/import',
+        canActivate: [roleGuard(['ROLE_ADMIN', 'ROLE_RESPONSABLE_RH'])],
+        loadComponent: () =>
+          import('./features/employees/import/import.component')
+            .then(m => m.ImportComponent)
+      },
+
+      {
         path: 'employees/:id',
         canActivate: [roleGuard(['ROLE_ADMIN', 'ROLE_RESPONSABLE_RH'])],
         loadComponent: () =>
@@ -77,6 +85,8 @@ export const routes: Routes = [
           import('./features/employees/team-view/team-view.component')
             .then(m => m.TeamViewComponent)
       },
+
+
       {
         path: 'users',
         canActivate: [roleGuard(['ROLE_ADMIN'])],

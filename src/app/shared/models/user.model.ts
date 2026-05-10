@@ -5,4 +5,5 @@ export interface User {
   email: string;
   motDePasse?: string;
   userRole: 'ADMIN' | 'RESPONSABLE_RH' | 'MANAGER';
+  departement?: string;
 }

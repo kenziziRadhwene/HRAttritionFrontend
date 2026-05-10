@@ -46,16 +46,7 @@ export class TeamViewComponent implements OnInit {
     'DIRECTION_JURIDIQUE',
     'DIRECTION_TECHNOLOGIQUE',
     'DIRECTION_RELATIONS_OPERATEURS',
-    'DIRECTION_COMMERCIALE',
-    'DIRECTION_SERVICE_CLIENT',
-    'DIRECTION_SYSTEMES_INFORMATION',
-    'DIRECTION_OPERATIONS',
-    'DIRECTION_TECHNIQUE_FIXE',
-    'DIRECTION_INGENIERIE_RESEAUX',
-    'DEPARTEMENT_PERFORMANCE_RESEAUX',
-    'SERVICE_APPLICATION_VENTE',
-    'SERVICE_DATA_ENGINEERING',
-    'SERVICE_DASHBOARD_DATA_MINING'
+    'DIRECTION_SERVICE_CLIENT'
   ];
 
   selectedDepartement = '';
@@ -83,10 +74,22 @@ export class TeamViewComponent implements OnInit {
     private employeeService: EmployeeService,
     private snackBar: MatSnackBar,
     public router: Router,        // ← "private" devient "public"
-    private authService: AuthService   // ← ligne AJOUTÉE
+    public  authService: AuthService   // ← ligne AJOUTÉE
   ) {}
 
-  ngOnInit(): void {}
+  ngOnInit(): void {
+    const departement = this.authService.getDepartement();
+    if (departement) {
+      this.selectedDepartement = departement;
+      this.chargerEquipe();
+    } else {
+      this.snackBar.open(
+        'Aucun département associé à ce compte.',
+        'Fermer',
+        { duration: 3000 }
+      );
+    }
+  }
 
   chargerEquipe(): void {
     if (!this.selectedDepartement) return;

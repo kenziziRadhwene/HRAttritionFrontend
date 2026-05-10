@@ -53,13 +53,25 @@ export class UsersComponent implements OnInit {
     { value: 'MANAGER', label: 'Manager' }
   ];
 
-  // Formulaire
-  form: User = {
+  // ⭐ Liste des départements (ajoutée)
+  departements = [
+    'DIRECTION_GENERALE',
+    'DIRECTION_RESSOURCES_HUMAINES',
+    'DIRECTION_ADMINISTRATIVE_FINANCIERE',
+    'DIRECTION_JURIDIQUE',
+    'DIRECTION_TECHNOLOGIQUE',
+    'DIRECTION_RELATIONS_OPERATEURS',
+    'DIRECTION_SERVICE_CLIENT'
+  ];
+
+  // ⭐ Formulaire avec champ departement
+  form: any = {
     nom: '',
     prenom: '',
     email: '',
     motDePasse: '',
-    userRole: 'MANAGER'
+    userRole: 'MANAGER',
+    departement: ''
   };
 
   constructor(
@@ -86,30 +98,51 @@ export class UsersComponent implements OnInit {
     });
   }
 
+  // ⭐ Formulaire de création avec departement vide
   openCreateForm(): void {
     this.editMode = false;
     this.selectedUserId = null;
-    this.form = { nom: '', prenom: '', email: '', motDePasse: '', userRole: 'MANAGER' as any };
+    this.form = {
+      nom: '',
+      prenom: '',
+      email: '',
+      motDePasse: '',
+      userRole: 'MANAGER',
+      departement: ''
+    };
     this.showForm = true;
   }
 
+  // ⭐ Formulaire d'édition avec departement existant
   openEditForm(user: User): void {
     this.editMode = true;
     this.selectedUserId = user.id!;
-    this.form = { ...user, motDePasse: '' };
+    this.form = {
+      ...user,
+      motDePasse: '',
+      departement: user.departement || ''
+    };
     this.showForm = true;
   }
 
+  // ⭐ Sauvegarde avec validation du département pour Manager
   saveUser(): void {
+    // Validation des champs obligatoires
     if (!this.form.nom || !this.form.prenom || !this.form.email) {
       this.snackBar.open('Veuillez remplir tous les champs', 'Fermer', { duration: 3000 });
       return;
     }
 
-    // Validation email côté Angular
+    // Validation email
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
     if (!emailRegex.test(this.form.email)) {
       this.snackBar.open('❌ Email invalide', 'Fermer', { duration: 3000 });
+      return;
+    }
+
+    // ⭐ Validation : Le département est obligatoire pour un Manager
+    if (this.form.userRole === 'MANAGER' && !this.form.departement) {
+      this.snackBar.open('❌ Le département est obligatoire pour un Manager', 'Fermer', { duration: 3000 });
       return;
     }
 

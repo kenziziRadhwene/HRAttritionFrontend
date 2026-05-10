@@ -75,4 +75,10 @@ export class AuthService {
   hasRole(roles: string[]): boolean {
     return roles.includes(this.getRole() || '');
   }
+
+
+  getDepartement(): string | null {
+    const user = this.getCurrentUser();
+    return user ? user.departement : null;
+  }
 }
