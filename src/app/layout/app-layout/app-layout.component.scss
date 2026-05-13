@@ -12,8 +12,14 @@ $border-color    : #E0E0E0;
 $bg-page         : #F7F7F7;
 $white           : #FFFFFF;
 
+$sidebar-width          : 255px;
+$sidebar-collapsed-width: 64px;
+$toolbar-height         : 56px;
+$transition-speed       : 0.28s;
+$transition-ease        : cubic-bezier(0.4, 0, 0.2, 1);
+
 // ═══════════════════════════════════════════
-// LAYOUT
+// LAYOUT PRINCIPAL
 // ═══════════════════════════════════════════
 .app-layout {
   display: flex;
@@ -26,8 +32,8 @@ $white           : #FFFFFF;
 // SIDEBAR
 // ═══════════════════════════════════════════
 .sidebar {
-  width: 255px;
-  min-width: 255px;
+  width: $sidebar-width;
+  min-width: $sidebar-width;
   background: $white;
   border-right: 1px solid $border-color;
   display: flex;
@@ -37,56 +43,110 @@ $white           : #FFFFFF;
   left: 0;
   top: 0;
   z-index: 200;
-  box-shadow: 2px 0 8px rgba(0,0,0,0.06);
+  box-shadow: 2px 0 16px rgba(0, 0, 0, 0.06);
+  overflow: hidden;
+  transition:
+    width $transition-speed $transition-ease,
+    min-width $transition-speed $transition-ease;
 }
 
-// Brand
+// ─── BRAND ────────────────────────────────
 .sidebar-brand {
   background: $ooredoo-red;
-  padding: 20px 18px 16px;
+  height: $toolbar-height;
+  display: flex;
+  align-items: center;
+  justify-content: flex-start;
+  padding: 0 18px;
+  overflow: hidden;
+  flex-shrink: 0;
+  transition: padding $transition-speed $transition-ease,
+  justify-content $transition-speed $transition-ease;
+}
 
-  .brand-logo {
-    .brand-name {
-      font-size: 24px;
-      font-weight: 900;
-      letter-spacing: 3px;
-      color: $white;
-      font-style: italic;
-    }
+// ✅ Wrapper avec height fixe, les 2 logos superposés en absolute
+.brand-logo-wrapper {
+  position: relative;
+  width: 160px;
+  height: 34px;
+  flex-shrink: 0;
+  transition: width $transition-speed $transition-ease;
+
+  // Les deux logos : tous les deux absolute, superposés
+  .logo-ouverte,
+  .logo-ferme {
+    position: absolute;
+    left: 0;
+    top: 50%;
+    transform: translateY(-50%);
+    max-height: 32px;
+    width: auto;
+    transition: opacity $transition-speed $transition-ease;
   }
 
-  .brand-subtitle {
-    display: block;
-    font-size: 10px;
-    color: rgba(255,255,255,0.75);
-    letter-spacing: 0.5px;
-    margin-top: 4px;
-    text-transform: uppercase;
-  }
+  // ✅ SIDEBAR OUVERTE : logo-ouverte visible, logo-ferme invisible
+  .logo-ouverte { opacity: 1; }
+  .logo-ferme   { opacity: 0; }
 }
 
 .brand-divider {
-  border-color: rgba(255,255,255,0.2) !important;
+  height: 1px;
+  background: rgba(255, 255, 255, 0.15);
+  flex-shrink: 0;
 }
 
-// Navigation
+// ─── NAVIGATION ───────────────────────────
 .sidebar-nav {
   flex: 1;
-  padding: 8px 0;
+  padding: 10px 0;
   overflow-y: auto;
+  overflow-x: hidden;
+
+  // Scrollbar custom fine Ooredoo
+  &::-webkit-scrollbar       { width: 3px; }
+  &::-webkit-scrollbar-track { background: transparent; }
+  &::-webkit-scrollbar-thumb {
+    background: rgba($ooredoo-red, 0.3);
+    border-radius: 3px;
+    &:hover { background: rgba($ooredoo-red, 0.6); }
+  }
 }
 
+// ─── SECTION TITLES avec ligne décorative ─
 .nav-section-title {
-  font-size: 10px;
-  font-weight: 700;
-  letter-spacing: 1.5px;
-  text-transform: uppercase;
-  color: $text-muted;
+  display: flex;
+  align-items: center;
+  gap: 8px;
   padding: 14px 18px 5px;
   margin: 0;
+  overflow: hidden;
+  max-height: 40px;
+  transition:
+    opacity $transition-speed $transition-ease,
+    max-height $transition-speed $transition-ease,
+    padding $transition-speed $transition-ease;
+
+  .section-title-text {
+    font-size: 9.5px;
+    font-weight: 700;
+    letter-spacing: 1.8px;
+    text-transform: uppercase;
+    color: $text-muted;
+    white-space: nowrap;
+    flex-shrink: 0;
+  }
+
+  .section-title-line {
+    flex: 1;
+    height: 1px;
+    background: linear-gradient(to right, $border-color, transparent);
+    min-width: 0;
+  }
 }
 
+// ─── NAV ITEMS ────────────────────────────
 .nav-item {
+  position: relative;
   display: flex;
   align-items: center;
   gap: 12px;
@@ -100,7 +160,25 @@ $white           : #FFFFFF;
   font-size: 13.5px;
   font-family: inherit;
   text-align: left;
-  transition: all 0.18s ease;
+  white-space: nowrap;
+  overflow: hidden;
+  transition:
+    color $transition-speed $transition-ease,
+    border-left-color $transition-speed $transition-ease,
+    padding $transition-speed $transition-ease,
+    justify-content $transition-speed $transition-ease;
+
+  // Fond animé scaleX (ripple custom)
+  .nav-item-bg {
+    position: absolute;
+    inset: 0;
+    background: $ooredoo-red-bg;
+    transform: scaleX(0);
+    transform-origin: left center;
+    transition: transform 0.22s $transition-ease;
+    border-radius: 0 6px 6px 0;
+    z-index: 0;
+  }
 
   mat-icon {
     font-size: 20px;
@@ -108,66 +186,87 @@ $white           : #FFFFFF;
     height: 20px;
     flex-shrink: 0;
     color: $text-muted;
-    transition: color 0.18s;
+    transition: color $transition-speed $transition-ease,
+    transform 0.2s $transition-ease;
+    z-index: 1;
+    position: relative;
   }
 
-  span {
+  .nav-label {
     font-weight: 500;
+    overflow: hidden;
+    max-width: 160px;
+    opacity: 1;
+    transition:
+      max-width $transition-speed $transition-ease,
+      opacity $transition-speed $transition-ease;
+    z-index: 1;
+    position: relative;
   }
 
   &:hover {
-    background: $ooredoo-red-bg;
     color: $ooredoo-red;
-    border-left-color: rgba(212, 0, 0, 0.4);
-
-    mat-icon {
-      color: $ooredoo-red;
-    }
+    border-left-color: rgba($ooredoo-red, 0.3);
+    .nav-item-bg { transform: scaleX(1); }
+    mat-icon     { color: $ooredoo-red; transform: scale(1.1); }
   }
 
   &.active {
-    background: $ooredoo-red-soft;
     color: $ooredoo-red;
     border-left-color: $ooredoo-red;
     font-weight: 700;
-
-    mat-icon {
-      color: $ooredoo-red;
-    }
+    .nav-item-bg { background: $ooredoo-red-soft; transform: scaleX(1); }
+    mat-icon     { color: $ooredoo-red; }
   }
 }
 
+// ─── BADGE ALERTES avec pulse ─────────────
 .nav-badge {
   margin-left: auto;
   background: $ooredoo-red;
   color: $white;
-  font-size: 11px;
-  font-weight: 700;
-  padding: 2px 8px;
-  border-radius: 12px;
-  min-width: 22px;
+  font-size: 10px;
+  font-weight: 800;
+  padding: 2px 7px;
+  border-radius: 10px;
+  min-width: 20px;
   text-align: center;
+  z-index: 1;
+  position: relative;
+  flex-shrink: 0;
+  overflow: hidden;
+  transition:
+    opacity $transition-speed $transition-ease,
+    max-width $transition-speed $transition-ease,
+    padding $transition-speed $transition-ease,
+    min-width $transition-speed $transition-ease;
+  animation: badge-pulse 2.4s ease-in-out infinite;
 }
 
-// Footer
-.sidebar-footer {
-  padding-bottom: 8px;
+@keyframes badge-pulse {
+  0%, 100% { transform: scale(1);     box-shadow: 0 0 0 0   rgba($ooredoo-red, 0.5); }
+  50%       { transform: scale(1.08); box-shadow: 0 0 0 5px rgba($ooredoo-red, 0);   }
+}
 
-  mat-divider {
-    margin-bottom: 6px;
-  }
+// ─── FOOTER ───────────────────────────────
+.sidebar-footer {
+  flex-shrink: 0;
+  padding-bottom: 8px;
+}
+
+.footer-divider {
+  height: 1px;
+  background: $border-color;
+  margin-bottom: 6px;
 }
 
 .nav-logout {
   color: $ooredoo-red !important;
-
-  mat-icon {
-    color: $ooredoo-red !important;
-  }
-
+  mat-icon { color: $ooredoo-red !important; }
+  .nav-item-bg { background: $ooredoo-red-soft; }
   &:hover {
-    background: $ooredoo-red-soft !important;
     border-left-color: $ooredoo-red !important;
+    .nav-item-bg { transform: scaleX(1); }
   }
 }
 
@@ -175,12 +274,20 @@ $white           : #FFFFFF;
 // MAIN CONTENT
 // ═══════════════════════════════════════════
 .main-content {
-  margin-left: 255px;
+  margin-left: $sidebar-width;
   flex: 1;
   display: flex;
   flex-direction: column;
-  overflow-y: auto;
+  overflow: hidden;
   height: 100vh;
+  transition: margin-left $transition-speed $transition-ease;
+}
+
+.page-content {
+  flex: 1;
+  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
 }
 
 // ═══════════════════════════════════════════
@@ -192,449 +299,142 @@ $white           : #FFFFFF;
   top: 0;
   z-index: 100;
   flex-shrink: 0;
-  height: 56px;
+  height: $toolbar-height !important;
+  min-height: $toolbar-height !important;
+  padding: 0 16px !important;
+  display: flex !important;
+  align-items: center !important;
+  box-shadow: none;
+  transition: box-shadow 0.3s $transition-ease;
+
+  &.toolbar-shadow {
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.28);
+  }
 
   .toolbar-left {
     display: flex;
     align-items: center;
-    gap: 10px;
     flex: 1;
-
-    .toolbar-icon {
-      opacity: 0.85;
-    }
-
-    .toolbar-title {
-      font-size: 16px;
-      font-weight: 600;
-      color: $white;
-      letter-spacing: 0.3px;
-    }
   }
 
   .toolbar-right {
     display: flex;
     align-items: center;
-    gap: 8px;
-
-    .toolbar-user {
-      display: flex;
-      align-items: center;
-      gap: 6px;
-      font-size: 13px;
-      color: rgba(255,255,255,0.85);
-
-      mat-icon {
-        font-size: 18px;
-        width: 18px;
-        height: 18px;
-      }
-    }
-  }
-}
-
-// ═══════════════════════════════════════════
-// FILTRES
-// ═══════════════════════════════════════════
-.filters-bar {
-  display: flex;
-  align-items: center;
-  gap: 16px;
-  padding: 14px 24px;
-  background: $white;
-  border-bottom: 1px solid $border-color;
-  flex-wrap: wrap;
-  flex-shrink: 0;
-
-  .filter-field {
-    min-width: 240px;
-  }
-
-  .filter-btn {
-    height: 56px;
-    padding: 0 22px;
-    background-color: $ooredoo-red !important;
-    color: $white !important;
-    border-radius: 6px !important;
-    font-weight: 600;
-    display: flex;
-    align-items: center;
-    gap: 8px;
-  }
-
-  .reset-btn {
-    height: 56px;
-    padding: 0 22px;
-    border-radius: 6px !important;
-    border-color: $border-color !important;
-    color: $text-secondary !important;
-    display: flex;
-    align-items: center;
-    gap: 8px;
-  }
-}
-
-// ═══════════════════════════════════════════
-// DASHBOARD CONTAINER
-// ═══════════════════════════════════════════
-.dashboard-container {
-  padding: 24px;
-  flex: 1;
-}
-
-// KPI
-.kpi-grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
-  gap: 18px;
-  margin-bottom: 22px;
-}
-
-.kpi-card {
-  border-radius: 10px !important;
-  border-left: 5px solid #ccc;
-  box-shadow: 0 1px 6px rgba(0,0,0,0.07) !important;
-  background-color: #FFFFFF !important;
-
-  .kpi-content {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    margin-bottom: 10px;
-  }
-
-  .kpi-value {
-    display: block;
-    font-size: 38px;
-    font-weight: 700;
-    line-height: 1;
-    color: $text-primary;
-  }
-
-  .kpi-label {
-    display: block;
-    font-size: 13px;
-    color: $text-muted;
-    margin-top: 5px;
-    font-weight: 500;
-  }
-
-  .kpi-icon {
-    font-size: 42px;
-    width: 42px;
-    height: 42px;
-    opacity: 0.12;
-  }
-
-  .kpi-percent {
-    font-size: 12px;
-    color: $text-muted;
-    margin-top: 4px;
-    display: block;
-  }
-}
-
-.kpi-total  { border-left-color: #1565c0 !important; }
-.kpi-risque { border-left-color: $ooredoo-red !important; }
-.kpi-moyen  { border-left-color: #f57c00 !important; }
-.kpi-faible { border-left-color: #2e7d32 !important; }
-
-// Table
-// Tables côte à côte
-.tables-grid {
-  display: grid;
-  grid-template-columns: 1.4fr 1fr;
-  gap: 18px;
-  margin-bottom: 22px;
-}
-
-.table-card, .dept-card {
-  border-radius: 10px !important;
-  margin-bottom: 0;
-  box-shadow: 0 1px 6px rgba(0,0,0,0.07) !important;
-  background-color: #FFFFFF !important;
-
-  mat-card-title {
-    display: flex;
-    align-items: center;
-    gap: 8px;
-    font-size: 15px;
-    color: $ooredoo-red;
-
-    mat-icon {
-      color: $ooredoo-red;
-    }
-  }
-}
-
-.risk-table {
-  background-color: #FFFFFF !important;
-  width: 100%;
-
-  .mat-mdc-header-cell {
-    font-weight: 700;
-    color: $text-secondary;
-    font-size: 12px;
-    text-transform: uppercase;
-    letter-spacing: 0.5px;
-  }
-
-  .employee-cell {
-    display: flex;
-    align-items: center;
     gap: 10px;
-
-    .avatar {
-      width: 34px;
-      height: 34px;
-      border-radius: 50%;
-      background: $ooredoo-red-soft;
-      color: $ooredoo-red;
-      font-weight: 700;
-      font-size: 14px;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      border: 1px solid rgba(212,0,0,0.2);
-    }
-  }
-
-  .matricule-badge {
-    background: #f0f0f0;
-    color: $text-secondary;
-    padding: 3px 8px;
-    border-radius: 5px;
-    font-size: 12px;
-    font-weight: 600;
-    font-family: monospace;
-  }
-
-  .prob-cell {
-    display: flex;
-    flex-direction: column;
-    gap: 4px;
-
-    span {
-      font-size: 12px;
-      font-weight: 600;
-      color: $text-secondary;
-    }
   }
 }
 
-// Départements
-.dept-list {
-  display: flex;
-  flex-direction: column;
-  gap: 14px;
+.toggle-btn {
+  color: $white !important;
 
-  .dept-item {
-    display: grid;
-    grid-template-columns: 1fr 2fr auto;
-    align-items: center;
-    gap: 14px;
-
-    .dept-name {
-      font-size: 12px;
-      color: $text-secondary;
-      font-weight: 500;
-    }
-
-    .dept-count {
-      font-weight: 700;
-      color: $text-primary;
-      min-width: 28px;
-      text-align: right;
-      font-size: 14px;
-    }
+  .toggle-icon {
+    color: $white !important;
+    transition: transform 0.3s $transition-ease;
   }
+
+  &:hover .toggle-icon { transform: scale(1.15); }
 }
 
-// Loading
-.loading-container {
+// ─── AVATAR INITIALES ─────────────────────
+.user-avatar {
+  width: 30px;
+  height: 30px;
+  border-radius: 50%;
   display: flex;
-  flex-direction: column;
   align-items: center;
   justify-content: center;
-  flex: 1;
-  height: calc(100vh - 120px);
-  gap: 16px;
-  color: $text-muted;
-
-  .loading-icon {
-    font-size: 52px;
-    width: 52px;
-    height: 52px;
-    color: $ooredoo-red;
-    opacity: 0.5;
-  }
-
-  p {
-    font-size: 15px;
-  }
+  font-size: 12px;
+  font-weight: 800;
+  color: $white;
+  letter-spacing: 0.5px;
+  flex-shrink: 0;
+  border: 2px solid rgba(255, 255, 255, 0.4);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
+  text-transform: uppercase;
 }
 
-
-// ═══════════════════════════════════════════
-// COULEURS DES CHIFFRES PAR NIVEAU DE RISQUE
-// ═══════════════════════════════════════════
-
-// Carte Risque ÉLEVÉ - chiffre en ROUGE
-.kpi-risque {
-  .kpi-value {
-    color: #c62828 !important;  // Rouge foncé pour le chiffre
-  }
+.toolbar-user {
+  font-size: 13px;
+  color: rgba(255, 255, 255, 0.9);
+  font-weight: 500;
+  max-width: 180px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 }
 
-// Carte Risque MOYEN - chiffre en ORANGE
-.kpi-moyen {
-  .kpi-value {
-    color: #ef6c00 !important;  // Orange pour le chiffre
-  }
+.toolbar-divider {
+  width: 1px;
+  height: 20px;
+  background: rgba(255, 255, 255, 0.25);
+  margin: 0 4px;
 }
 
-// Carte Risque FAIBLE - chiffre en VERT
-.kpi-faible {
-  .kpi-value {
-    color: #2e7d32 !important;  // Vert pour le chiffre
-  }
-}
-
-// Carte Total Employés - chiffre en BLEU (optionnel, plus neutre)
-.kpi-total {
-  .kpi-value {
-    color: #000000 !important;  // Bleu pour le total
-  }
+.logout-btn {
+  color: rgba(255, 255, 255, 0.85) !important;
+  transition: color 0.2s ease !important;
+  &:hover { color: $white !important; }
 }
 
 // ═══════════════════════════════════════════
-// STYLE PERSONNALISÉ POUR LES CHIPS DE NIVEAU
+// ÉTAT COLLAPSED
 // ═══════════════════════════════════════════
+.sidebar-collapsed {
 
-// Forcer les couleurs des chips selon le niveau de risque
-.risk-table {
-  .mat-mdc-chip {
-    // Supprimer les styles par défaut
-    box-shadow: none !important;
-
-    // Style pour le niveau ÉLEVÉ (rouge)
-    &.mat-warn {
-      background-color: #ffebee !important;
-      color: #c62828 !important;
-    }
-
-    // Style pour le niveau MOYEN (orange)
-    &.mat-accent {
-      background-color: #fff3e0 !important;
-      color: #ef6c00 !important;
-    }
-
-    // Style pour le niveau FAIBLE (vert)
-    &.mat-primary {
-      background-color: #e8f5e9 !important;
-      color: #2e7d32 !important;
-    }
-  }
-}
-
-
-// ═══════════════════════════════════════════
-// FORCER UNE LARGEUR FIXE POUR LES CHIPS
-// ═══════════════════════════════════════════
-
-.risk-table {
-  .mat-mdc-chip {
-    width: 80px !important;        // Largeur fixe
-    min-width: 80px !important;    // Empêche le rétrécissement
-    max-width: 80px !important;    // Empêche l'agrandissement
-    justify-content: center !important;  // Centre le texte horizontalement
-    text-align: center !important;       // Centre le texte
-    display: inline-flex !important;
-
-    .mat-mdc-chip-action-label {
-      width: 100% !important;
-      text-align: center !important;
-    }
-  }
-}
-
-
-// ═══════════════════════════════════════════
-// STYLE DES BORDURES ENTRE LES LIGNES - SOLUTION FORCÉE
-// ═══════════════════════════════════════════
-
-.risk-table {
-  // Cibler directement les cellules des lignes de données
-  .mat-mdc-row .mat-mdc-cell {
-    border-bottom-color: #E0E0E0 !important;
-    border-bottom-width: 1px !important;
-    border-bottom-style: solid !important;
+  .sidebar {
+    width: $sidebar-collapsed-width;
+    min-width: $sidebar-collapsed-width;
   }
 
-  // Supprimer la bordure de la dernière ligne
-  .mat-mdc-row:last-child .mat-mdc-cell {
-    border-bottom-color: transparent !important;
-    border-bottom-width: 0px !important;
+  .main-content {
+    margin-left: $sidebar-collapsed-width;
   }
 
-  // Style de l'en-tête (conserver la bordure rouge)
-  .mat-mdc-header-row .mat-mdc-header-cell {
-    border-bottom-color: #D40000 !important;
-    border-bottom-width: 2px !important;
-    border-bottom-style: solid !important;
-  }
-}
-
-
-// ═══════════════════════════════════════════
-// STYLE DE L'EN-TÊTE DU TABLEAU (ROUGE + TEXTE BLANC)
-// ═══════════════════════════════════════════
-
-.risk-table {
-  .mat-mdc-header-row {
-    background-color: #D40000 !important;  // Fond rouge Ooredoo
+  .sidebar-brand {
+    padding: 0;
+    justify-content: center;
   }
 
-  .mat-mdc-header-cell {
-    background-color: #D40000 !important;  // Fond rouge
-    color: #FFFFFF !important;             // Texte blanc
-    font-weight: 700 !important;
-    font-size: 12px !important;
-    text-transform: uppercase !important;
-    letter-spacing: 0.5px !important;
+  // ✅ SIDEBAR FERMÉE : logo-ferme visible, logo-ouverte invisible
+  .brand-logo-wrapper {
+    width: 36px; // juste assez pour le logo-ferme (carré/icône)
+
+    .logo-ouverte { opacity: 0; } // caché
+    .logo-ferme   { opacity: 1; } // visible
   }
 
-  // Garder la bordure en bas de l'en-tête (optionnel)
-  .mat-mdc-header-row .mat-mdc-header-cell {
-    border-bottom-color: #AA0000 !important;  // Rouge foncé pour la bordure
-    border-bottom-width: 2px !important;
-    border-bottom-style: solid !important;
-  }
-}
-
-// ═══════════════════════════════════════════
-// STYLE DU TITRE DU TABLEAU (CENTRÉ + TEXTE NOIR)
-// ═══════════════════════════════════════════
-
-.table-card {
-  .mat-mdc-card-header {
-    justify-content: center !important;  // Centrer horizontalement
-    text-align: center !important;
+  // Section titles cachés
+  .nav-section-title {
+    opacity: 0;
+    max-height: 0;
+    padding: 0;
+    pointer-events: none;
   }
 
-  mat-card-title {
-    justify-content: center !important;
-    text-align: center !important;
-    width: 100% !important;
-    color: #000000 !important;  // Texte noir
-    font-size: 16px !important;
-    font-weight: 700 !important;
+  // Items centrés
+  .nav-item {
+    padding: 11px 0;
+    justify-content: center;
+    gap: 0;
 
     mat-icon {
-      display: none !important;  // Cache l'icône (optionnel)
+      margin: 0 auto;
+      width: 22px !important;
+      height: 22px !important;
+      font-size: 20px !important;
+    }
+
+    .nav-label {
+      max-width: 0;
+      opacity: 0;
+    }
+
+    .nav-badge {
+      max-width: 0;
+      opacity: 0;
+      padding: 0;
+      min-width: 0;
+      animation: none;
     }
   }
 }
-
-
-

@@ -104,7 +104,18 @@ export class EmployeeDetailComponent implements OnInit {
   getFacteurs(): FacteurRisque[] {
     if (!this.latestScore?.facteursPrincipaux) return [];
     try {
-      return JSON.parse(this.latestScore.facteursPrincipaux);
+      const tous = JSON.parse(this.latestScore.facteursPrincipaux) as FacteurRisque[];
+      const niveau = this.employee?.dernierNiveauRisque;
+
+      if (niveau === 'ÉLEVÉ' || niveau === 'MOYEN') {
+        return tous
+          .filter(f => f.impact === 'AUGMENTE')
+          .sort((a, b) => Math.abs(b.shap_value) - Math.abs(a.shap_value));
+      } else {
+        return tous
+          .filter(f => f.impact === 'DIMINUE')
+          .sort((a, b) => Math.abs(b.shap_value) - Math.abs(a.shap_value));
+      }
     } catch { return []; }
   }
 
@@ -207,8 +218,19 @@ export class EmployeeDetailComponent implements OnInit {
     return impact === 'AUGMENTE' ? '#D40000' : '#2e7d32';
   }
 
+  getShapTotal(): number {
+    const facteurs = this.getFacteurs();
+    return facteurs.reduce((sum, f) => sum + Math.abs(f.shap_value), 0);
+  }
+
+  getShapPercent(value: number): number {
+    const total = this.getShapTotal();
+    if (total === 0) return 0;
+    return Math.round((Math.abs(value) / total) * 100);
+  }
+
   getShapWidth(value: number): number {
-    return Math.min(Math.abs(value) * 60, 100);
+    return this.getShapPercent(value);
   }
 
   // ── Navigation ──

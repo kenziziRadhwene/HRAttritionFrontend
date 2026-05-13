@@ -1,108 +1,12 @@
-<div class="app-layout">
+
 
   <!-- ═══════════════ SIDEBAR ═══════════════ -->
-  <aside class="sidebar">
 
-    <!-- Brand -->
-    <div class="sidebar-brand">
-      <div class="brand-logo">
-        <span class="brand-name">ooredoo</span>
-      </div>
-      <span class="brand-subtitle">HR Attrition Predictor</span>
-    </div>
-
-    <mat-divider class="brand-divider"></mat-divider>
-
-    <!-- Navigation -->
-    <nav class="sidebar-nav">
-
-      <!-- Tableau de bord -->
-      <p class="nav-section-title">Tableau de bord</p>
-      <button class="nav-item active">
-        <mat-icon>dashboard</mat-icon>
-        <span>Dashboard</span>
-      </button>
-
-      <!-- Gestion RH -->
-      <ng-container *ngIf="isAdmin || isRH">
-        <p class="nav-section-title">Gestion RH</p>
-
-        <button class="nav-item" (click)="navigateTo('/employees')">
-          <mat-icon>people</mat-icon>
-          <span>Employés</span>
-        </button>
-
-        <button class="nav-item" (click)="navigateTo('/alertes')">
-          <mat-icon>notifications</mat-icon>
-          <span>Alertes</span>
-          <span class="nav-badge" *ngIf="stats?.alertesNonLues">
-            {{ stats?.alertesNonLues }}
-          </span>
-        </button>
-
-        <button class="nav-item" (click)="navigateTo('/simulation')">
-          <mat-icon>science</mat-icon>
-          <span>Simulation ML</span>
-        </button>
-      </ng-container>
-
-      <!-- Analyse -->
-      <p class="nav-section-title">Analyse</p>
-      <button class="nav-item" (click)="navigateTo('/recommandations')">
-        <mat-icon>lightbulb</mat-icon>
-        <span>Recommandations</span>
-      </button>
-
-      <!-- Équipe -->
-      <ng-container *ngIf="isAdmin || isManager">
-        <p class="nav-section-title">Équipe</p>
-        <button class="nav-item" (click)="navigateTo('/team')">
-          <mat-icon>groups</mat-icon>
-          <span>Vue Équipe</span>
-        </button>
-      </ng-container>
-
-      <!-- Administration -->
-      <ng-container *ngIf="isAdmin">
-        <p class="nav-section-title">Administration</p>
-        <button class="nav-item" (click)="navigateTo('/users')">
-          <mat-icon>manage_accounts</mat-icon>
-          <span>Gestion Utilisateurs</span>
-        </button>
-      </ng-container>
-
-    </nav>
-
-    <!-- Footer sidebar -->
-    <div class="sidebar-footer">
-      <mat-divider></mat-divider>
-      <button class="nav-item nav-logout" (click)="logout()">
-        <mat-icon>logout</mat-icon>
-        <span>Déconnexion</span>
-      </button>
-    </div>
-
-  </aside>
 
   <!-- ═══════════════ CONTENU PRINCIPAL ═══════════════ -->
-  <div class="main-content">
 
-    <!-- Toolbar -->
-    <mat-toolbar class="toolbar">
-      <div class="toolbar-left">
-        <mat-icon class="toolbar-icon">dashboard</mat-icon>
-        <span class="toolbar-title">Tableau de Bord</span>
-      </div>
-      <div class="toolbar-right">
-        <span class="toolbar-user">
-          <mat-icon>account_circle</mat-icon>
-          {{ currentUser }}
-        </span>
-        <button mat-icon-button (click)="logout()" matTooltip="Déconnexion">
-          <mat-icon>logout</mat-icon>
-        </button>
-      </div>
-    </mat-toolbar>
+
+
 
     <!-- Filtres -->
     <div class="filters-bar">
@@ -114,7 +18,6 @@
         </mat-select>
         <mat-icon matPrefix>business</mat-icon>
       </mat-form-field>
-
       <mat-form-field appearance="outline" class="filter-field">
         <mat-label>Niveau de risque</mat-label>
         <mat-select [(ngModel)]="selectedNiveauRisque">
@@ -123,24 +26,23 @@
         </mat-select>
         <mat-icon matPrefix>warning</mat-icon>
       </mat-form-field>
-
       <button mat-raised-button class="filter-btn" (click)="appliquerFiltres()">
-        <mat-icon>filter_list</mat-icon>
-        Filtrer
+        <mat-icon>filter_list</mat-icon>Filtrer
       </button>
-
       <button mat-stroked-button class="reset-btn" (click)="reinitialiserFiltres()">
-        <mat-icon>refresh</mat-icon>
-        Réinitialiser
+        <mat-icon>refresh</mat-icon>Réinitialiser
       </button>
     </div>
 
-    <!-- Dashboard content -->
+    <div class="loading-container" *ngIf="loading">
+      <mat-icon class="loading-icon">hourglass_empty</mat-icon>
+      <p>Chargement du dashboard...</p>
+    </div>
+
     <div class="dashboard-container" *ngIf="!loading && stats">
 
-      <!-- KPI -->
+      <!-- ── KPI CARDS ── -->
       <div class="kpi-grid">
-
         <mat-card class="kpi-card kpi-total">
           <mat-card-content>
             <div class="kpi-content">
@@ -152,7 +54,6 @@
             </div>
           </mat-card-content>
         </mat-card>
-
         <mat-card class="kpi-card kpi-risque">
           <mat-card-content>
             <div class="kpi-content">
@@ -162,14 +63,10 @@
               </div>
               <mat-icon class="kpi-icon">dangerous</mat-icon>
             </div>
-            <mat-progress-bar mode="determinate"
-                              [value]="stats.tauxRisqueEleve"
-                              color="warn">
-            </mat-progress-bar>
-            <span class="kpi-percent">{{ stats.tauxRisqueEleve | number:'1.1-1' }}%</span>
+            <mat-progress-bar mode="determinate" [value]="stats.tauxRisqueEleve" color="warn"></mat-progress-bar>
+            <span class="kpi-percent">{{ stats.tauxRisqueEleve | number:'1.1-1' }}% des employés évalués</span>
           </mat-card-content>
         </mat-card>
-
         <mat-card class="kpi-card kpi-moyen">
           <mat-card-content>
             <div class="kpi-content">
@@ -181,7 +78,6 @@
             </div>
           </mat-card-content>
         </mat-card>
-
         <mat-card class="kpi-card kpi-faible">
           <mat-card-content>
             <div class="kpi-content">
@@ -193,95 +89,208 @@
             </div>
           </mat-card-content>
         </mat-card>
-
       </div>
 
-      <!-- Top 5 + Départements côte à côte -->
-      <div class="tables-grid">
+      <!-- ══════════════════════════════════════
+           LIGNE 1 : Donut + Line évolution
+      ══════════════════════════════════════ -->
+      <div class="charts-row">
 
-        <!-- Top 5 (sans colonne Département) -->
-        <mat-card class="table-card">
+        <!-- CHART 1 — Donut -->
+        <mat-card class="chart-card">
           <mat-card-header>
-            <mat-card-title>
-              <mat-icon>warning</mat-icon>
-              Top 5 Employés les Plus à Risque
-            </mat-card-title>
+            <mat-card-title><mat-icon class="chart-icon">donut_large</mat-icon>Répartition des niveaux de risque</mat-card-title>
+            <mat-card-subtitle>Sur {{ stats.risqueEleve + stats.risqueMoyen + stats.risqueFaible }} employés évalués</mat-card-subtitle>
           </mat-card-header>
           <mat-card-content>
-            <table mat-table [dataSource]="stats.top5Risque" class="risk-table">
-
-              <!-- Colonne EMPLOYÉ -->
-              <!-- Colonne EMPLOYÉ -->
-              <ng-container matColumnDef="nom">
-                <th mat-header-cell *matHeaderCellDef>Employé</th>
-                <td mat-cell *matCellDef="let e">
-                  <span>{{ e.nom }}</span>
-                </td>
-              </ng-container>
-
-              <!-- Colonne MATRICULE -->
-              <ng-container matColumnDef="matricule">
-                <th mat-header-cell *matHeaderCellDef>Matricule</th>
-                <td mat-cell *matCellDef="let e">
-                  <span>{{ e.matricule }}</span>
-                </td>
-              </ng-container>
-
-              <!-- Colonne PROBABILITÉ -->
-              <ng-container matColumnDef="probabilite">
-                <th mat-header-cell *matHeaderCellDef>Probabilité</th>
-                <td mat-cell *matCellDef="let e">
-                  <span class="prob-value">{{ e.probabilite * 100 | number:'1.1-1' }}%</span>
-                </td>
-              </ng-container>
-
-              <!-- Colonne NIVEAU -->
-              <ng-container matColumnDef="niveauRisque">
-                <th mat-header-cell *matHeaderCellDef>Niveau</th>
-                <td mat-cell *matCellDef="let e">
-                  <mat-chip [color]="getRisqueColor(e.niveauRisque)" highlighted>
-                    {{ e.niveauRisque }}
-                  </mat-chip>
-                </td>
-              </ng-container>
-
-              <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
-              <tr mat-row *matRowDef="let row; columns: displayedColumns;"></tr>
-            </table>
+            <div class="chart-wrapper chart-wrapper--donut">
+              <canvas baseChart [data]="donutData" [options]="donutOptions" type="doughnut"></canvas>
+              <div class="donut-center">
+                <span class="donut-value">{{ stats.tauxRisqueEleve | number:'1.0-0' }}%</span>
+                <span class="donut-label">à risque élevé</span>
+              </div>
+            </div>
           </mat-card-content>
         </mat-card>
 
-        <!-- Départements -->
-        <mat-card class="dept-card">
+        <!-- CHART 4 — Line évolution mensuelle -->
+        <mat-card class="chart-card chart-card--large">
           <mat-card-header>
-            <mat-card-title>
-              <mat-icon>business</mat-icon>
-              Répartition par Département
-            </mat-card-title>
+            <mat-card-title><mat-icon class="chart-icon">show_chart</mat-icon>Évolution mensuelle du risque</mat-card-title>
+            <mat-card-subtitle>Tendance annuelle — données simulées pour démonstration</mat-card-subtitle>
           </mat-card-header>
           <mat-card-content>
-            <div class="dept-list">
-              <div class="dept-item"
-                   *ngFor="let dept of (stats.repartitionDepartement | keyvalue) | slice:0:5">
-                <span class="dept-name">{{ dept.key }}</span>
-                <mat-progress-bar mode="determinate"
-                                  [value]="(dept.value / stats.totalActifs) * 100">
-                </mat-progress-bar>
-                <span class="dept-count">{{ dept.value }}</span>
-              </div>
+            <div class="chart-wrapper">
+              <canvas baseChart [data]="lineData" [options]="lineOptions" type="line"></canvas>
             </div>
           </mat-card-content>
         </mat-card>
 
       </div>
 
-    </div>
+      <!-- ══════════════════════════════════════
+           LIGNE 2 : Bar groupé dept + Bar facteurs
+      ══════════════════════════════════════ -->
+      <div class="charts-row charts-row--reverse">
 
-    <!-- Loading -->
-    <div class="loading-container" *ngIf="loading">
-      <mat-icon class="loading-icon">hourglass_empty</mat-icon>
-      <p>Chargement du dashboard...</p>
-    </div>
+        <!-- CHART 2A — Bar groupé risque par département -->
+        <mat-card class="chart-card chart-card--large">
+          <mat-card-header>
+            <mat-card-title>
+              <mat-icon class="chart-icon">business</mat-icon>
+              Répartition du risque par département
+            </mat-card-title>
+            <mat-card-subtitle>Nombre d'employés par niveau de risque et par département</mat-card-subtitle>
+          </mat-card-header>
+          <mat-card-content>
+            <div class="chart-wrapper">
+              <canvas baseChart [data]="barDeptData" [options]="barDeptOptions" type="bar"></canvas>
+            </div>
+          </mat-card-content>
+        </mat-card>
 
-  </div>
-</div>
+        <!-- CHART 3 — Bar horizontal facteurs -->
+        <mat-card class="chart-card">
+          <mat-card-header>
+            <mat-card-title>
+              <mat-icon class="chart-icon">analytics</mat-icon>
+              Top facteurs de risque globaux
+            </mat-card-title>
+            <mat-card-subtitle>Contribution à l'augmentation du risque de départ</mat-card-subtitle>
+          </mat-card-header>
+          <mat-card-content>
+            <div class="chart-wrapper chart-wrapper--facteurs">
+              <canvas baseChart [data]="barFacteursData" [options]="barFacteursOptions" type="bar"></canvas>
+            </div>
+          </mat-card-content>
+        </mat-card>
+
+      </div>
+
+      <!-- ══════════════════════════════════════
+           LIGNE 2B : Taux turnover + Histogramme
+      ══════════════════════════════════════ -->
+      <div class="charts-row">
+
+        <!-- CHART 2B — Bar horizontal taux turnover -->
+        <mat-card class="chart-card chart-card--large">
+          <mat-card-header>
+            <mat-card-title>
+              <mat-icon class="chart-icon">trending_up</mat-icon>
+              Taux de turnover prédit par département
+            </mat-card-title>
+            <mat-card-subtitle>Rouge ≥ 50% · Orange ≥ 25% · Bleu &lt; 25%</mat-card-subtitle>
+          </mat-card-header>
+          <mat-card-content>
+            <div class="chart-wrapper chart-wrapper--facteurs">
+              <canvas baseChart [data]="barTurnoverData" [options]="barTurnoverOptions" type="bar"></canvas>
+            </div>
+          </mat-card-content>
+        </mat-card>
+
+        <!-- CHART 5 — Histogramme distribution scores -->
+        <mat-card class="chart-card">
+          <mat-card-header>
+            <mat-card-title>
+              <mat-icon class="chart-icon">bar_chart</mat-icon>
+              Distribution des scores de risque
+            </mat-card-title>
+            <mat-card-subtitle>Répartition des employés par tranche de probabilité</mat-card-subtitle>
+          </mat-card-header>
+          <mat-card-content>
+            <div class="chart-wrapper">
+              <canvas baseChart [data]="histoData" [options]="histoOptions" type="bar"></canvas>
+            </div>
+          </mat-card-content>
+        </mat-card>
+
+      </div>
+
+      <!-- ══════════════════════════════════════
+           LIGNE 3 : Histogramme + Prédictif vs Réel
+      ══════════════════════════════════════ -->
+      <div class="charts-row">
+
+        <!-- CHART 5 — Histogramme distribution scores -->
+        <mat-card class="chart-card">
+          <mat-card-header>
+            <mat-card-title><mat-icon class="chart-icon">bar_chart</mat-icon>Distribution des scores de risque</mat-card-title>
+            <mat-card-subtitle>Répartition des employés par tranche de probabilité d'attrition</mat-card-subtitle>
+          </mat-card-header>
+          <mat-card-content>
+            <div class="chart-wrapper">
+              <canvas baseChart [data]="histoData" [options]="histoOptions" type="bar"></canvas>
+            </div>
+          </mat-card-content>
+        </mat-card>
+
+        <!-- CHART 6 — Prédictions IA vs Réel -->
+        <mat-card class="chart-card chart-card--large">
+          <mat-card-header>
+            <mat-card-title>
+              <mat-icon class="chart-icon">psychology</mat-icon>
+              Prédictions IA vs Départs réels
+              <span class="ai-badge">IA</span>
+            </mat-card-title>
+            <mat-card-subtitle>Ligne pleine = prédictions du modèle · Ligne pointillée = départs réels observés</mat-card-subtitle>
+          </mat-card-header>
+          <mat-card-content>
+            <div class="chart-wrapper">
+              <canvas baseChart [data]="predVsRealData" [options]="predVsRealOptions" type="line"></canvas>
+            </div>
+          </mat-card-content>
+        </mat-card>
+
+      </div>
+
+      <!-- ── TABLES : Top 5 + Départements ── -->
+      <div class="tables-grid">
+        <mat-card class="table-card">
+          <mat-card-header>
+            <mat-card-title><mat-icon>warning</mat-icon>Top 5 Employés les Plus à Risque</mat-card-title>
+          </mat-card-header>
+          <mat-card-content>
+            <table mat-table [dataSource]="stats.top5Risque" class="risk-table">
+              <ng-container matColumnDef="nom">
+                <th mat-header-cell *matHeaderCellDef>Employé</th>
+                <td mat-cell *matCellDef="let e">{{ e.nom }}</td>
+              </ng-container>
+              <ng-container matColumnDef="matricule">
+                <th mat-header-cell *matHeaderCellDef>Matricule</th>
+                <td mat-cell *matCellDef="let e">{{ e.matricule }}</td>
+              </ng-container>
+              <ng-container matColumnDef="probabilite">
+                <th mat-header-cell *matHeaderCellDef>Probabilité</th>
+                <td mat-cell *matCellDef="let e">
+                  <span class="prob-value">{{ e.probabilite * 100 | number:'1.1-1' }}%</span>
+                </td>
+              </ng-container>
+              <ng-container matColumnDef="niveauRisque">
+                <th mat-header-cell *matHeaderCellDef>Niveau</th>
+                <td mat-cell *matCellDef="let e">
+                  <mat-chip [color]="getRisqueColor(e.niveauRisque)" highlighted>{{ e.niveauRisque }}</mat-chip>
+                </td>
+              </ng-container>
+              <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
+              <tr mat-row *matRowDef="let row; columns: displayedColumns;"></tr>
+            </table>
+          </mat-card-content>
+        </mat-card>
+
+        <mat-card class="dept-card">
+          <mat-card-header>
+            <mat-card-title><mat-icon>business</mat-icon>Répartition par Département</mat-card-title>
+          </mat-card-header>
+          <mat-card-content>
+            <div class="dept-list">
+              <div class="dept-item" *ngFor="let dept of (stats.repartitionDepartement | keyvalue) | slice:0:7">
+                <span class="dept-name">{{ dept.key | slice:10 }}</span>
+                <mat-progress-bar mode="determinate" [value]="(dept.value / stats.totalActifs) * 100"></mat-progress-bar>
+                <span class="dept-count">{{ dept.value }}</span>
+              </div>
+            </div>
+          </mat-card-content>
+        </mat-card>
+      </div>
+
+    </div>

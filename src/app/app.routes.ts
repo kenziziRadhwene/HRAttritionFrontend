@@ -20,21 +20,22 @@ export const routes: Routes = [
         .then(m => m.UnauthorizedComponent)
   },
 
-  // ⭐ DASHBOARD — garde SA propre sidebar (pas de layout)
-  {
-    path: 'dashboard',
-    canActivate: [roleGuard(['ROLE_ADMIN', 'ROLE_RESPONSABLE_RH'])],
-    loadComponent: () =>
-      import('./features/dashboard/dashboard.component')
-        .then(m => m.DashboardComponent)
-  },
-
-  // ⭐ TOUTES LES AUTRES PAGES — utilisent le layout commun avec sidebar
+  // ⭐ TOUTES LES PAGES — utilisent le layout commun (sidebar + toolbar)
   {
     path: '',
     component: AppLayoutComponent,
     canActivate: [authGuard],
     children: [
+
+      // ✅ DASHBOARD — maintenant dans le layout
+      {
+        path: 'dashboard',
+        canActivate: [roleGuard(['ROLE_ADMIN', 'ROLE_RESPONSABLE_RH'])],
+        loadComponent: () =>
+          import('./features/dashboard/dashboard.component')
+            .then(m => m.DashboardComponent)
+      },
+
       {
         path: 'employees',
         canActivate: [roleGuard(['ROLE_ADMIN', 'ROLE_RESPONSABLE_RH', 'ROLE_MANAGER'])],
@@ -52,7 +53,6 @@ export const routes: Routes = [
             .then(m => m.ImportComponent)
       },
 
-      // ✅ NOUVEAU — Historique des scores
       {
         path: 'employees/:id/historique',
         canActivate: [roleGuard(['ROLE_ADMIN', 'ROLE_RESPONSABLE_RH', 'ROLE_MANAGER'])],
@@ -76,6 +76,7 @@ export const routes: Routes = [
           import('./features/alertes/alerte-list/alerte-list.component')
             .then(m => m.AlerteListComponent)
       },
+
       {
         path: 'simulation',
         canActivate: [roleGuard(['ROLE_ADMIN', 'ROLE_RESPONSABLE_RH'])],
@@ -83,6 +84,7 @@ export const routes: Routes = [
           import('./features/simulation/simulation-comparaison/simulation-comparaison.component')
             .then(m => m.SimulationComparaisonComponent)
       },
+
       {
         path: 'recommandations',
         canActivate: [roleGuard(['ROLE_ADMIN', 'ROLE_RESPONSABLE_RH', 'ROLE_MANAGER'])],
@@ -90,6 +92,7 @@ export const routes: Routes = [
           import('./features/recommandations/recommandations.component')
             .then(m => m.RecommandationsComponent)
       },
+
       {
         path: 'team',
         canActivate: [roleGuard(['ROLE_ADMIN', 'ROLE_MANAGER'])],
@@ -97,6 +100,7 @@ export const routes: Routes = [
           import('./features/employees/team-view/team-view.component')
             .then(m => m.TeamViewComponent)
       },
+
       {
         path: 'users',
         canActivate: [roleGuard(['ROLE_ADMIN'])],

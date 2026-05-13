@@ -1,56 +1,7 @@
 <div class="app-layout">
 
   <!-- ═══════════ SIDEBAR ═══════════ -->
-  <aside class="sidebar">
-    <div class="sidebar-brand">
-      <span class="brand-name">ooredoo</span>
-      <span class="brand-subtitle">HR Attrition Predictor</span>
-    </div>
-
-    <mat-divider></mat-divider>
-
-    <nav class="sidebar-nav">
-      <p class="nav-section-title">Tableau de bord</p>
-      <button class="nav-item" (click)="navigateTo('/dashboard')">
-        <mat-icon>dashboard</mat-icon>
-        <span>Dashboard</span>
-      </button>
-
-      <p class="nav-section-title">Gestion RH</p>
-      <button class="nav-item" (click)="navigateTo('/employees')">
-        <mat-icon>people</mat-icon>
-        <span>Employés</span>
-      </button>
-      <button class="nav-item" (click)="navigateTo('/alertes')">
-        <mat-icon>notifications</mat-icon>
-        <span>Alertes</span>
-      </button>
-      <button class="nav-item" (click)="navigateTo('/simulation')">
-        <mat-icon>science</mat-icon>
-        <span>Simulation ML</span>
-      </button>
-
-      <p class="nav-section-title">Analyse</p>
-      <button class="nav-item" (click)="navigateTo('/recommandations')">
-        <mat-icon>lightbulb</mat-icon>
-        <span>Recommandations</span>
-      </button>
-
-      <p class="nav-section-title">Administration</p>
-      <button class="nav-item active">
-        <mat-icon>upload_file</mat-icon>
-        <span>Import CSV</span>
-      </button>
-    </nav>
-
-    <div class="sidebar-footer">
-      <mat-divider></mat-divider>
-      <button class="nav-item nav-logout" (click)="logout()">
-        <mat-icon>logout</mat-icon>
-        <span>Déconnexion</span>
-      </button>
-    </div>
-  </aside>
+  
 
   <!-- ═══════════ CONTENU ═══════════ -->
   <div class="main-content">

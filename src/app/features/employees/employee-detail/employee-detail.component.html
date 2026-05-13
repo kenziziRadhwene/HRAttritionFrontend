@@ -241,7 +241,12 @@
       <mat-card-header>
         <mat-icon mat-card-avatar class="card-icon">analytics</mat-icon>
         <mat-card-title>Facteurs de Risque (SHAP)</mat-card-title>
-        <mat-card-subtitle>{{ getFacteurs().length }} facteurs identifiés</mat-card-subtitle>
+        <!-- ✅ NOUVELLE MODIFICATION 1 : subtitle dynamique selon niveau de risque -->
+        <mat-card-subtitle>
+          {{ employee.dernierNiveauRisque === 'FAIBLE'
+          ? getFacteurs().length + ' facteurs qui fidélisent l\'employé'
+          : getFacteurs().length + ' facteurs qui augmentent le risque de départ' }}
+        </mat-card-subtitle>
       </mat-card-header>
       <mat-card-content>
         <div class="facteurs-list">
@@ -251,14 +256,17 @@
                 {{ f.impact === 'AUGMENTE' ? 'trending_up' : 'trending_down' }}
               </mat-icon>
               <span class="facteur-name">{{ formatFeature(f.feature) }}</span>
-              <span class="facteur-value" [style.color]="getShapColor(f.impact)">
-                {{ f.shap_value > 0 ? '+' : '' }}{{ f.shap_value | number:'1.2-2' }}
+              <!-- ✅ NOUVELLE MODIFICATION 3 : couleur dynamique selon niveau de risque -->
+              <span class="facteur-value"
+                    [style.color]="employee.dernierNiveauRisque === 'FAIBLE' ? '#2E7D32' : '#D40000'">
+                {{ getShapPercent(f.shap_value) }}%
               </span>
             </div>
+            <!-- ✅ NOUVELLE MODIFICATION 2 : barre dynamique selon niveau de risque -->
             <mat-progress-bar
               mode="determinate"
               [value]="getShapWidth(f.shap_value)"
-              [color]="f.impact === 'AUGMENTE' ? 'warn' : 'primary'">
+              [color]="employee.dernierNiveauRisque === 'FAIBLE' ? 'primary' : 'warn'">
             </mat-progress-bar>
           </div>
         </div>

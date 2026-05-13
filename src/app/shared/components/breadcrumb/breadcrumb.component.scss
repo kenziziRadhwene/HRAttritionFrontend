@@ -1,0 +1,92 @@
+// src/app/shared/components/breadcrumb/breadcrumb.component.scss
+
+$ooredoo-red    : #D40000;
+$text-muted     : #888888;
+$text-secondary : #494848;
+$white          : #FFFFFF;
+$border-color   : #E0E0E0;
+
+.breadcrumb-nav {
+  padding: 10px 24px;
+  background: $white;
+  border-bottom: 1px solid $border-color;
+  flex-shrink: 0;
+}
+
+.breadcrumb-list {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  gap: 2px;
+}
+
+.breadcrumb-item {
+  display: flex;
+  align-items: center;
+  gap: 2px;
+  animation: crumb-in 0.25s ease both;
+
+  @for $i from 1 through 8 {
+    &:nth-child(#{$i}) { animation-delay: #{($i - 1) * 0.05}s; }
+  }
+}
+
+@keyframes crumb-in {
+  from { opacity: 0; transform: translateX(-6px); }
+  to   { opacity: 1; transform: translateX(0); }
+}
+
+// Lien cliquable
+.breadcrumb-link {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  color: $text-muted;
+  font-size: 12.5px;
+  font-weight: 500;
+  cursor: pointer;
+  text-decoration: none;
+  padding: 3px 6px;
+  border-radius: 5px;
+  transition: color 0.18s ease, background 0.18s ease;
+
+  &:hover {
+    color: $ooredoo-red;
+    background: rgba($ooredoo-red, 0.06);
+  }
+}
+
+// Séparateur
+.breadcrumb-separator {
+  font-size: 14px !important;
+  width: 14px !important;
+  height: 14px !important;
+  color: $border-color;
+  flex-shrink: 0;
+  user-select: none;
+}
+
+// Item actif (page courante)
+.breadcrumb-current {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  color: $ooredoo-red;
+  font-size: 12.5px;
+  font-weight: 700;
+  padding: 3px 6px;
+  background: rgba($ooredoo-red, 0.07);
+  border-radius: 5px;
+}
+
+// Icônes
+.breadcrumb-icon {
+  font-size: 14px !important;
+  width: 14px !important;
+  height: 14px !important;
+  flex-shrink: 0;
+  line-height: 14px !important;
+}

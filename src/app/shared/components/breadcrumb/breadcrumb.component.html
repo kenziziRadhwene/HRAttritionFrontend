@@ -1,0 +1,30 @@
+<!-- src/app/shared/components/breadcrumb/breadcrumb.component.html -->
+
+<nav class="breadcrumb-nav" *ngIf="(breadcrumbs$ | async) as crumbs">
+  <ol class="breadcrumb-list" *ngIf="crumbs.length > 1">
+    <li
+      class="breadcrumb-item"
+      *ngFor="let crumb of crumbs; let last = last; let first = first"
+      [class.active]="last"
+    >
+      <!-- Lien cliquable (pas le dernier) -->
+      <a
+        *ngIf="!last"
+        class="breadcrumb-link"
+        (click)="navigate(crumb.url)"
+      >
+        <mat-icon class="breadcrumb-icon" *ngIf="crumb.icon">{{ crumb.icon }}</mat-icon>
+        <span>{{ crumb.label }}</span>
+      </a>
+
+      <!-- Séparateur -->
+      <mat-icon class="breadcrumb-separator" *ngIf="!last">chevron_right</mat-icon>
+
+      <!-- Item actif (dernier) -->
+      <span *ngIf="last" class="breadcrumb-current">
+        <mat-icon class="breadcrumb-icon" *ngIf="crumb.icon">{{ crumb.icon }}</mat-icon>
+        <span>{{ crumb.label }}</span>
+      </span>
+    </li>
+  </ol>
+</nav>

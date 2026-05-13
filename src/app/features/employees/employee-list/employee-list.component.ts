@@ -16,10 +16,11 @@ import { MatSnackBarModule, MatSnackBar } from '@angular/material/snack-bar';
 import { MatSelectModule } from '@angular/material/select';
 import { MatPaginatorModule, MatPaginator } from '@angular/material/paginator';
 import { MatSortModule, MatSort } from '@angular/material/sort';
-import { MatDialog, MatDialogModule } from '@angular/material/dialog';  // ⭐ AJOUTÉ
+import { MatDialog, MatDialogModule } from '@angular/material/dialog';
 import { EmployeeService } from '../../../core/services/employee.service';
 import { Employee } from '../../../shared/models/employee.model';
 import { BatchReportDialogComponent, BatchReportData } from '../batch-report-dialog/batch-report-dialog.component';
+
 @Component({
   selector: 'app-employee-list',
   standalone: true,
@@ -40,7 +41,7 @@ import { BatchReportDialogComponent, BatchReportData } from '../batch-report-dia
     MatSelectModule,
     MatPaginatorModule,
     MatSortModule,
-    MatDialogModule  // ⭐ AJOUTÉ
+    MatDialogModule
   ],
   templateUrl: './employee-list.component.html',
   styleUrl: './employee-list.component.scss'
@@ -60,12 +61,12 @@ export class EmployeeListComponent implements OnInit, AfterViewInit {
   departments: string[] = [];
   riskLevels = ['FAIBLE', 'MOYEN', 'ÉLEVÉ'];
 
+  // ── Colonne 'anciennete' supprimée ──
   displayedColumns = [
     'matricule', 'nom', 'departement',
-    'poste', 'anciennete', 'risque', 'probabilite', 'actions'
+    'poste', 'risque', 'probabilite', 'actions'
   ];
 
-  // ⭐ Nouvelle variable pour suivre l'état du batch
   batchInProgress = false;
 
   @ViewChild(MatPaginator) paginator!: MatPaginator;
@@ -75,7 +76,7 @@ export class EmployeeListComponent implements OnInit, AfterViewInit {
     private employeeService: EmployeeService,
     private snackBar: MatSnackBar,
     private router: Router,
-    private dialog: MatDialog  // ⭐ AJOUTÉ
+    private dialog: MatDialog
   ) {}
 
   ngOnInit(): void {
@@ -111,7 +112,6 @@ export class EmployeeListComponent implements OnInit, AfterViewInit {
   applyFilters(): void {
     let filtered = [...this.employees];
 
-    // Filtre recherche texte
     if (this.searchText) {
       const term = this.searchText.toLowerCase();
       filtered = filtered.filter(e =>
@@ -122,12 +122,10 @@ export class EmployeeListComponent implements OnInit, AfterViewInit {
       );
     }
 
-    // Filtre département
     if (this.selectedDepartment) {
       filtered = filtered.filter(e => e.department === this.selectedDepartment);
     }
 
-    // Filtre niveau risque
     if (this.selectedRiskLevel) {
       filtered = filtered.filter(e => e.dernierNiveauRisque === this.selectedRiskLevel);
     }
@@ -156,7 +154,6 @@ export class EmployeeListComponent implements OnInit, AfterViewInit {
     });
   }
 
-  // ⭐ NOUVELLE MÉTHODE : Prédiction batch
   openBatchPredictionDialog(): void {
     this.batchInProgress = true;
     const snackBarRef = this.snackBar.open('🚀 Lancement de la prédiction batch...', '', { duration: 3000 });
@@ -166,16 +163,13 @@ export class EmployeeListComponent implements OnInit, AfterViewInit {
         this.batchInProgress = false;
         snackBarRef.dismiss();
 
-        // Ouvrir le dialog avec le rapport
         this.dialog.open(BatchReportDialogComponent, {
           width: '600px',
           data: response
         });
 
-        // Recharger la liste pour voir les nouveaux scores
         this.loadEmployees();
 
-        // Message de succès général
         if (response.failedCount === 0) {
           this.snackBar.open('✅ Batch terminé avec succès !', 'Fermer', { duration: 5000 });
         } else {
@@ -220,5 +214,22 @@ export class EmployeeListComponent implements OnInit, AfterViewInit {
 
   getAnciennete(employee: Employee): number {
     return employee.yearsAtCompany || 0;
+  }
+
+  // ── Raccourcissement des noms de département ──
+  formatDept(dept: string): string {
+    const map: { [key: string]: string } = {
+      'Research & Development': 'R&D',
+      'Sales':                  'Ventes',
+      'Human Resources':        'RH',
+      'Information Technology': 'IT',
+      'Finance':                'Finance',
+      'Marketing':              'Mktg',
+      'Operations':             'Opérat.',
+      'Legal':                  'Juridique',
+      'Customer Service':       'Client',
+      'Engineering':            'Ingén.',
+    };
+    return map[dept] ?? dept;
   }
 }
