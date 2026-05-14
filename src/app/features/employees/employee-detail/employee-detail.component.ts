@@ -1,18 +1,19 @@
 import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { ActivatedRoute, Router } from '@angular/router';
+import { forkJoin } from 'rxjs';
 import { MatCardModule } from '@angular/material/card';
 import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
 import { MatChipsModule } from '@angular/material/chips';
 import { MatProgressBarModule } from '@angular/material/progress-bar';
-import { MatToolbarModule } from '@angular/material/toolbar';
+import { MatTabsModule } from '@angular/material/tabs';
 import { MatTooltipModule } from '@angular/material/tooltip';
 import { MatSnackBarModule, MatSnackBar } from '@angular/material/snack-bar';
 import { MatDividerModule } from '@angular/material/divider';
-import { MatTableModule } from '@angular/material/table';
 import { EmployeeService } from '../../../core/services/employee.service';
 import { ScoreRisqueService } from '../../../core/services/score-risque.service';
+import { BreadcrumbService } from '../../../core/services/breadcrumb.service';
 import { Employee } from '../../../shared/models/employee.model';
 import { ScoreRisque, FacteurRisque } from '../../../shared/models/score-risque.model';
 import { Pipe, PipeTransform } from '@angular/core';
@@ -39,11 +40,10 @@ export class FormatEnumPipe implements PipeTransform {
     MatIconModule,
     MatChipsModule,
     MatProgressBarModule,
-    MatToolbarModule,
+    MatTabsModule,
     MatTooltipModule,
     MatSnackBarModule,
     MatDividerModule,
-    MatTableModule,
     FormatEnumPipe,
   ],
   templateUrl: './employee-detail.component.html',
@@ -60,43 +60,47 @@ export class EmployeeDetailComponent implements OnInit {
     private router: Router,
     private employeeService: EmployeeService,
     private scoreRisqueService: ScoreRisqueService,
+    private breadcrumbService: BreadcrumbService,
     private snackBar: MatSnackBar
   ) {}
 
   ngOnInit(): void {
     const id = +this.route.snapshot.params['id'];
-    if (id) {
-      this.loadEmployee(id);
-      this.loadLatestScore(id);
-    }
+    if (id) this.loadData(id);
   }
 
-  loadEmployee(id: number): void {
+  // ── forkJoin : les deux appels partent en parallèle
+  //    et on attend que les deux soient finis avant de continuer ──
+  loadData(id: number): void {
     this.loading = true;
-    this.employeeService.getById(id).subscribe({
-      next: (data) => {
-        this.employee = data;
+
+    forkJoin({
+      employee: this.employeeService.getById(id),
+      scores:   this.scoreRisqueService.getHistorique(id)
+    }).subscribe({
+      next: ({ employee, scores }) => {
+        this.employee = employee;
+
+        // Breadcrumb dynamique : remplace "Détail" par le vrai nom de l'employé
+        this.breadcrumbService.setSegmentOverride(String(employee.id), {
+          label: `${employee.firstName} ${employee.lastName}`,
+          url: `/employees/${employee.id}`,
+          icon: 'person'
+        });
+
+        if (scores && scores.length > 0) {
+          this.latestScore = scores.sort((a, b) =>
+            new Date(b.dateCalcul).getTime() - new Date(a.dateCalcul).getTime()
+          )[0];
+        }
+
         this.loading = false;
       },
       error: () => {
         this.loading = false;
-        this.snackBar.open('Erreur chargement employé', 'Fermer', { duration: 3000 });
+        this.snackBar.open('Erreur lors du chargement', 'Fermer', { duration: 3000 });
         this.router.navigate(['/employees']);
       }
-    });
-  }
-
-  loadLatestScore(id: number): void {
-    this.scoreRisqueService.getHistorique(id).subscribe({
-      next: (data: ScoreRisque[]) => {
-        if (data && data.length > 0) {
-          // Prendre le score le plus récent
-          this.latestScore = data.sort((a, b) =>
-            new Date(b.dateCalcul).getTime() - new Date(a.dateCalcul).getTime()
-          )[0];
-        }
-      },
-      error: (err) => console.error('Erreur chargement score:', err)
     });
   }
 
@@ -106,7 +110,6 @@ export class EmployeeDetailComponent implements OnInit {
     try {
       const tous = JSON.parse(this.latestScore.facteursPrincipaux) as FacteurRisque[];
       const niveau = this.employee?.dernierNiveauRisque;
-
       if (niveau === 'ÉLEVÉ' || niveau === 'MOYEN') {
         return tous
           .filter(f => f.impact === 'AUGMENTE')
@@ -130,70 +133,64 @@ export class EmployeeDetailComponent implements OnInit {
   getSatisfactionItems(): { label: string; value: number }[] {
     if (!this.employee) return [];
     return [
-      { label: 'Satisfaction au travail',     value: this.employee.jobSatisfaction },
-      { label: 'Satisfaction environnement',  value: this.employee.environmentSatisfaction },
-      { label: 'Satisfaction relations',      value: this.employee.relationshipSatisfaction },
-      { label: 'Implication au travail',      value: this.employee.jobInvolvement },
-      { label: 'Équilibre vie pro/perso',     value: this.employee.workLifeBalance },
-      { label: 'Performance',                 value: this.employee.performanceRating },
+      { label: 'Satisfaction au travail',    value: this.employee.jobSatisfaction },
+      { label: 'Satisfaction environnement', value: this.employee.environmentSatisfaction },
+      { label: 'Satisfaction relations',     value: this.employee.relationshipSatisfaction },
+      { label: 'Implication au travail',     value: this.employee.jobInvolvement },
+      { label: 'Équilibre vie pro/perso',    value: this.employee.workLifeBalance },
+      { label: 'Performance',                value: this.employee.performanceRating },
     ];
   }
 
   // ── Formatage ──
   formatMarital(val: string): string {
-    switch (val) {
-      case 'Single':   return 'Célibataire';
-      case 'Married':  return 'Marié(e)';
-      case 'Divorced': return 'Divorcé(e)';
-      default:         return val;
-    }
+    const map: Record<string, string> = {
+      Single: 'Célibataire', Married: 'Marié(e)', Divorced: 'Divorcé(e)'
+    };
+    return map[val] ?? val;
   }
 
   formatEducation(val: number): string {
-    switch (val) {
-      case 1: return 'Bac';
-      case 2: return 'Bac+2';
-      case 3: return 'Licence';
-      case 4: return 'Master';
-      case 5: return 'Doctorat';
-      default: return `Niveau ${val}`;
-    }
+    const map: Record<number, string> = {
+      1: 'Bac', 2: 'Bac+2', 3: 'Licence', 4: 'Master', 5: 'Doctorat'
+    };
+    return map[val] ?? `Niveau ${val}`;
   }
 
   formatTravel(val: string): string {
-    switch (val) {
-      case 'Non-Travel':        return 'Aucun déplacement';
-      case 'Travel_Rarely':     return 'Rarement';
-      case 'Travel_Frequently': return 'Fréquemment';
-      default:                  return val;
-    }
+    const map: Record<string, string> = {
+      'Non-Travel': 'Aucun déplacement',
+      'Travel_Rarely': 'Rarement',
+      'Travel_Frequently': 'Fréquemment'
+    };
+    return map[val] ?? val;
   }
 
   formatFeature(feature: string): string {
-    const map: { [key: string]: string } = {
-      'JobSatisfaction':           'Satisfaction au travail',
-      'tenure_category':           'Catégorie ancienneté',
-      'overtime_x_joblevel':       'Heures sup × Niveau poste',
-      'WorkLifeBalance':           'Équilibre vie pro/perso',
-      'EnvironmentSatisfaction':   'Satisfaction environnement',
-      'JobInvolvement':            'Implication au travail',
-      'YearsAtCompany':            'Années dans l\'entreprise',
-      'Age':                       'Âge',
-      'tenure_satisfaction':       'Ancienneté × Satisfaction',
-      'NumCompaniesWorked':        'Nombre d\'entreprises',
-      'MonthlyIncome':             'Salaire mensuel',
-      'StockOptionLevel':          'Options sur actions',
-      'satisfaction_score':        'Score satisfaction global',
-      'promotion_rate':            'Taux de promotion',
-      'YearsSinceLastPromotion':   'Depuis dernière promotion',
-      'YearsWithCurrManager':      'Années avec manager actuel',
-      'job_hopping_score':         'Score mobilité entreprises',
-      'work_life_balance_score':   'Score équilibre vie',
-      'DistanceFromHome':          'Distance domicile',
-      'MonthlyRate': 'Taux mensuel',
-      'TotalWorkingYears':         'Années d\'expérience totale',
+    const map: Record<string, string> = {
+      JobSatisfaction:          'Satisfaction au travail',
+      tenure_category:          'Catégorie ancienneté',
+      overtime_x_joblevel:      'Heures sup × Niveau poste',
+      WorkLifeBalance:          'Équilibre vie pro/perso',
+      EnvironmentSatisfaction:  'Satisfaction environnement',
+      JobInvolvement:           'Implication au travail',
+      YearsAtCompany:           'Années dans l\'entreprise',
+      Age:                      'Âge',
+      tenure_satisfaction:      'Ancienneté × Satisfaction',
+      NumCompaniesWorked:       'Nombre d\'entreprises',
+      MonthlyIncome:            'Salaire mensuel',
+      StockOptionLevel:         'Options sur actions',
+      satisfaction_score:       'Score satisfaction global',
+      promotion_rate:           'Taux de promotion',
+      YearsSinceLastPromotion:  'Depuis dernière promotion',
+      YearsWithCurrManager:     'Années avec manager actuel',
+      job_hopping_score:        'Score mobilité entreprises',
+      work_life_balance_score:  'Score équilibre vie',
+      DistanceFromHome:         'Distance domicile',
+      MonthlyRate:              'Taux mensuel',
+      TotalWorkingYears:        'Années d\'expérience totale',
     };
-    return map[feature] || feature;
+    return map[feature] ?? feature;
   }
 
   // ── Risk helpers ──
@@ -207,8 +204,8 @@ export class EmployeeDetailComponent implements OnInit {
 
   getRiskIcon(level: string): string {
     switch (level) {
-      case 'ÉLEVÉ': return 'dangerous';
-      case 'MOYEN': return 'warning';
+      case 'ÉLEVÉ':  return 'dangerous';
+      case 'MOYEN':  return 'warning';
       case 'FAIBLE': return 'check_circle';
       default:       return 'help_outline';
     }
@@ -219,14 +216,12 @@ export class EmployeeDetailComponent implements OnInit {
   }
 
   getShapTotal(): number {
-    const facteurs = this.getFacteurs();
-    return facteurs.reduce((sum, f) => sum + Math.abs(f.shap_value), 0);
+    return this.getFacteurs().reduce((sum, f) => sum + Math.abs(f.shap_value), 0);
   }
 
   getShapPercent(value: number): number {
     const total = this.getShapTotal();
-    if (total === 0) return 0;
-    return Math.round((Math.abs(value) / total) * 100);
+    return total === 0 ? 0 : Math.round((Math.abs(value) / total) * 100);
   }
 
   getShapWidth(value: number): number {
@@ -240,8 +235,7 @@ export class EmployeeDetailComponent implements OnInit {
     this.employeeService.predict(this.employee.id).subscribe({
       next: () => {
         this.snackBar.open('✅ Prédiction effectuée !', 'Fermer', { duration: 3000 });
-        this.loadEmployee(this.employee!.id!);
-        this.loadLatestScore(this.employee!.id!);
+        this.loadData(this.employee!.id!);
       },
       error: () => this.snackBar.open('❌ Erreur prédiction', 'Fermer', { duration: 3000 })
     });
@@ -254,11 +248,4 @@ export class EmployeeDetailComponent implements OnInit {
   goToHistorique(): void {
     this.router.navigate(['/employees', this.employee?.id, 'historique']);
   }
-
-  goBack(): void {
-    this.router.navigate(['/employees']);
-  }
-
-
-
 }

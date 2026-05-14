@@ -1,19 +1,17 @@
-.toolbar {
-  background: linear-gradient(135deg, #c62828, #880e0e) !important;
+.table-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 16px 20px;
 
-  .logo {
-    font-size: 18px;
-    font-weight: 900;
-    letter-spacing: 2px;
-    margin-left: 8px;
+  .table-title {
+    font-size: 17px;
+    font-weight: 700;
+    color: #c62828;
   }
 
-  .separator { opacity: 0.5; margin: 0 8px; }
-  .page-title { font-size: 15px; opacity: 0.9; }
-  .spacer { flex: 1; }
-
   .add-btn {
-    background: rgba(255,255,255,0.2) !important;
+    background: #c62828 !important;
     color: white !important;
     border-radius: 8px !important;
     display: flex;
@@ -57,33 +55,29 @@
 
 .table-card {
   border-radius: 12px !important;
+  background-color: #ffffff !important;
+
+  mat-card-content {
+    padding-top: 20px !important;
+  }
 }
 
 .users-table {
   width: 100%;
+  background-color: #ffffff !important;
+
+  th.mat-header-cell {
+    font-weight: 700 !important;
+    color: #333;
+  }
 
   .user-cell {
     display: flex;
     align-items: center;
-    gap: 12px;
     padding: 8px 0;
 
-    .avatar {
-      width: 36px;
-      height: 36px;
-      border-radius: 50%;
-      background: linear-gradient(135deg, #c62828, #880e0e);
-      color: white;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      font-size: 12px;
-      font-weight: 700;
-      flex-shrink: 0;
-    }
-
     .user-name {
-      font-weight: 600;
+      font-weight: 400;
       font-size: 14px;
     }
   }

@@ -1,0 +1,74 @@
+<mat-card class="outer-card">
+
+  <!-- En-tête -->
+  <div class="card-header">
+    <span class="card-title">{{ editMode ? 'Modifier un utilisateur' : 'Créer un utilisateur' }}</span>
+    <button mat-raised-button class="save-btn" (click)="saveUser()">
+      <mat-icon>save</mat-icon>
+      Enregistrer
+    </button>
+  </div>
+
+  <mat-divider></mat-divider>
+
+  <!-- Formulaire -->
+  <mat-card class="inner-card">
+    <mat-card-content>
+      <div class="form-grid">
+
+        <!-- Ligne 1 : Prénom + Nom -->
+        <mat-form-field appearance="outline">
+          <mat-label>Prénom</mat-label>
+          <input matInput [(ngModel)]="form.prenom" placeholder="Prénom"/>
+          <mat-icon matPrefix>person</mat-icon>
+        </mat-form-field>
+
+        <mat-form-field appearance="outline">
+          <mat-label>Nom</mat-label>
+          <input matInput [(ngModel)]="form.nom" placeholder="Nom"/>
+          <mat-icon matPrefix>person</mat-icon>
+        </mat-form-field>
+
+        <!-- Ligne 2 : Email (pleine largeur) -->
+        <mat-form-field appearance="outline" class="full-width">
+          <mat-label>Email</mat-label>
+          <input matInput [(ngModel)]="form.email"
+                 type="email" placeholder="email@ooredoo.tn"/>
+          <mat-icon matPrefix>email</mat-icon>
+        </mat-form-field>
+
+        <!-- Ligne 3 : Mot de passe (pleine largeur) -->
+        <mat-form-field appearance="outline" class="full-width">
+          <mat-label>{{ editMode ? 'Nouveau mot de passe (optionnel)' : 'Mot de passe' }}</mat-label>
+          <input matInput [(ngModel)]="form.motDePasse"
+                 type="password" placeholder="••••••••"/>
+          <mat-icon matPrefix>lock</mat-icon>
+        </mat-form-field>
+
+        <!-- Ligne 4 : Rôle (pleine largeur) -->
+        <mat-form-field appearance="outline" class="full-width">
+          <mat-label>Rôle</mat-label>
+          <mat-select [(ngModel)]="form.userRole">
+            <mat-option *ngFor="let r of roles" [value]="r.value">
+              {{ r.label }}
+            </mat-option>
+          </mat-select>
+          <mat-icon matPrefix>admin_panel_settings</mat-icon>
+        </mat-form-field>
+
+        <!-- Ligne 5 : Département (visible si MANAGER) -->
+        <mat-form-field appearance="outline" class="full-width" *ngIf="form.userRole === 'MANAGER'">
+          <mat-label>Département</mat-label>
+          <mat-select [(ngModel)]="form.departement">
+            <mat-option *ngFor="let d of departements" [value]="d">
+              {{ d }}
+            </mat-option>
+          </mat-select>
+          <mat-icon matPrefix>business</mat-icon>
+        </mat-form-field>
+
+      </div>
+    </mat-card-content>
+  </mat-card>
+
+</mat-card>

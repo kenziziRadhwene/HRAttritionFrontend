@@ -20,14 +20,12 @@ export const routes: Routes = [
         .then(m => m.UnauthorizedComponent)
   },
 
-  // ⭐ TOUTES LES PAGES — utilisent le layout commun (sidebar + toolbar)
   {
     path: '',
     component: AppLayoutComponent,
     canActivate: [authGuard],
     children: [
 
-      // ✅ DASHBOARD — maintenant dans le layout
       {
         path: 'dashboard',
         canActivate: [roleGuard(['ROLE_ADMIN', 'ROLE_RESPONSABLE_RH'])],
@@ -44,7 +42,6 @@ export const routes: Routes = [
             .then(m => m.EmployeeListComponent)
       },
 
-      // ⚠️ ORDRE CRITIQUE : routes spécifiques AVANT /:id
       {
         path: 'employees/import',
         canActivate: [roleGuard(['ROLE_ADMIN', 'ROLE_RESPONSABLE_RH'])],
@@ -107,9 +104,26 @@ export const routes: Routes = [
         loadComponent: () =>
           import('./features/users/users.component')
             .then(m => m.UsersComponent)
-      }
+      },
+
+      // ✅ Déplacées ici, dans les children du layout
+      {
+        path: 'users/new',
+        canActivate: [roleGuard(['ROLE_ADMIN'])],
+        loadComponent: () =>
+          import('./features/users/user-form/user-form.component')
+            .then(m => m.UserFormComponent)
+      },
+
+      {
+        path: 'users/edit/:id',
+        canActivate: [roleGuard(['ROLE_ADMIN'])],
+        loadComponent: () =>
+          import('./features/users/user-form/user-form.component')
+            .then(m => m.UserFormComponent)
+      },
     ]
   },
 
-  { path: '**', redirectTo: 'dashboard' }
+  { path: '**', redirectTo: 'dashboard' },
 ];

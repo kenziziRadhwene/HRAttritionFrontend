@@ -9,12 +9,14 @@ import { MatIconModule } from '@angular/material/icon';
 import { MatInputModule } from '@angular/material/input';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatSelectModule } from '@angular/material/select';
-import { MatToolbarModule } from '@angular/material/toolbar';
 import { MatDialogModule, MatDialog } from '@angular/material/dialog';
 import { MatSnackBarModule, MatSnackBar } from '@angular/material/snack-bar';
 import { MatChipsModule } from '@angular/material/chips';
-import { UserService } from '../../core/services/user.service';
+import { MatDividerModule } from '@angular/material/divider';
+import { MatTooltipModule } from '@angular/material/tooltip';
+import Swal from 'sweetalert2';
 import { User } from '../../shared/models/user.model';
+import {UserService} from '../../core/services/user.service';
 
 @Component({
   selector: 'app-users',
@@ -29,7 +31,8 @@ import { User } from '../../shared/models/user.model';
     MatInputModule,
     MatFormFieldModule,
     MatSelectModule,
-    MatToolbarModule,
+    MatDividerModule,
+    MatTooltipModule,
     MatDialogModule,
     MatSnackBarModule,
     MatChipsModule
@@ -41,9 +44,7 @@ export class UsersComponent implements OnInit {
 
   users: User[] = [];
   loading = true;
-  showForm = false;
-  editMode = false;
-  selectedUserId: number | null = null;
+  currentUserEmail: string | null = null;
 
   displayedColumns = ['nom', 'email', 'role', 'actions'];
 
@@ -53,7 +54,6 @@ export class UsersComponent implements OnInit {
     { value: 'MANAGER', label: 'Manager' }
   ];
 
-  // ⭐ Liste des départements (ajoutée)
   departements = [
     'DIRECTION_GENERALE',
     'DIRECTION_RESSOURCES_HUMAINES',
@@ -64,23 +64,23 @@ export class UsersComponent implements OnInit {
     'DIRECTION_SERVICE_CLIENT'
   ];
 
-  // ⭐ Formulaire avec champ departement
-  form: any = {
-    nom: '',
-    prenom: '',
-    email: '',
-    motDePasse: '',
-    userRole: 'MANAGER',
-    departement: ''
-  };
-
   constructor(
     private userService: UserService,
     private snackBar: MatSnackBar,
-    private router: Router
+    public router: Router
   ) {}
 
   ngOnInit(): void {
+    // ✅ Récupère l'id de l'admin connecté depuis le token JWT
+    const token = localStorage.getItem('token');
+    if (token) {
+      try {
+        const payload = JSON.parse(atob(token.split('.')[1]));
+        this.currentUserEmail = payload.sub ?? null;
+      } catch (e) {
+        console.error('Erreur décodage token', e);
+      }
+    }
     this.loadUsers();
   }
 
@@ -98,94 +98,40 @@ export class UsersComponent implements OnInit {
     });
   }
 
-  // ⭐ Formulaire de création avec departement vide
-  openCreateForm(): void {
-    this.editMode = false;
-    this.selectedUserId = null;
-    this.form = {
-      nom: '',
-      prenom: '',
-      email: '',
-      motDePasse: '',
-      userRole: 'MANAGER',
-      departement: ''
-    };
-    this.showForm = true;
-  }
-
-  // ⭐ Formulaire d'édition avec departement existant
-  openEditForm(user: User): void {
-    this.editMode = true;
-    this.selectedUserId = user.id!;
-    this.form = {
-      ...user,
-      motDePasse: '',
-      departement: user.departement || ''
-    };
-    this.showForm = true;
-  }
-
-  // ⭐ Sauvegarde avec validation du département pour Manager
-  saveUser(): void {
-    // Validation des champs obligatoires
-    if (!this.form.nom || !this.form.prenom || !this.form.email) {
-      this.snackBar.open('Veuillez remplir tous les champs', 'Fermer', { duration: 3000 });
-      return;
-    }
-
-    // Validation email
-    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-    if (!emailRegex.test(this.form.email)) {
-      this.snackBar.open('❌ Email invalide', 'Fermer', { duration: 3000 });
-      return;
-    }
-
-    // ⭐ Validation : Le département est obligatoire pour un Manager
-    if (this.form.userRole === 'MANAGER' && !this.form.departement) {
-      this.snackBar.open('❌ Le département est obligatoire pour un Manager', 'Fermer', { duration: 3000 });
-      return;
-    }
-
-    if (this.editMode && this.selectedUserId) {
-      this.userService.update(this.selectedUserId, this.form).subscribe({
-        next: () => {
-          this.snackBar.open('✅ Utilisateur modifié !', 'Fermer', { duration: 2000 });
-          this.showForm = false;
-          this.loadUsers();
-        },
-        error: (err) => {
-          const msg = err?.error?.message || 'Erreur modification';
-          this.snackBar.open(`❌ ${msg}`, 'Fermer', { duration: 3000 });
-        }
-      });
-    } else {
-      if (!this.form.motDePasse) {
-        this.snackBar.open('❌ Le mot de passe est obligatoire', 'Fermer', { duration: 3000 });
-        return;
-      }
-      this.userService.create(this.form).subscribe({
-        next: () => {
-          this.snackBar.open('✅ Utilisateur créé !', 'Fermer', { duration: 2000 });
-          this.showForm = false;
-          this.loadUsers();
-        },
-        error: (err) => {
-          const msg = err?.error?.message || 'Erreur création';
-          this.snackBar.open(`❌ ${msg}`, 'Fermer', { duration: 3000 });
-        }
-      });
-    }
-  }
-
   deleteUser(user: User): void {
-    if (!confirm(`Supprimer ${user.prenom} ${user.nom} ?`)) return;
-
-    this.userService.delete(user.id!).subscribe({
-      next: () => {
-        this.snackBar.open('✅ Utilisateur supprimé !', 'Fermer', { duration: 2000 });
-        this.loadUsers();
-      },
-      error: () => this.snackBar.open('❌ Erreur suppression', 'Fermer', { duration: 3000 })
+    Swal.fire({
+      title: 'Confirmer la suppression',
+      text: `Voulez-vous vraiment supprimer ${user.prenom} ${user.nom} ?`,
+      icon: 'warning',
+      showCancelButton: true,
+      confirmButtonColor: '#c62828',
+      cancelButtonColor: '#888',
+      confirmButtonText: 'Oui, supprimer',
+      cancelButtonText: 'Annuler',
+    }).then(result => {
+      if (result.isConfirmed) {
+        this.userService.delete(user.id!).subscribe({
+          next: () => {
+            Swal.fire({
+              title: 'Supprimé !',
+              text: `${user.prenom} ${user.nom} a été supprimé.`,
+              icon: 'success',
+              confirmButtonColor: '#c62828',
+              timer: 2000,
+              timerProgressBar: true,
+            });
+            this.loadUsers();
+          },
+          error: () => {
+            Swal.fire({
+              title: 'Erreur',
+              text: 'Une erreur est survenue lors de la suppression.',
+              icon: 'error',
+              confirmButtonColor: '#c62828',
+            });
+          }
+        });
+      }
     });
   }
 
@@ -204,10 +150,10 @@ export class UsersComponent implements OnInit {
   getRoleColor(role: string): string {
     switch (role) {
       case 'ROLE_ADMIN':
-      case 'ADMIN':          return 'warn';
+      case 'ADMIN':               return 'warn';
       case 'ROLE_RESPONSABLE_RH':
-      case 'RESPONSABLE_RH': return 'accent';
-      default:               return 'primary';
+      case 'RESPONSABLE_RH':      return 'accent';
+      default:                    return 'primary';
     }
   }
 

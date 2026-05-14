@@ -126,7 +126,6 @@ $blanc:       #FFFFFF;
   gap: 16px;
 
   @media (max-width: 1100px) { grid-template-columns: repeat(3, 1fr); }
-  @media (max-width: 700px)  { grid-template-columns: repeat(2, 1fr); }
 }
 
 .kpi-card {
@@ -141,6 +140,29 @@ $blanc:       #FFFFFF;
   transition: box-shadow 0.2s;
 
   &:hover { box-shadow: 0 4px 16px rgba(0,0,0,0.08); }
+}
+
+// ── Carte "Score actuel" mise en avant ────────────────
+.kpi-card--highlight {
+  border-width: 2px;
+  padding: 22px 20px;
+
+  .kpi-value--large {
+    font-size: 28px;
+  }
+
+  &.kpi-card--red {
+    border-color: rgba($rouge, 0.4);
+    background: linear-gradient(135deg, $blanc 60%, rgba($rouge, 0.04));
+  }
+  &.kpi-card--orange {
+    border-color: rgba(#FF6B00, 0.4);
+    background: linear-gradient(135deg, $blanc 60%, rgba(#FF6B00, 0.04));
+  }
+  &.kpi-card--green {
+    border-color: rgba(#2E7D32, 0.4);
+    background: linear-gradient(135deg, $blanc 60%, rgba(#2E7D32, 0.04));
+  }
 }
 
 .kpi-icon {
@@ -189,21 +211,29 @@ $blanc:       #FFFFFF;
   font-weight: 700;
   padding: 2px 8px;
   border-radius: 10px;
+
+  &.badge-eleve  { background: #FFEBEE; color: $rouge; }
+  &.badge-moyen  { background: #FFF3E0; color: #E65100; }
+  &.badge-faible { background: #E8F5E9; color: #2E7D32; }
 }
 
 // ══════════════════════════════════════════════════════
-// CHART CARD
+// COMBINED CARD (graphique + tableau)
 // ══════════════════════════════════════════════════════
-.chart-card {
+.combined-card {
   border-radius: 12px !important;
   border: 1px solid $bordure !important;
   box-shadow: none !important;
+  background: $blanc !important;
+  overflow: hidden;
+}
 
-  mat-card-header {
-    padding: 20px 24px 0;
-  }
+// ── En-têtes de section ───────────────────────────────
+.section-header {
+  padding: 20px 24px 0 !important;
 
-  mat-card-title {
+  mat-card-title,
+  .section-title {
     display: flex;
     align-items: center;
     gap: 8px;
@@ -212,7 +242,8 @@ $blanc:       #FFFFFF;
     color: $texte !important;
   }
 
-  mat-card-subtitle {
+  mat-card-subtitle,
+  .section-subtitle {
     font-size: 12px !important;
     color: $texte-muted !important;
     margin-top: 4px;
@@ -224,34 +255,55 @@ $blanc:       #FFFFFF;
     width: 20px;
     height: 20px;
   }
+}
 
-  mat-card-content { padding: 16px 24px 20px; }
+.section-header--table {
+  padding: 20px 24px 0;
+
+  .section-title-block {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+  }
+
+  .section-title {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 16px;
+    font-weight: 700;
+    color: $texte;
+
+    .card-icon {
+      color: $rouge;
+      font-size: 20px;
+      width: 20px;
+      height: 20px;
+    }
+  }
+
+  .section-subtitle {
+    font-size: 12px;
+    color: $texte-muted;
+    margin-left: 28px;
+  }
+}
+
+// ── Divider ───────────────────────────────────────────
+mat-divider {
+  margin: 0 !important;
+  border-top-color: $bordure !important;
+}
+
+// ── Section graphique ─────────────────────────────────
+.chart-section {
+  padding: 16px 24px 24px !important;
 }
 
 .chart-wrapper {
   position: relative;
   height: 320px;
   width: 100%;
-}
-
-.seuil-label {
-  position: absolute;
-  top: 50%;       // 60% du max = 0.6 → ligne à ~40% du bas = 60% du haut
-  right: 16px;
-  display: flex;
-  align-items: center;
-  gap: 6px;
-  font-size: 11px;
-  color: $texte-muted;
-  pointer-events: none;
-}
-
-.seuil-dot {
-  width: 8px;
-  height: 8px;
-  border-radius: 50%;
-  background: $rouge;
-  opacity: 0.5;
 }
 
 .chart-legend {
@@ -277,42 +329,29 @@ $blanc:       #FFFFFF;
   flex-shrink: 0;
 }
 
-// ══════════════════════════════════════════════════════
-// TABLE CARD
-// ══════════════════════════════════════════════════════
-.table-card {
-  border-radius: 12px !important;
-  border: 1px solid $bordure !important;
-  box-shadow: none !important;
-
-  mat-card-header { padding: 20px 24px 0; }
-  mat-card-content { padding: 16px 0 0; overflow: hidden; }
-
-  mat-card-title {
-    display: flex;
-    align-items: center;
-    gap: 8px;
-    font-size: 16px !important;
-    font-weight: 700 !important;
-    color: $texte !important;
-  }
-
-  mat-card-subtitle {
-    font-size: 12px !important;
-    color: $texte-muted !important;
-  }
-
-  .card-icon {
-    color: $rouge;
-    font-size: 20px;
-    width: 20px;
-    height: 20px;
-  }
+.legend-dash {
+  width: 18px;
+  height: 2px;
+  background: $rouge;
+  opacity: 0.6;
+  border-radius: 1px;
+  border-top: 2px dashed $rouge;
+  background: none;
 }
 
+// ── Section tableau ───────────────────────────────────
+.table-section {
+  padding: 0 !important;
+  overflow: hidden;
+}
+
+// ══════════════════════════════════════════════════════
+// TABLE
+// ══════════════════════════════════════════════════════
 .historique-table {
   width: 100%;
   border-collapse: collapse;
+  background: $blanc;
 
   th.mat-header-cell {
     font-size: 11px;
@@ -323,6 +362,11 @@ $blanc:       #FFFFFF;
     background: #FAFAFA;
     border-bottom: 1px solid $bordure;
     padding: 12px 20px;
+
+    // Flèche de tri
+    .mat-sort-header-arrow {
+      color: $rouge;
+    }
   }
 
   td.mat-cell {
@@ -339,7 +383,14 @@ $blanc:       #FFFFFF;
   }
 }
 
-// ── Cellules spécifiques ───────────────────────────────
+// Paginator
+mat-paginator {
+  background: $blanc;
+  border-top: 1px solid $bordure;
+  font-size: 12px;
+}
+
+// ── Cellules spécifiques ──────────────────────────────
 .date-cell {
   display: flex;
   align-items: center;
@@ -377,12 +428,6 @@ $blanc:       #FFFFFF;
   height: 100%;
   border-radius: 2px;
   transition: width 0.6s ease;
-}
-
-.seuil-value {
-  font-family: monospace;
-  font-size: 13px;
-  color: $texte-muted;
 }
 
 .model-badge {
@@ -429,10 +474,4 @@ $blanc:       #FFFFFF;
     color: #2E7D32;
     border: 1px solid rgba(#2E7D32, 0.3);
   }
-}
-
-.kpi-badge {
-  &.badge-eleve  { background: #FFEBEE; color: $rouge; }
-  &.badge-moyen  { background: #FFF3E0; color: #E65100; }
-  &.badge-faible { background: #E8F5E9; color: #2E7D32; }
 }

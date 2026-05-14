@@ -1,22 +1,24 @@
 <div class="login-container">
   <mat-card class="login-card">
 
-    <!-- Logo Ooredoo -->
-    <div class="login-header">
-      <div class="logo-container">
-        <span class="logo-text">Ooredoo</span>
+    <!-- Panneau gauche : Logo -->
+    <div class="login-left-panel">
+      <div class="logo-wrapper">
+        <img src="ooredoo_logoLogin.png" alt="Logo Ooredoo" class="company-logo" />
       </div>
-      <h1 class="app-title">HR Attrition Predictor</h1>
-      <p class="app-subtitle">Système Intelligent de Prédiction du Turnover</p>
     </div>
 
-    <mat-card-content>
+    <!-- Panneau droit : Formulaire -->
+    <div class="login-right-panel">
 
       <!-- Message d'erreur -->
       <div class="error-message" *ngIf="errorMessage">
         <mat-icon>error_outline</mat-icon>
         <span>{{ errorMessage }}</span>
       </div>
+
+      <h1 class="form-title">Connexion</h1>
+      <p class="form-subtitle">Bienvenue ! Veuillez vous connecter.</p>
 
       <!-- Formulaire -->
       <div class="login-form">
@@ -58,9 +60,7 @@
         </button>
 
       </div>
-    </mat-card-content>
-
-    
+    </div>
 
   </mat-card>
 </div>

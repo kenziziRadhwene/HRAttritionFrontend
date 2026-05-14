@@ -49,3 +49,51 @@ body {
   padding: 6px 12px !important;
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.25) !important;
 }
+
+
+
+
+
+/* Remplacer le bloc app-user-form dans styles.scss */
+
+app-user-form {
+  /* Fond blanc sur tous les états : normal, hover, focus */
+  .mdc-text-field--outlined,
+  .mdc-text-field--outlined:hover,
+  .mdc-text-field--outlined.mdc-text-field--focused {
+    background-color: #ffffff !important;
+  }
+
+  /* Neutralise la variable MDC qui applique le fond gris */
+  .mat-mdc-form-field {
+    --mdc-filled-text-field-container-color: #ffffff;
+    --mdc-filled-text-field-focus-container-color: #ffffff;
+    --mdc-filled-text-field-hover-container-color: #ffffff;
+  }
+
+  /* L'input lui-même transparent pour ne pas doubler */
+  .mdc-text-field__input {
+    background-color: transparent !important;
+  }
+
+  /* ✅ Neutralise le fond autofill du navigateur */
+  input:-webkit-autofill,
+  input:-webkit-autofill:hover,
+  input:-webkit-autofill:focus,
+  input:-webkit-autofill:active {
+    -webkit-box-shadow: 0 0 0px 1000px #ffffff inset !important;
+    box-shadow: 0 0 0px 1000px #ffffff inset !important;
+    -webkit-text-fill-color: inherit !important;
+    transition: background-color 5000s ease-in-out 0s;
+  }
+
+  /* Select */
+  .mat-mdc-select {
+    background-color: transparent !important;
+  }
+
+  /* Supprime l'espace en bas réservé aux messages d'erreur */
+  .mat-mdc-form-field-subscript-wrapper {
+    display: none !important;
+  }
+}

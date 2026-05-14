@@ -20,11 +20,14 @@ import { MatDialog, MatDialogModule } from '@angular/material/dialog';
 import { EmployeeService } from '../../../core/services/employee.service';
 import { Employee } from '../../../shared/models/employee.model';
 import { BatchReportDialogComponent, BatchReportData } from '../batch-report-dialog/batch-report-dialog.component';
+import { MatDividerModule } from '@angular/material/divider';
+import Swal from 'sweetalert2';
 
 @Component({
   selector: 'app-employee-list',
   standalone: true,
   imports: [
+    MatDividerModule,
     CommonModule,
     FormsModule,
     MatCardModule,
@@ -155,32 +158,63 @@ export class EmployeeListComponent implements OnInit, AfterViewInit {
   }
 
   openBatchPredictionDialog(): void {
-    this.batchInProgress = true;
-    const snackBarRef = this.snackBar.open('🚀 Lancement de la prédiction batch...', '', { duration: 3000 });
+    Swal.fire({
+      title: 'Prédiction Batch',
+      text: 'Voulez-vous lancer la prédiction pour tous les employés ?',
+      icon: 'question',
+      showCancelButton: true,
+      confirmButtonText: 'Oui, lancer',
+      cancelButtonText: 'Annuler',
+      confirmButtonColor: '#1976d2',
+      cancelButtonColor: '#757575',
+      reverseButtons: true
+    }).then((result) => {
+      if (!result.isConfirmed) return;
 
-    this.employeeService.predictAll().subscribe({
-      next: (response: BatchReportData) => {
-        this.batchInProgress = false;
-        snackBarRef.dismiss();
+      this.batchInProgress = true;
+      const snackBarRef = this.snackBar.open('🚀 Lancement de la prédiction batch...', '', { duration: 3000 });
 
-        this.dialog.open(BatchReportDialogComponent, {
-          width: '600px',
-          data: response
-        });
+      this.employeeService.predictAll().subscribe({
+        next: (response: BatchReportData) => {
+          this.batchInProgress = false;
+          snackBarRef.dismiss();
 
-        this.loadEmployees();
+          this.dialog.open(BatchReportDialogComponent, {
+            width: '600px',
+            data: response
+          });
 
-        if (response.failedCount === 0) {
-          this.snackBar.open('✅ Batch terminé avec succès !', 'Fermer', { duration: 5000 });
-        } else {
-          this.snackBar.open(`⚠️ Batch terminé: ${response.successCount} succès, ${response.failedCount} échecs`, 'Fermer', { duration: 5000 });
+          this.loadEmployees();
+
+          if (response.failedCount === 0) {
+            Swal.fire({
+              title: 'Batch terminé !',
+              text: `${response.successCount} employé(s) traité(s) avec succès.`,
+              icon: 'success',
+              confirmButtonColor: '#1976d2',
+              timer: 4000,
+              timerProgressBar: true
+            });
+          } else {
+            Swal.fire({
+              title: 'Batch terminé avec avertissements',
+              html: `✅ <b>${response.successCount}</b> succès<br>❌ <b>${response.failedCount}</b> échec(s)`,
+              icon: 'warning',
+              confirmButtonColor: '#1976d2'
+            });
+          }
+        },
+        error: (err) => {
+          this.batchInProgress = false;
+          console.error('Erreur batch:', err);
+          Swal.fire({
+            title: 'Erreur',
+            text: 'Une erreur est survenue lors de la prédiction batch.',
+            icon: 'error',
+            confirmButtonColor: '#1976d2'
+          });
         }
-      },
-      error: (err) => {
-        this.batchInProgress = false;
-        console.error('Erreur batch:', err);
-        this.snackBar.open('❌ Erreur lors de la prédiction batch', 'Fermer', { duration: 5000 });
-      }
+      });
     });
   }
 
@@ -217,19 +251,62 @@ export class EmployeeListComponent implements OnInit, AfterViewInit {
   }
 
   // ── Raccourcissement des noms de département ──
+
   formatDept(dept: string): string {
     const map: { [key: string]: string } = {
-      'Research & Development': 'R&D',
-      'Sales':                  'Ventes',
-      'Human Resources':        'RH',
-      'Information Technology': 'IT',
-      'Finance':                'Finance',
-      'Marketing':              'Mktg',
-      'Operations':             'Opérat.',
-      'Legal':                  'Juridique',
-      'Customer Service':       'Client',
-      'Engineering':            'Ingén.',
+      'DIRECTION_GENERALE':                  'Dir. Générale',
+      'DIRECTION_RESSOURCES_HUMAINES':       'Ressources Humaines',
+      'DIRECTION_ADMINISTRATIVE_FINANCIERE': 'Admin. & Finance',
+      'DIRECTION_JURIDIQUE':                 'Juridique',
+      'DIRECTION_TECHNOLOGIQUE':             'Technologie',
+      'DIRECTION_RELATIONS_OPERATEURS':      'Relations Opérateurs',
+      'DIRECTION_SERVICE_CLIENT':            'Service Client',
     };
-    return map[dept] ?? dept;
+    return map[dept] ?? dept
+      .toLowerCase()
+      .replace(/_/g, ' ')
+      .replace(/\b\w/g, c => c.toUpperCase());
+  }
+
+
+
+
+  formatPoste(poste: string): string {
+    const map: { [key: string]: string } = {
+      'DIRECTEUR_GENERAL':          'Directeur Général',
+      'ASSISTANT_DIRECTION':        'Assistant de Direction',
+      'RESPONSABLE_RH':             'Responsable RH',
+      'CHARGE_RECRUTEMENT':         'Chargé de Recrutement',
+      'CHARGE_FORMATION':           'Chargé de Formation',
+      'DIRECTEUR_FINANCIER':        'Directeur Financier',
+      'COMPTABLE':                  'Comptable',
+      'CONTROLEUR_GESTION':         'Contrôleur de Gestion',
+      'DIRECTEUR_JURIDIQUE':        'Directeur Juridique',
+      'JURISTE':                    'Juriste',
+      'CONSEILLER_JURIDIQUE':       'Conseiller Juridique',
+      'DIRECTEUR_TECHNIQUE':        'Directeur Technique',
+      'ARCHITECTE_SYSTEME':         'Architecte Système',
+      'INGENIEUR_RESEAU':           'Ingénieur Réseau',
+      'INGENIEUR_TELECOM':          'Ingénieur Télécom',
+      'TECHNICIEN_RESEAU':          'Technicien Réseau',
+      'DIRECTEUR_SI':               'Directeur SI',
+      'DEVELOPPEUR':                'Développeur',
+      'ANALYSTE_SYSTEME':           'Analyste Système',
+      'ADMINISTRATEUR_SYSTEME':     'Administrateur Système',
+      'DATA_ENGINEER':              'Data Engineer',
+      'DATA_ANALYST':               'Data Analyst',
+      'DIRECTEUR_COMMERCIAL':       'Directeur Commercial',
+      'RESPONSABLE_COMMERCIAL':     'Responsable Commercial',
+      'COMMERCIAL':                 'Commercial',
+      'CHARGE_MARKETING':           'Chargé Marketing',
+      'DIRECTEUR_SERVICE_CLIENT':   'Directeur Service Client',
+      'RESPONSABLE_SERVICE_CLIENT': 'Responsable Service Client',
+      'CONSEILLER_CLIENT':          'Conseiller Client',
+      'SUPERVISEUR_CENTRE_APPEL':   'Superviseur Centre d\'Appel',
+    };
+    return map[poste] ?? poste
+      .toLowerCase()
+      .replace(/_/g, ' ')
+      .replace(/\b\w/g, c => c.toUpperCase());
   }
 }

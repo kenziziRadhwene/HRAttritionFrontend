@@ -3,26 +3,7 @@
   <!-- ══════════════════════════════════════════════════
        TOOLBAR
   ══════════════════════════════════════════════════ -->
-  <div class="page-toolbar">
-    <div class="toolbar-left">
-      <button mat-icon-button (click)="goBack()" matTooltip="Retour à la fiche employé" class="btn-back">
-        <mat-icon>arrow_back</mat-icon>
-      </button>
-      <div class="toolbar-title">
-        <h1>Historique des scores de risque</h1>
-        <span class="toolbar-subtitle" *ngIf="employee">
-          {{ employee.firstName }} {{ employee.lastName }}
-          <span class="matricule-badge">{{ employee.matricule }}</span>
-        </span>
-      </div>
-    </div>
-    <div class="toolbar-actions">
-      <button mat-stroked-button (click)="goToSimulation()" class="btn-simulation">
-        <mat-icon>science</mat-icon>
-        Simuler une action
-      </button>
-    </div>
-  </div>
+
 
   <!-- ══════════════════════════════════════════════════
        LOADING / ERROR
@@ -59,6 +40,7 @@
       <!-- ── KPI CARDS ───────────────────────────────── -->
       <div class="kpi-grid">
 
+        <!-- Prédictions effectuées -->
         <div class="kpi-card">
           <div class="kpi-icon kpi-icon--blue">
             <mat-icon>history</mat-icon>
@@ -69,12 +51,15 @@
           </div>
         </div>
 
-        <div class="kpi-card">
-          <div class="kpi-icon" [ngClass]="'kpi-icon--' + (scoreActuel >= 0.85 ? 'red' : scoreActuel >= 0.60 ? 'orange' : 'green')">
+        <!-- Score actuel — carte mise en avant -->
+        <div class="kpi-card kpi-card--highlight"
+             [ngClass]="'kpi-card--' + (scoreActuel >= 0.85 ? 'red' : scoreActuel >= 0.60 ? 'orange' : 'green')">
+          <div class="kpi-icon"
+               [ngClass]="'kpi-icon--' + (scoreActuel >= 0.85 ? 'red' : scoreActuel >= 0.60 ? 'orange' : 'green')">
             <mat-icon>{{ getNiveauIcon(historique[0].niveauRisque) }}</mat-icon>
           </div>
           <div class="kpi-body">
-            <span class="kpi-value">{{ formatProbabilite(scoreActuel) }}</span>
+            <span class="kpi-value kpi-value--large">{{ formatProbabilite(scoreActuel) }}</span>
             <span class="kpi-label">Score actuel</span>
           </div>
           <span class="kpi-badge" [ngClass]="getNiveauClass(historique[0].niveauRisque)">
@@ -82,6 +67,7 @@
           </span>
         </div>
 
+        <!-- Score minimum -->
         <div class="kpi-card">
           <div class="kpi-icon kpi-icon--green">
             <mat-icon>arrow_downward</mat-icon>
@@ -92,6 +78,7 @@
           </div>
         </div>
 
+        <!-- Score maximum -->
         <div class="kpi-card">
           <div class="kpi-icon kpi-icon--red">
             <mat-icon>arrow_upward</mat-icon>
@@ -102,6 +89,7 @@
           </div>
         </div>
 
+        <!-- Tendance -->
         <div class="kpi-card">
           <div class="kpi-icon"
                [ngClass]="tendance === 'hausse' ? 'kpi-icon--red' : tendance === 'baisse' ? 'kpi-icon--green' : 'kpi-icon--blue'">
@@ -119,9 +107,11 @@
 
       </div>
 
-      <!-- ── GRAPHIQUE COURBE ────────────────────────── -->
-      <mat-card class="chart-card">
-        <mat-card-header>
+      <!-- ── GRAPHIQUE + TABLEAU (une seule card) ────── -->
+      <mat-card class="combined-card">
+
+        <!-- Section graphique -->
+        <mat-card-header class="section-header">
           <mat-card-title>
             <mat-icon class="card-icon">show_chart</mat-icon>
             Évolution du score de risque dans le temps
@@ -131,15 +121,9 @@
             — {{ historique.length }} prédiction{{ historique.length > 1 ? 's' : '' }}
           </mat-card-subtitle>
         </mat-card-header>
-        <mat-card-content>
+
+        <mat-card-content class="chart-section">
           <div class="chart-wrapper">
-
-            <!-- Ligne de seuil (indication visuelle) -->
-            <div class="seuil-label">
-              <span class="seuil-dot"></span>
-              Seuil de risque
-            </div>
-
             <canvas baseChart
                     [data]="chartData"
                     [options]="chartOptions"
@@ -161,27 +145,33 @@
               <span class="legend-dot" style="background:#D40000"></span>
               Risque élevé (≥ 85%)
             </span>
+            <span class="legend-item">
+              <span class="legend-dash"></span>
+              Seuil de décision
+            </span>
           </div>
         </mat-card-content>
-      </mat-card>
 
-      <!-- ── TABLEAU HISTORIQUE ──────────────────────── -->
-      <mat-card class="table-card">
-        <mat-card-header>
-          <mat-card-title>
-            <mat-icon class="card-icon">table_chart</mat-icon>
-            Détail des prédictions
-          </mat-card-title>
-          <mat-card-subtitle>
-            Du plus récent au plus ancien
-          </mat-card-subtitle>
-        </mat-card-header>
-        <mat-card-content>
-          <table mat-table [dataSource]="historique" class="historique-table">
+        <!-- Divider entre graphique et tableau -->
+        <mat-divider></mat-divider>
+
+        <!-- Section tableau -->
+        <div class="section-header section-header--table">
+          <div class="section-title-block">
+            <div class="section-title">
+              <mat-icon class="card-icon">table_chart</mat-icon>
+              Détail des prédictions
+            </div>
+            <div class="section-subtitle">Du plus récent au plus ancien — cliquez sur un en-tête pour trier</div>
+          </div>
+        </div>
+
+        <mat-card-content class="table-section">
+          <table mat-table [dataSource]="dataSource" matSort class="historique-table">
 
             <!-- Date -->
             <ng-container matColumnDef="date">
-              <th mat-header-cell *matHeaderCellDef>Date de prédiction</th>
+              <th mat-header-cell *matHeaderCellDef mat-sort-header>Date de prédiction</th>
               <td mat-cell *matCellDef="let row">
                 <div class="date-cell">
                   <mat-icon class="date-icon">calendar_today</mat-icon>
@@ -192,7 +182,7 @@
 
             <!-- Probabilité -->
             <ng-container matColumnDef="probabilite">
-              <th mat-header-cell *matHeaderCellDef>Probabilité</th>
+              <th mat-header-cell *matHeaderCellDef mat-sort-header>Probabilité</th>
               <td mat-cell *matCellDef="let row">
                 <div class="proba-cell">
                   <span class="proba-value" [style.color]="getNiveauColor(row.niveauRisque)">
@@ -210,7 +200,7 @@
 
             <!-- Niveau risque -->
             <ng-container matColumnDef="niveauRisque">
-              <th mat-header-cell *matHeaderCellDef>Niveau de risque</th>
+              <th mat-header-cell *matHeaderCellDef mat-sort-header>Niveau de risque</th>
               <td mat-cell *matCellDef="let row">
                 <span class="niveau-badge" [ngClass]="getNiveauClass(row.niveauRisque)">
                   <mat-icon class="badge-icon">{{ getNiveauIcon(row.niveauRisque) }}</mat-icon>
@@ -219,27 +209,25 @@
               </td>
             </ng-container>
 
-            <!-- Seuil -->
-            <ng-container matColumnDef="seuil">
-              <th mat-header-cell *matHeaderCellDef>Seuil utilisé</th>
-              <td mat-cell *matCellDef="let row">
-                <span class="seuil-value">{{ formatProbabilite(row.seuilUtilise) }}</span>
-              </td>
-            </ng-container>
-
             <!-- Version modèle -->
             <ng-container matColumnDef="modele">
-              <th mat-header-cell *matHeaderCellDef>Version modèle</th>
+              <th mat-header-cell *matHeaderCellDef mat-sort-header>Version modèle</th>
               <td mat-cell *matCellDef="let row">
                 <span class="model-badge">{{ row.modelVersion }}</span>
               </td>
             </ng-container>
 
             <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
-            <tr mat-row *matRowDef="let row; columns: displayedColumns;"
-                class="table-row"></tr>
+            <tr mat-row *matRowDef="let row; columns: displayedColumns;" class="table-row"></tr>
           </table>
+
+          <!-- Pagination -->
+          <mat-paginator [pageSizeOptions]="[5, 10, 25]"
+                         pageSize="10"
+                         showFirstLastButtons>
+          </mat-paginator>
         </mat-card-content>
+
       </mat-card>
 
     </ng-container>

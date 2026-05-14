@@ -1,23 +1,27 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, ViewChild, AfterViewInit } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
 import { CommonModule } from '@angular/common';
+import { forkJoin } from 'rxjs';
 import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
 import { MatCardModule } from '@angular/material/card';
-import { MatTableModule } from '@angular/material/table';
+import { MatTableModule, MatTableDataSource } from '@angular/material/table';
+import { MatSort, MatSortModule } from '@angular/material/sort';
+import { MatPaginator, MatPaginatorModule } from '@angular/material/paginator';
+import { MatDividerModule } from '@angular/material/divider';
 import { MatChipsModule } from '@angular/material/chips';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { MatTooltipModule } from '@angular/material/tooltip';
-import { MatBadgeModule } from '@angular/material/badge';
 import { BaseChartDirective } from 'ng2-charts';
 import { Chart, ChartConfiguration, ChartData, registerables } from 'chart.js';
+import annotationPlugin from 'chartjs-plugin-annotation';
 
 import { ScoreRisqueService } from '../../../core/services/score-risque.service';
 import { EmployeeService } from '../../../core/services/employee.service';
 import { ScoreRisque } from '../../../shared/models/score-risque.model';
 import { Employee } from '../../../shared/models/employee.model';
 
-Chart.register(...registerables);
+Chart.register(...registerables, annotationPlugin);
 
 @Component({
   selector: 'app-employee-historique',
@@ -28,24 +32,30 @@ Chart.register(...registerables);
     MatIconModule,
     MatCardModule,
     MatTableModule,
+    MatSortModule,
+    MatPaginatorModule,
+    MatDividerModule,
     MatChipsModule,
     MatProgressSpinnerModule,
     MatTooltipModule,
-    MatBadgeModule,
     BaseChartDirective,
   ],
   templateUrl: './employee-historique.component.html',
   styleUrls: ['./employee-historique.component.scss'],
 })
-export class EmployeeHistoriqueComponent implements OnInit {
+export class EmployeeHistoriqueComponent implements OnInit, AfterViewInit {
+
+  @ViewChild(MatSort) sort!: MatSort;
+  @ViewChild(MatPaginator) paginator!: MatPaginator;
 
   employeeId!: number;
   employee: Employee | null = null;
   historique: ScoreRisque[] = [];
+  dataSource = new MatTableDataSource<ScoreRisque>([]);
   loading = true;
   error = false;
 
-  displayedColumns = ['date', 'probabilite', 'niveauRisque', 'seuil', 'modele'];
+  displayedColumns = ['date', 'probabilite', 'niveauRisque', 'modele'];
 
   // ── KPIs ──────────────────────────────────────────────
   get scoreActuel(): number {
@@ -90,6 +100,29 @@ export class EmployeeHistoriqueComponent implements OnInit {
           label: (ctx) => ` Probabilité : ${((ctx.parsed.y ?? 0) * 100).toFixed(1)}%`,
         },
       },
+      // ── Ligne de seuil via annotation plugin ──────────
+      annotation: {
+        annotations: {
+          seuilLine: {
+            type: 'line',
+            yMin: 0,    // sera mis à jour dans buildChart()
+            yMax: 0,
+            borderColor: '#D40000',
+            borderWidth: 1.5,
+            borderDash: [6, 4],
+            label: {
+              display: true,
+              content: 'Seuil de risque',
+              position: 'end',
+              backgroundColor: 'rgba(212,0,0,0.08)',
+              color: '#D40000',
+              font: { size: 11, weight: 'bold' },
+              padding: { x: 8, y: 4 },
+              borderRadius: 4,
+            },
+          },
+        },
+      },
     },
     scales: {
       x: {
@@ -122,21 +155,25 @@ export class EmployeeHistoriqueComponent implements OnInit {
     this.loadData();
   }
 
+  ngAfterViewInit(): void {
+    this.dataSource.sort = this.sort;
+    this.dataSource.paginator = this.paginator;
+  }
+
   loadData(): void {
     this.loading = true;
+    this.error = false;
 
-    // Charger l'employé
-    this.employeeService.getById(this.employeeId).subscribe({
-      next: (emp: Employee) => (this.employee = emp),
-      error: () => (this.employee = null),
-    });
-
-    // Charger l'historique
-    this.scoreService.getHistorique(this.employeeId).subscribe({
-      next: (scores) => {
-        // Tri chronologique (du plus ancien au plus récent) pour le graphique
-        this.historique = scores; // tableau descendant pour le tableau
-        const chronologique = [...scores].reverse();
+    // ── forkJoin : les deux requêtes en parallèle, résultat synchronisé ──
+    forkJoin({
+      employee: this.employeeService.getById(this.employeeId),
+      scores: this.scoreService.getHistorique(this.employeeId),
+    }).subscribe({
+      next: ({ employee, scores }) => {
+        this.employee = employee;
+        this.historique = scores;                    // ordre descendant pour les KPIs
+        this.dataSource.data = scores;
+        const chronologique = [...scores].reverse(); // ordre ascendant pour le graphique
         this.buildChart(chronologique);
         this.loading = false;
       },
@@ -154,16 +191,20 @@ export class EmployeeHistoriqueComponent implements OnInit {
       })
     );
     const data = chronologique.map(s => s.probabilite);
-
-    // Couleurs dynamiques selon le niveau de risque
     const pointColors = chronologique.map(s => this.getNiveauColor(s.niveauRisque));
+
+    // Mettre à jour la valeur de l'annotation de seuil
+    const seuil = chronologique.length > 0 ? chronologique[chronologique.length - 1].seuilUtilise : 0.5;
+    const annotations = (this.chartOptions as any).plugins.annotation.annotations;
+    annotations.seuilLine.yMin = seuil;
+    annotations.seuilLine.yMax = seuil;
 
     this.chartData = {
       labels,
       datasets: [
         {
           data,
-          label: 'Probabilité d\'attrition',
+          label: "Probabilité d'attrition",
           fill: true,
           tension: 0.4,
           borderColor: '#D40000',
