@@ -35,6 +35,14 @@ export const routes: Routes = [
       },
 
       {
+        path: 'manager-dashboard',
+        canActivate: [roleGuard(['ROLE_MANAGER'])],
+        loadComponent: () =>
+          import('./features/manager-dashboard/manager-dashboard.component')
+            .then(m => m.ManagerDashboardComponent)
+      },
+
+      {
         path: 'employees',
         canActivate: [roleGuard(['ROLE_ADMIN', 'ROLE_RESPONSABLE_RH', 'ROLE_MANAGER'])],
         loadComponent: () =>
@@ -60,7 +68,7 @@ export const routes: Routes = [
 
       {
         path: 'employees/:id',
-        canActivate: [roleGuard(['ROLE_ADMIN', 'ROLE_RESPONSABLE_RH'])],
+        canActivate: [roleGuard(['ROLE_ADMIN', 'ROLE_RESPONSABLE_RH', 'ROLE_MANAGER'])],
         loadComponent: () =>
           import('./features/employees/employee-detail/employee-detail.component')
             .then(m => m.EmployeeDetailComponent)
@@ -106,7 +114,6 @@ export const routes: Routes = [
             .then(m => m.UsersComponent)
       },
 
-      // ✅ Déplacées ici, dans les children du layout
       {
         path: 'users/new',
         canActivate: [roleGuard(['ROLE_ADMIN'])],

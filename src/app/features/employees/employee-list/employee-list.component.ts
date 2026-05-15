@@ -22,6 +22,7 @@ import { Employee } from '../../../shared/models/employee.model';
 import { BatchReportDialogComponent, BatchReportData } from '../batch-report-dialog/batch-report-dialog.component';
 import { MatDividerModule } from '@angular/material/divider';
 import Swal from 'sweetalert2';
+import {AuthService} from '../../../core/services/auth.service';
 
 @Component({
   selector: 'app-employee-list',
@@ -55,6 +56,9 @@ export class EmployeeListComponent implements OnInit, AfterViewInit {
   dataSource = new MatTableDataSource<Employee>([]);
   loading = true;
 
+  isManager = false;
+  managerDepartement = '';
+
   // Filtres
   searchText = '';
   selectedDepartment = '';
@@ -79,10 +83,22 @@ export class EmployeeListComponent implements OnInit, AfterViewInit {
     private employeeService: EmployeeService,
     private snackBar: MatSnackBar,
     private router: Router,
-    private dialog: MatDialog
+    private dialog: MatDialog,
+    private authService: AuthService
+
   ) {}
 
   ngOnInit(): void {
+    this.isManager = this.authService.getRole() === 'ROLE_MANAGER';
+    this.managerDepartement = this.authService.getDepartement() || '';
+
+    if (this.isManager) {
+      this.displayedColumns = [
+        'matricule', 'nom',
+        'poste', 'risque', 'probabilite'  // ← 'departement' supprimé
+      ];
+    }
+
     this.loadEmployees();
   }
 
@@ -96,7 +112,13 @@ export class EmployeeListComponent implements OnInit, AfterViewInit {
     this.employeeService.getAll().subscribe({
       next: (data) => {
         this.employees = data;
-        this.dataSource.data = data;
+
+        // ← filtre automatique si manager
+        if (this.isManager) {
+          this.employees = data.filter(e => e.department === this.managerDepartement);
+        }
+
+        this.dataSource.data = this.employees;
         this.extractDepartments();
         this.loading = false;
       },

@@ -30,12 +30,12 @@
           <mat-icon>timeline</mat-icon>
           Historique
         </button>
-        <button mat-stroked-button class="btn-action-secondary" (click)="goToSimulation()">
+        <button mat-stroked-button class="btn-action-secondary" (click)="goToSimulation()" *ngIf="!isManager">
           <mat-icon>science</mat-icon>
           Simulation
         </button>
-        <div class="actions-sep"></div>
-        <button mat-raised-button class="btn-action-primary" (click)="launchPrediction()">
+        <div class="actions-sep" *ngIf="!isManager"></div>
+        <button mat-raised-button class="btn-action-primary" (click)="launchPrediction()" *ngIf="!isManager">
           <mat-icon>psychology</mat-icon>
           Prédire ML
         </button>
@@ -144,7 +144,7 @@
       <mat-tab-group class="detail-tabs" animationDuration="200ms">
 
         <!-- ════ ONGLET 1 : PROFIL ════ -->
-        <mat-tab>
+        <mat-tab *ngIf="!isManager">
           <ng-template mat-tab-label>
             <mat-icon class="tab-icon">person</mat-icon>
             Profil

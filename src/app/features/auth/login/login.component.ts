@@ -51,20 +51,19 @@ export class LoginComponent {
     this.authService.login(this.email, this.motDePasse).subscribe({
       next: (response: any) => {
         this.loading = false;
-        // Redirection selon le rôle
         switch (response.role) {
           case 'ROLE_ADMIN':
           case 'ROLE_RESPONSABLE_RH':
             this.router.navigate(['/dashboard']);
             break;
           case 'ROLE_MANAGER':
-            this.router.navigate(['/team']);
+            this.router.navigate(['/manager-dashboard']); // ✅ modifié
             break;
           default:
             this.router.navigate(['/dashboard']);
         }
       },
-      error: (err) => {
+      error: () => {
         this.loading = false;
         this.errorMessage = 'Email ou mot de passe incorrect.';
       }

@@ -1,9 +1,12 @@
+// ══════════════════════════════════════════════════════════════
+// Votre dashboard.service.ts final (complet)
+// ══════════════════════════════════════════════════════════════
+
 import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Observable } from 'rxjs';
 import { environment } from '../../../environments/environment';
 import { DashboardStats, EvolutionMensuelle } from '../../shared/models/dashboard.model';
-
 
 @Injectable({ providedIn: 'root' })
 export class DashboardService {
@@ -25,5 +28,11 @@ export class DashboardService {
 
   getEvolutionMensuelle(): Observable<EvolutionMensuelle[]> {
     return this.http.get<EvolutionMensuelle[]>(`${environment.apiUrl}/scores/evolution-mensuelle`);
+  }
+
+  // ✅ NOUVELLE MÉTHODE — à ajouter pour le dashboard manager
+  // Réutilise getStatsFiltered() en passant uniquement le département du manager
+  getStatsByDepartement(departement: string): Observable<DashboardStats> {
+    return this.getStatsFiltered(departement, undefined);
   }
 }

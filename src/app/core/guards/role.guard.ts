@@ -16,7 +16,14 @@ export const roleGuard = (roles: string[]): CanActivateFn => {
       return true;
     }
 
-    router.navigate(['/unauthorized']);
+    // ← Redirection intelligente selon le rôle
+    const role = authService.getRole();
+    if (role === 'ROLE_MANAGER') {
+      router.navigate(['/manager-dashboard']);
+    } else {
+      router.navigate(['/unauthorized']);
+    }
+
     return false;
   };
 };

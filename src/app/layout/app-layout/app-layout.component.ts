@@ -116,7 +116,13 @@ export class AppLayoutComponent implements OnInit {
   }
 
   navigateTo(path: string): void {
-    this.router.navigate([path]);
+    const role = this.authService.getRole();
+
+    if (role === 'ROLE_MANAGER' && path === '/team') {
+      this.router.navigate(['/employees']);
+    } else {
+      this.router.navigate([path]);
+    }
   }
 
   logout(): void {

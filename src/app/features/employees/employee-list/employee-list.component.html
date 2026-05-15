@@ -6,7 +6,7 @@
     <!-- En-tête : titre à gauche, boutons à droite -->
     <div class="table-header">
       <span class="table-title">Liste des Employés</span>
-      <div class="action-buttons">
+      <div class="action-buttons" *ngIf="!isManager">
         <button mat-raised-button (click)="openBatchPredictionDialog()" [disabled]="batchInProgress">
           <mat-icon>speed</mat-icon>
           Prédiction Batch
@@ -31,7 +31,7 @@
         <mat-icon matSuffix>search</mat-icon>
       </mat-form-field>
 
-      <mat-form-field appearance="outline" class="filter-field" subscriptSizing="dynamic">
+      <mat-form-field appearance="outline" class="filter-field" subscriptSizing="dynamic" *ngIf="!isManager">
         <mat-label>Département</mat-label>
         <mat-select [(ngModel)]="selectedDepartment" (selectionChange)="applyFilters()">
           <mat-option value="">Tous</mat-option>
@@ -116,19 +116,21 @@
         <ng-container matColumnDef="actions">
           <th mat-header-cell *matHeaderCellDef>Actions</th>
           <td mat-cell *matCellDef="let e">
-            <button mat-icon-button color="primary"
-                    matTooltip="Lancer prédiction ML"
-                    (click)="predict(e, $event)">
-              <mat-icon>psychology</mat-icon>
-            </button>
-            <button mat-icon-button color="accent"
-                    matTooltip="Analyse & Recommandations"
-                    (click)="viewEmployeeDetail(e); $event.stopPropagation()">
-              <mat-icon>insights</mat-icon>
-            </button>
+            <ng-container *ngIf="!isManager">
+              <button mat-icon-button color="primary"
+                      matTooltip="Lancer prédiction ML"
+                      (click)="predict(e, $event)">
+                <mat-icon>psychology</mat-icon>
+              </button>
+              <button mat-icon-button color="accent"
+                      matTooltip="Analyse & Recommandations"
+                      (click)="viewEmployeeDetail(e); $event.stopPropagation()">
+                <mat-icon>insights</mat-icon>
+              </button>
+            </ng-container>
           </td>
         </ng-container>
-
+        
         <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
         <tr mat-row *matRowDef="let row; columns: displayedColumns;"
             class="employee-row"
@@ -143,7 +145,7 @@
         <p>Aucun employé trouvé</p>
         <button mat-stroked-button (click)="resetFilters()">Réinitialiser les filtres</button>
       </div>
-      <!-- Compteur sous le tableau -->
+
       <div class="employee-count">
         <mat-icon>people</mat-icon>
         {{ dataSource.data.length }} employé(s)

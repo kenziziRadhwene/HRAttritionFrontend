@@ -1,0 +1,412 @@
+@use 'sass:color';
+
+$rouge:   #ED1C24;
+$orange:  #FF6B00;
+$vert:    #2E7D32;
+$texte:   #494848;
+$gris:    #888;
+$bg:      #f5f6fa;
+$white:   #ffffff;
+
+
+:host {
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+  min-height: 0;
+  overflow: hidden;    // ← bloque le scroll uniquement ici
+  height: 100%;
+}
+
+// ═══════════════════════════════════════════
+// Conteneur principal
+// ═══════════════════════════════════════════
+.dashboard-container {
+  padding: 24px;
+  background: $bg;
+  flex: 1;
+  min-height: 0;
+  box-sizing: border-box;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+}
+
+// ═══════════════════════════════════════════
+// Loading
+// ═══════════════════════════════════════════
+.loading-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  height: 60vh;
+  gap: 16px;
+  color: $gris;
+
+  .loading-icon {
+    font-size: 48px;
+    width: 48px;
+    height: 48px;
+    animation: spin 1.5s linear infinite;
+  }
+}
+
+@keyframes spin {
+  from { transform: rotate(0deg); }
+  to   { transform: rotate(360deg); }
+}
+
+// ═══════════════════════════════════════════
+// LAYOUT PRINCIPAL — grille 2x2
+// ═══════════════════════════════════════════
+.main-layout {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  grid-template-rows: 1fr 2fr;  // ← haut = 1 part, bas = 2 parts
+  gap: 24px;
+  flex: 1;
+  min-height: 0;
+  overflow: hidden;
+}
+
+// Chaque section occupe exactement 1 cellule de la grille
+.section {
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  min-height: 0;
+}
+
+// ── Section KPI ──
+.kpi-section {
+  .kpi-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    grid-template-rows: 1fr 1fr;
+    gap: 16px;
+    flex: 1;
+    min-height: 0;
+  }
+
+  .kpi-card {
+    min-height: 0;
+    border-radius: 10px !important;
+    background: $white !important;
+    box-shadow: 0 2px 12px rgba(0,0,0,0.07) !important;
+    transition: transform 0.2s, box-shadow 0.2s;
+    display: flex;
+    flex-direction: column;
+
+    &:hover {
+      transform: translateY(-3px);
+      box-shadow: 0 6px 20px rgba(0,0,0,0.12) !important;
+    }
+
+    mat-card-content {
+      padding: 20px !important;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      text-align: center;
+      gap: 4px;
+      flex: 1;
+    }
+
+    .kpi-label {
+      font-size: 12px;
+      color: $gris;
+      font-weight: 500;
+    }
+
+    .kpi-value {
+      font-size: 19px;
+      font-weight: 800;
+      line-height: 1.1;
+      color: $texte;
+    }
+
+    .kpi-percent {
+      font-size: 11px;
+      color: $gris;
+      margin-top: 2px;
+    }
+
+    &.kpi-total  { background: rgba(249,168,37,0.25)  !important; }  // jaune clair
+    &.kpi-risque { background: rgba(212,0,0,0.25)     !important; }  // rouge clair
+    &.kpi-moyen  { background: rgba(255,107,0,0.25)   !important; }  // orange clair
+    &.kpi-faible { background: rgba(46,125,50,0.25)   !important; }  // vert clair
+  }
+}
+
+// ── Section Risque Global ──
+.risque-section {
+  .welcome-card {
+    flex: 1;
+    min-height: 0;
+    border-radius: 6px !important;
+    box-shadow: 0 4px 20px rgba(0,0,0,0.08) !important;
+    background: $rouge !important;
+    display: flex;
+    flex-direction: column;
+
+    mat-card-content {
+      flex: 1;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .welcome-content {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      text-align: center;
+      gap: 12px;
+      padding: 8px 0;
+    }
+
+    .welcome-dept {
+      font-size: 13px;
+      color: rgba(255,255,255,0.8);
+
+    }
+
+    .risk-global {
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+
+      .risk-global-label {
+        font-size: 10px;
+        color: $white;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+      }
+
+      .risk-global-value {
+        font-size: 26px;
+        font-weight: 800;
+        line-height: 1;
+        color: $white !important;
+
+        &.risk-high   { color: $rouge; }
+        &.risk-medium { color: $orange; }
+        &.risk-low    { color: $vert; }
+      }
+    }
+
+    .voir-btn {
+      background: rgba(255,255,255,0.25) !important;
+      color: $white !important;
+      border-radius: 8px !important;
+      font-weight: 600;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      padding: 0 20px;
+      height: 36px;
+
+
+      mat-icon { font-size: 18px; }
+      &:hover { background: color.adjust($rouge, $lightness: -8%) !important; }
+    }
+  }
+}
+
+// ── Section Facteurs ──
+.facteurs-section {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  overflow: hidden;
+  min-height: 0;
+
+  .facteurs-title {
+    font-size: 18px;   // ← augmentez cette valeur
+    font-weight: 600;
+    color: $gris;
+    margin: 0;
+    flex-shrink: 0;
+  }
+
+  .facteur-single-card {
+    flex: 1;
+    min-height: 0;
+    border-radius: 16px !important;
+    background: $white !important;
+    box-shadow: 0 2px 12px rgba(0,0,0,0.07) !important;
+    transition: transform 0.2s, box-shadow 0.2s;
+    display: flex;
+    flex-direction: column;
+
+    &:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 6px 18px rgba(0,0,0,0.11) !important;
+    }
+
+    mat-card-content {
+      flex: 1;
+      display: flex;
+      align-items: center;
+      padding: 12px 20px !important;
+    }
+
+    .facteur-item {
+      display: flex;
+      align-items: center;
+      gap: 14px;
+      width: 100%;
+    }
+
+    .facteur-rank {
+      width: 36px;
+      height: 36px;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-weight: 800;
+      font-size: 15px;
+      flex-shrink: 0;
+
+      &.rank-1 { background: rgba(212,0,0,0.12);  color: $rouge;   }
+      &.rank-2 { background: rgba(255,107,0,0.12); color: $orange;  }
+      &.rank-3 { background: rgba(255,193,7,0.15); color: #F9A825;  }
+    }
+
+    .facteur-info {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+
+      .facteur-label {
+        font-size: 14px;
+        font-weight: 600;
+        color: $texte;
+      }
+
+      .facteur-bar-row {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+
+        mat-progress-bar { flex: 1; border-radius: 4px; }
+
+        .facteur-percent {
+          font-size: 13px;
+          font-weight: 700;
+          color: $texte;
+          min-width: 42px;
+          text-align: right;
+        }
+      }
+    }
+  }
+
+  .no-facteurs-card .no-facteurs {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    color: $gris;
+    font-size: 14px;
+  }
+}
+
+// ── Section Graphique ──
+.chart-section {
+  .chart-card {
+    flex: 1;
+    min-height: 0;
+    border-radius: 6px !important;
+    background: $white !important;
+    box-shadow: 0 2px 16px rgba(0,0,0,0.07) !important;
+    display: flex;
+    flex-direction: column;
+
+    mat-card-header {
+      padding: 20px 20px 0;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      text-align: center;
+      flex-shrink: 0;
+    }
+
+    mat-card-title {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      font-size: 16px !important;
+      font-weight: 600 !important;
+      color: $texte;
+    }
+
+    mat-card-subtitle {
+      font-size: 12px;
+      color: $gris;
+      margin-top: 4px;
+    }
+
+    .chart-icon {
+      font-size: 20px;
+      color: $rouge;
+    }
+
+    mat-card-content {
+      padding: 16px 20px 20px !important;
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      min-height: 0;
+    }
+
+    .chart-wrapper {
+      position: relative;
+      width: 70%;        // ← largeur du graphique
+      height: 70%;       // ← hauteur du graphique
+      margin: 0 auto;    // ← centré horizontalement
+    }
+  }
+}
+
+// ═══════════════════════════════════════════
+// Responsive
+// ═══════════════════════════════════════════
+@media (max-width: 1100px) {
+  .dashboard-container {
+    height: auto;
+    overflow: auto;
+  }
+
+  .main-layout {
+    grid-template-columns: 1fr;
+    grid-template-rows: repeat(4, auto);
+    height: auto;
+    overflow: visible;
+  }
+
+  .section {
+    min-height: 250px;
+  }
+
+  .kpi-section .kpi-grid {
+    grid-template-columns: repeat(4, 1fr);
+    grid-template-rows: 1fr;
+  }
+}
+
+@media (max-width: 900px) {
+  .kpi-section .kpi-grid {
+    grid-template-columns: repeat(2, 1fr);
+    grid-template-rows: 1fr 1fr;
+  }
+}
+
+@media (max-width: 600px) {
+  .dashboard-container { padding: 16px; }
+  .main-layout { gap: 16px; }
+}

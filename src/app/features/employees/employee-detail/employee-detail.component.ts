@@ -17,6 +17,7 @@ import { BreadcrumbService } from '../../../core/services/breadcrumb.service';
 import { Employee } from '../../../shared/models/employee.model';
 import { ScoreRisque, FacteurRisque } from '../../../shared/models/score-risque.model';
 import { Pipe, PipeTransform } from '@angular/core';
+import {AuthService} from '../../../core/services/auth.service';
 
 // ── Pipe formatage SNAKE_CASE → Texte lisible ──
 @Pipe({ name: 'formatEnum', standalone: true })
@@ -54,6 +55,7 @@ export class EmployeeDetailComponent implements OnInit {
   employee: Employee | null = null;
   latestScore: ScoreRisque | null = null;
   loading = true;
+  isManager = false;
 
   constructor(
     private route: ActivatedRoute,
@@ -61,10 +63,12 @@ export class EmployeeDetailComponent implements OnInit {
     private employeeService: EmployeeService,
     private scoreRisqueService: ScoreRisqueService,
     private breadcrumbService: BreadcrumbService,
-    private snackBar: MatSnackBar
+    private snackBar: MatSnackBar,
+    private authService: AuthService
   ) {}
 
   ngOnInit(): void {
+    this.isManager = this.authService.getRole() === 'ROLE_MANAGER';  // ← ajoutez
     const id = +this.route.snapshot.params['id'];
     if (id) this.loadData(id);
   }
