@@ -1,7 +1,7 @@
 import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
-import { Router } from '@angular/router';
+import { Router, ActivatedRoute } from '@angular/router';
 import { MatCardModule } from '@angular/material/card';
 import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
@@ -16,6 +16,7 @@ import { MatSnackBarModule, MatSnackBar } from '@angular/material/snack-bar';
 import { MatTabsModule } from '@angular/material/tabs';
 import { SimulationService } from '../../../core/services/simulation.service';
 import { EmployeeService } from '../../../core/services/employee.service';
+import { BreadcrumbService } from '../../../core/services/breadcrumb.service'; // ← AJOUT
 import { Employee } from '../../../shared/models/employee.model';
 import {
   ComparaisonSimulation,
@@ -46,53 +47,61 @@ import {
 })
 export class SimulationComparaisonComponent implements OnInit {
 
-  // Données
-  employees: Employee[] = [];
-  selectedEmployeeId: number | null = null;
+  employee: Employee | null = null;
   comparaison: ComparaisonSimulation | null = null;
-
-  // Paramètres simulation
-  pourcentageAugmentation = 20;
-  nombreFormations = 3;
-
-  // État
   loading = false;
-  loadingEmployees = true;
 
   constructor(
     private simulationService: SimulationService,
     private employeeService: EmployeeService,
+    private breadcrumbService: BreadcrumbService, // ← AJOUT
     private snackBar: MatSnackBar,
-    private router: Router
+    private router: Router,
+    private route: ActivatedRoute
   ) {}
 
   ngOnInit(): void {
-    this.loadEmployees();
-  }
+    const id = this.route.snapshot.queryParams['employeeId'];
 
-  loadEmployees(): void {
-    this.employeeService.getAll().subscribe({
-      next: (data) => {
-        this.employees = data.filter(e => e.derniereProbabilite != null);
-        this.loadingEmployees = false;
+    if (!id) {
+      this.router.navigate(['/employees']);
+      return;
+    }
+
+    this.employeeService.getById(+id).subscribe({
+      next: (emp) => {
+        this.employee = emp;
+        this.loading = false;
+
+        // ── AJOUT : injecter le nom de l'employé dans le breadcrumb ──
+        // Remplace le segment "simulation" par le vrai chemin :
+        // Accueil > Employés > Jean Dupont > Simulation des décisions RH
+        this.breadcrumbService.setSegmentOverride('employees', {
+          label: 'Employés',
+          url: '/employees',
+          icon: 'people'
+        });
+
+        this.breadcrumbService.setSegmentOverride('simulation', {
+          label: `${emp.firstName} ${emp.lastName}`,
+          url: `/employees`,
+          icon: 'person'
+        });
+        // ─────────────────────────────────────────────────────────────
       },
       error: () => {
-        this.loadingEmployees = false;
-        this.snackBar.open('Erreur chargement employés', 'Fermer', { duration: 3000 });
+        this.loading = false;
+        this.snackBar.open('Employé introuvable', 'Fermer', { duration: 3000 });
+        this.router.navigate(['/employees']);
       }
     });
   }
 
-  lancerComparaison(): void {
-    if (!this.selectedEmployeeId) {
-      this.snackBar.open('Veuillez sélectionner un employé', 'Fermer', { duration: 3000 });
-      return;
-    }
-
+  lancerSimulation(id: number): void {
     this.loading = true;
     this.comparaison = null;
 
-    this.simulationService.comparerScenarios(this.selectedEmployeeId).subscribe({
+    this.simulationService.comparerScenarios(id).subscribe({
       next: (data) => {
         this.comparaison = data;
         this.loading = false;
@@ -139,6 +148,6 @@ export class SimulationComparaisonComponent implements OnInit {
   }
 
   goBack(): void {
-    this.router.navigate(['/dashboard']);
+    this.router.navigate(['/employees']);
   }
 }

@@ -9,11 +9,6 @@ import { MatChipsModule } from '@angular/material/chips';
 import { MatProgressBarModule } from '@angular/material/progress-bar';
 import { MatToolbarModule } from '@angular/material/toolbar';
 import { MatBadgeModule } from '@angular/material/badge';
-import { FormsModule } from '@angular/forms';
-import { MatSelectModule } from '@angular/material/select';
-import { MatFormFieldModule } from '@angular/material/form-field';
-import { MatDividerModule } from '@angular/material/divider';
-import { MatTooltipModule } from '@angular/material/tooltip';
 import { BaseChartDirective } from 'ng2-charts';
 import { Chart, ChartConfiguration, ChartData, registerables } from 'chart.js';
 
@@ -36,11 +31,6 @@ Chart.register(...registerables);
     MatProgressBarModule,
     MatToolbarModule,
     MatBadgeModule,
-    FormsModule,
-    MatSelectModule,
-    MatFormFieldModule,
-    MatDividerModule,
-    MatTooltipModule,
     BaseChartDirective,
   ],
   templateUrl: './dashboard.component.html',
@@ -52,33 +42,36 @@ export class DashboardComponent implements OnInit {
   loading = true;
   displayedColumns = ['nom', 'matricule', 'probabilite', 'niveauRisque'];
 
+  // Couleur dynamique selon le niveau de risque global
+  getRisqueGlobalColor(): string {
+    const val = this.stats?.risqueGlobalDepart ?? 0;
+    if (val >= 50) return '#c62828';
+    if (val >= 25) return '#ef6c00';
+    return '#2e7d32';
+  }
 
-  departements = [
-    'DIRECTION_GENERALE',
-    'DIRECTION_RESSOURCES_HUMAINES',
-    'DIRECTION_ADMINISTRATIVE_FINANCIERE',
-    'DIRECTION_JURIDIQUE',
-    'DIRECTION_TECHNOLOGIQUE',
-    'DIRECTION_RELATIONS_OPERATEURS',
-    'DIRECTION_SERVICE_CLIENT'
-  ];
+  getRisqueGlobalBorderColor(): string {
+    const val = this.stats?.risqueGlobalDepart ?? 0;
+    if (val >= 50) return '#D40000';
+    if (val >= 25) return '#f57c00';
+    return '#2e7d32';
+  }
 
-  niveauxRisque = ['ÉLEVÉ', 'MOYEN', 'FAIBLE'];
-  selectedDepartement = '';
-  selectedNiveauRisque = '';
-
-
-
-
+  getRisqueGlobalLabel(): string {
+    const val = this.stats?.risqueGlobalDepart ?? 0;
+    if (val >= 50) return 'Critique';
+    if (val >= 25) return 'Modéré';
+    return 'Faible';
+  }
 
   private deptLabels: { [key: string]: string } = {
     'DIRECTION_GENERALE':                  'Dir. Générale',
     'DIRECTION_RESSOURCES_HUMAINES':       'Dir. RH',
-    'DIRECTION_ADMINISTRATIVE_FINANCIERE': 'Dir. Admin & Finance',
+    'DIRECTION_ADMINISTRATIVE_FINANCIERE': 'Dir. Admin. Fin.',
     'DIRECTION_JURIDIQUE':                 'Dir. Juridique',
-    'DIRECTION_TECHNOLOGIQUE':             'Dir. Technologique',
-    'DIRECTION_RELATIONS_OPERATEURS':      'Dir. Relations Op.',
-    'DIRECTION_SERVICE_CLIENT':            'Dir. Service Client',
+    'DIRECTION_TECHNOLOGIQUE':             'Dir. Tech.',
+    'DIRECTION_RELATIONS_OPERATEURS':      'Dir. Rel. Op.',
+    'DIRECTION_SERVICE_CLIENT':            'Dir. Svc Client',
   };
 
   // ══════════════════════════════════════════════════════
@@ -90,98 +83,153 @@ export class DashboardComponent implements OnInit {
     maintainAspectRatio: false,
     cutout: '65%',
     plugins: {
-      legend: { position: 'bottom', labels: { font: { size: 12 }, padding: 16, color: '#494848' } },
+      legend: {
+        position: 'bottom',
+        labels: { font: { size: 9 }, padding: 8, color: '#494848' },
+      },
       tooltip: { callbacks: { label: (ctx) => ` ${ctx.label} : ${ctx.parsed} employés` } },
     },
   };
 
   // ══════════════════════════════════════════════════════
-  // CHART 2 — Bar groupé + ligne turnover
+  // CHART 2A — Bar groupé par département
   // ══════════════════════════════════════════════════════
   barDeptData: ChartData<any> = { labels: [], datasets: [] };
   barDeptOptions: ChartConfiguration<'bar'>['options'] = {
     responsive: true,
     maintainAspectRatio: false,
     plugins: {
-      legend: { position: 'top', labels: { font: { size: 11 }, color: '#494848', padding: 14 } },
-      tooltip: { backgroundColor: '#1a1a2e', titleColor: '#fff', bodyColor: '#ccc', borderColor: '#D40000', borderWidth: 1, padding: 10 },
+      legend: { position: 'top', labels: { font: { size: 9 }, color: '#494848', padding: 8 } },
+      tooltip: {
+        backgroundColor: '#1a1a2e', titleColor: '#fff', bodyColor: '#ccc',
+        borderColor: '#D40000', borderWidth: 1, padding: 8,
+        callbacks: {
+          title: (items) => {
+            // label complet dans le tooltip
+            const idx = items[0].dataIndex;
+            return (items[0].chart.data.labels?.[idx] as string) ?? '';
+          },
+        },
+      },
     },
     scales: {
-      x: { grid: { display: false }, ticks: { color: '#888', font: { size: 10 }, maxRotation: 30 } },
+      x: {
+        grid: { display: false },
+        afterFit: (axis: any) => { axis.height = 60; },
+        ticks: {
+          color: '#888',
+          font: { size: 9 },
+          maxRotation: 45,
+          minRotation: 45,
+          autoSkip: false,
+        },
+      },
       y: {
         beginAtZero: true,
         grid: { color: 'rgba(0,0,0,0.05)' },
-        ticks: { color: '#888', font: { size: 11 } },
-        title: { display: true, text: 'Nb employés', color: '#888', font: { size: 11 } },
+        ticks: { color: '#888', font: { size: 9 } },
+        title: { display: true, text: 'Nb employés', color: '#888', font: { size: 9 } },
       },
     },
   };
 
-
-
-
+  // ══════════════════════════════════════════════════════
+  // CHART 2B — Bar horizontal taux turnover
+  // ══════════════════════════════════════════════════════
   barTurnoverData: ChartData<'bar'> = { labels: [], datasets: [] };
   barTurnoverOptions: ChartConfiguration<'bar'>['options'] = {
     responsive: true,
     maintainAspectRatio: false,
     indexAxis: 'y',
+    layout: { padding: { left: 0, right: 10 } },
     plugins: {
       legend: { display: false },
       tooltip: { callbacks: { label: (ctx) => ` Taux turnover : ${ctx.parsed.x}%` } },
     },
     scales: {
       x: {
-        beginAtZero: true, max: 100,
+        beginAtZero: true,
+        max: 100,
         grid: { color: 'rgba(0,0,0,0.05)' },
-        ticks: { color: '#888', font: { size: 11 }, callback: (val) => `${val}%` },
-        title: { display: true, text: 'Taux de turnover prédit (%)', color: '#888', font: { size: 11 } },
+        ticks: { color: '#888', font: { size: 9 }, callback: (val) => `${val}%` },
+        title: { display: true, text: 'Taux de turnover prédit (%)', color: '#888', font: { size: 9 } },
       },
-      y: { grid: { display: false }, ticks: { color: '#494848', font: { size: 12 } } },
+      y: {
+        grid: { display: false },
+        afterFit: (axis: any) => { axis.width = 175; },
+        ticks: {
+          color: '#494848',
+          font: { size: 10 },
+          autoSkip: false,
+          maxRotation: 0,
+        },
+      },
     },
   };
 
   // ══════════════════════════════════════════════════════
-  // CHART 3 — Bar horizontal facteurs
+  // CHART 3 — Bar horizontal facteurs de risque
   // ══════════════════════════════════════════════════════
   barFacteursData: ChartData<'bar'> = { labels: [], datasets: [] };
   barFacteursOptions: ChartConfiguration<'bar'>['options'] = {
     responsive: true,
     maintainAspectRatio: false,
     indexAxis: 'y',
+    layout: { padding: { left: 0, right: 10 } },
     plugins: {
       legend: { display: false },
-      tooltip: { callbacks: { label: (ctx) => ` Contribution : ${ctx.parsed.x}%` } },
+      tooltip: {
+        callbacks: {
+          title: (items) => items[0]?.label ?? '',
+          label: (ctx) => ` Contribution : ${ctx.parsed.x}%`,
+        },
+      },
     },
     scales: {
       x: {
-        beginAtZero: true, max: 15,
+        beginAtZero: true,
+        max: 15,
         grid: { color: 'rgba(0,0,0,0.05)' },
-        ticks: { color: '#888', font: { size: 11 }, callback: (val) => `${val}%` },
+        ticks: { color: '#888', font: { size: 9 }, callback: (val) => `${val}%` },
       },
-      y: { grid: { display: false }, ticks: { color: '#494848', font: { size: 12 } } },
+      y: {
+        grid: { display: false },
+        afterFit: (axis: any) => { axis.width = 160; },
+        ticks: {
+          color: '#494848',
+          font: { size: 10 },
+          autoSkip: false,
+          maxRotation: 0,
+        },
+      },
     },
   };
 
   // ══════════════════════════════════════════════════════
   // CHART 4 — Line Chart évolution mensuelle
   // ══════════════════════════════════════════════════════
-// Chart 4 devient dynamique
   lineData: ChartData<'line'> = { labels: [], datasets: [] };
-
   lineOptions: ChartConfiguration<'line'>['options'] = {
-    responsive: true, maintainAspectRatio: false,
+    responsive: true,
+    maintainAspectRatio: false,
     interaction: { mode: 'index', intersect: false },
     plugins: {
-      legend: { position: 'top', labels: { font: { size: 12 }, color: '#494848', padding: 16 } },
-      tooltip: { backgroundColor: '#1a1a2e', titleColor: '#fff', bodyColor: '#ccc', borderColor: '#D40000', borderWidth: 1, padding: 10 },
+      legend: { position: 'top', labels: { font: { size: 9 }, color: '#494848', padding: 8 } },
+      tooltip: {
+        backgroundColor: '#1a1a2e', titleColor: '#fff', bodyColor: '#ccc',
+        borderColor: '#D40000', borderWidth: 1, padding: 8,
+      },
     },
     scales: {
-      x: { grid: { color: 'rgba(0,0,0,0.05)' }, ticks: { color: '#888', font: { size: 11 } } },
-      y: {
-        beginAtZero: true, grid: { color: 'rgba(0,0,0,0.05)' },
-        ticks: { color: '#888', font: { size: 11 } },
-        title: { display: true, text: 'Nb employés à risque', color: '#888', font: { size: 11 } },
+      x: {
+        grid: { color: 'rgba(0,0,0,0.05)' },
+        ticks: { color: '#888', font: { size: 9 } },
       },
+      y: {
+        beginAtZero: true,
+        grid: { color: 'rgba(0,0,0,0.05)' },
+        ticks: { color: '#888', font: { size: 9 } },
+        title: { display: true, text: 'Taux de risque global (%)', color: '#888', font: { size: 9 } },      },
     },
   };
 
@@ -190,7 +238,8 @@ export class DashboardComponent implements OnInit {
   // ══════════════════════════════════════════════════════
   histoData: ChartData<'bar'> = { labels: [], datasets: [] };
   histoOptions: ChartConfiguration<'bar'>['options'] = {
-    responsive: true, maintainAspectRatio: false,
+    responsive: true,
+    maintainAspectRatio: false,
     plugins: {
       legend: { display: false },
       tooltip: {
@@ -203,56 +252,14 @@ export class DashboardComponent implements OnInit {
     scales: {
       x: {
         grid: { display: false },
-        ticks: { color: '#494848', font: { size: 11 } },
-        title: { display: true, text: 'Score de risque (%)', color: '#888', font: { size: 11 } },
+        ticks: { color: '#494848', font: { size: 9 } },
+        title: { display: true, text: 'Score de risque (%)', color: '#888', font: { size: 9 } },
       },
       y: {
-        beginAtZero: true, grid: { color: 'rgba(0,0,0,0.05)' },
-        ticks: { color: '#888', font: { size: 11 } },
-        title: { display: true, text: 'Nb employés', color: '#888', font: { size: 11 } },
-      },
-    },
-  };
-
-  // ══════════════════════════════════════════════════════
-  // CHART 6 — Courbe prédictive IA vs Réelle
-  // ══════════════════════════════════════════════════════
-  predVsRealData: ChartData<'line'> = {
-    labels: ['Jan', 'Fév', 'Mar', 'Avr', 'Mai', 'Jun', 'Jul', 'Aoû', 'Sep', 'Oct', 'Nov', 'Déc'],
-    datasets: [
-      {
-        label: 'Prédictions IA',
-        data: [14, 16, 15, 19, 23, 21, 26, 24, 28, 25, 29, 20],
-        borderColor: '#D40000', backgroundColor: 'rgba(212,0,0,0.0)',
-        fill: false, tension: 0.4, pointRadius: 5, pointHoverRadius: 8, borderWidth: 2.5,
-      },
-      {
-        label: 'Départs réels',
-        data: [12, 15, 14, 18, 22, 20, 24, 23, 27, 24, 28, 19],
-        borderColor: '#1565C0', backgroundColor: 'rgba(21,101,192,0.0)',
-        fill: false, tension: 0.4, pointRadius: 5, pointHoverRadius: 8, borderWidth: 2.5,
-        borderDash: [6, 3],
-      },
-    ],
-  };
-
-  predVsRealOptions: ChartConfiguration<'line'>['options'] = {
-    responsive: true, maintainAspectRatio: false,
-    interaction: { mode: 'index', intersect: false },
-    plugins: {
-      legend: { position: 'top', labels: { font: { size: 12 }, color: '#494848', padding: 16 } },
-      tooltip: {
-        backgroundColor: '#1a1a2e', titleColor: '#fff', bodyColor: '#ccc',
-        borderColor: '#D40000', borderWidth: 1, padding: 10,
-        callbacks: { label: (ctx) => ` ${ctx.dataset.label} : ${ctx.parsed.y} employés` },
-      },
-    },
-    scales: {
-      x: { grid: { color: 'rgba(0,0,0,0.05)' }, ticks: { color: '#888', font: { size: 11 } } },
-      y: {
-        beginAtZero: true, grid: { color: 'rgba(0,0,0,0.05)' },
-        ticks: { color: '#888', font: { size: 11 } },
-        title: { display: true, text: 'Nb employés', color: '#888', font: { size: 11 } },
+        beginAtZero: true,
+        grid: { color: 'rgba(0,0,0,0.05)' },
+        ticks: { color: '#888', font: { size: 9 } },
+        title: { display: true, text: 'Nb employés', color: '#888', font: { size: 9 } },
       },
     },
   };
@@ -261,12 +268,7 @@ export class DashboardComponent implements OnInit {
     private dashboardService: DashboardService,
     private authService: AuthService,
     private router: Router
-  ) {
-   
-
-
-
-  }
+  ) {}
 
   ngOnInit(): void {
     this.loadStats();
@@ -277,7 +279,7 @@ export class DashboardComponent implements OnInit {
     this.loading = true;
     this.dashboardService.getStats().subscribe({
       next: (data) => { this.stats = data; this.buildCharts(data); this.loading = false; },
-      error: (err) => { console.error('Erreur dashboard:', err); this.loading = false; }
+      error: (err) => { console.error('Erreur dashboard:', err); this.loading = false; },
     });
   }
 
@@ -288,43 +290,21 @@ export class DashboardComponent implements OnInit {
           labels: data.map(d => d.moisLabel),
           datasets: [
             {
-              label: 'Risque Élevé',
-              data: data.map(d => d.risqueEleve),
+              label: 'Taux de risque global',
+              data: data.map(d => d.tauxRisqueGlobal),
               borderColor: '#D40000',
               backgroundColor: 'rgba(212,0,0,0.08)',
-              fill: true, tension: 0.4,
-              pointRadius: 5, pointHoverRadius: 8, borderWidth: 2.5,
-            },
-            {
-              label: 'Risque Moyen',
-              data: data.map(d => d.risqueMoyen),
-              borderColor: '#FF6B00',
-              backgroundColor: 'rgba(255,107,0,0.06)',
-              fill: true, tension: 0.4,
-              pointRadius: 5, pointHoverRadius: 8, borderWidth: 2.5,
+              fill: true,
+              tension: 0.4,
+              pointRadius: 4,
+              pointHoverRadius: 7,
+              borderWidth: 2,
             },
           ],
         };
       },
-      error: () => console.error('Erreur évolution mensuelle')
+      error: () => console.error('Erreur évolution mensuelle'),
     });
-  }
-
-  appliquerFiltres(): void {
-    this.loading = true;
-    this.dashboardService.getStatsFiltered(
-      this.selectedDepartement || undefined,
-      this.selectedNiveauRisque || undefined
-    ).subscribe({
-      next: (data) => { this.stats = data; this.buildCharts(data); this.loading = false; },
-      error: () => { this.loading = false; }
-    });
-  }
-
-  reinitialiserFiltres(): void {
-    this.selectedDepartement = '';
-    this.selectedNiveauRisque = '';
-    this.loadStats();
   }
 
   buildCharts(data: DashboardStats): void {
@@ -339,9 +319,10 @@ export class DashboardComponent implements OnInit {
       labels: ['Risque Élevé', 'Risque Moyen', 'Risque Faible'],
       datasets: [{
         data: [data.risqueEleve, data.risqueMoyen, data.risqueFaible],
-        backgroundColor: ['#D40000', '#FF6B00', '#2E7D32'],
-        borderColor: ['#AA0000', '#E65100', '#1B5E20'],
-        borderWidth: 2, hoverOffset: 8,
+        backgroundColor: ['#D40000', '#FFB347', '#43A047'],
+        borderColor: '#FFFFFF', // ← toutes les bordures en blanc
+        borderWidth: 2,
+        hoverOffset: 8,
       }],
     };
   }
@@ -354,18 +335,18 @@ export class DashboardComponent implements OnInit {
     const faible = depts.map(d => data.repartitionRisqueParDepartement[d]?.['FAIBLE'] ?? 0);
     const taux   = depts.map(d => data.tauxTurnoverParDepartement?.[d] ?? 0);
 
-    // Chart 2A — Bar groupé ÉLEVÉ/MOYEN/FAIBLE
     this.barDeptData = {
       labels,
       datasets: [
-        { label: 'Risque Élevé',  data: eleve,  backgroundColor: 'rgba(212,0,0,0.8)',    borderColor: '#D40000', borderWidth: 1, borderRadius: 4 },
-        { label: 'Risque Moyen',  data: moyen,  backgroundColor: 'rgba(255,107,0,0.8)', borderColor: '#FF6B00', borderWidth: 1, borderRadius: 4 },
-        { label: 'Risque Faible', data: faible, backgroundColor: 'rgba(46,125,50,0.8)', borderColor: '#2E7D32', borderWidth: 1, borderRadius: 4 },
+        { label: 'Risque Élevé',  data: eleve,  backgroundColor: 'rgba(212,0,0,0.8)',    borderColor: '#D40000', borderWidth: 1, borderRadius: 0 },
+        { label: 'Risque Moyen',  data: moyen,  backgroundColor: 'rgba(255,107,0,0.8)', borderColor: '#FF6B00', borderWidth: 1, borderRadius: 0 },
+        { label: 'Risque Faible', data: faible, backgroundColor: 'rgba(46,125,50,0.8)', borderColor: '#2E7D32', borderWidth: 1, borderRadius: 0 },
       ],
     };
 
-    // Chart 2B — Bar horizontal taux turnover
-    const turnoverColors = taux.map(t => t >= 50 ? 'rgba(212,0,0,0.8)' : t >= 25 ? 'rgba(255,107,0,0.8)' : 'rgba(21,101,192,0.8)');
+    const turnoverColors = taux.map(t =>
+      t >= 50 ? 'rgba(212,0,0,0.8)' : t >= 25 ? 'rgba(255,107,0,0.8)' : 'rgba(21,101,192,0.8)'
+    );
     this.barTurnoverData = {
       labels,
       datasets: [{
@@ -373,10 +354,32 @@ export class DashboardComponent implements OnInit {
         backgroundColor: turnoverColors,
         borderColor: turnoverColors.map(c => c.replace('0.8', '1')),
         borderWidth: 1,
-        borderRadius: 4,
+        borderRadius: 0,
       }],
     };
   }
+
+  // Abréviations pour les labels de facteurs trop longs
+  private readonly facteurAbbr: { [key: string]: string } = {
+    // ── visibles sur la capture ──
+    'Catégorie socioprofessionnelle':          'Catégorie socio.',
+    'Satisfaction au travail':                 'Satisfaction',
+    'Heures supplémentaires × Niveau':         'Heures sup × Niv.',
+    'Équilibre vie professionnelle':           'Équilibre vie pro',
+    'Satisfaction environnement':              'Satisfaction env.',
+    'Années dans l\'entreprise':               'Années entreprise',
+    'Nombre d\'entreprises':                   'Nb entreprises',
+    'Âge':                                     'Âge',
+    // ── autres cas possibles ──
+    'Ancienneté dans le poste':                'Ancienneté poste',
+    'Ancienneté dans l\'entreprise':           'Ancienneté entr.',
+    'Nombre d\'absences':                      'Nb absences',
+    'Dernier salaire annuel':                  'Salaire annuel',
+    'Nombre de formations':                    'Nb formations',
+    'Distance domicile-travail':               'Distance domicile',
+    'Années d\'expérience':                    'Expérience (ans)',
+    'Heures supplémentaires':                  'Heures supp.',
+  };
 
   buildBarFacteurs(data: DashboardStats): void {
     if (!data.topFacteursRisque?.length) return;
@@ -389,7 +392,13 @@ export class DashboardComponent implements OnInit {
     });
     this.barFacteursData = {
       labels,
-      datasets: [{ data: values, backgroundColor: colors, borderColor: colors.map(c => c.replace('0.85', '1')), borderWidth: 1, borderRadius: 4 }],
+      datasets: [{
+        data: values,
+        backgroundColor: colors,
+        borderColor: colors.map(c => c.replace('0.85', '1')),
+        borderWidth: 1,
+        borderRadius: 0,
+      }],
     };
   }
 
@@ -426,7 +435,7 @@ export class DashboardComponent implements OnInit {
     switch (niveau) {
       case 'ÉLEVÉ': return 'warn';
       case 'MOYEN': return 'accent';
-      default: return 'primary';
+      default:      return 'primary';
     }
   }
 
@@ -434,13 +443,7 @@ export class DashboardComponent implements OnInit {
     switch (niveau) {
       case 'ÉLEVÉ': return 'dangerous';
       case 'MOYEN': return 'warning';
-      default: return 'check_circle';
+      default:      return 'check_circle';
     }
   }
-
-
-
-
-
-
 }

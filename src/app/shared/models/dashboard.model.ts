@@ -10,6 +10,7 @@ export interface DashboardStats {
   risqueMoyen: number;
   risqueFaible: number;
   tauxRisqueEleve: number;
+  risqueGlobalDepart: number;
 
   // Répartition par département (existant)
   repartitionDepartement: { [key: string]: number };
@@ -56,4 +57,5 @@ export interface EvolutionMensuelle {
   moisLabel: string;
   risqueEleve: number;
   risqueMoyen: number;
+  tauxRisqueGlobal: number;
 }

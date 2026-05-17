@@ -7,7 +7,7 @@ $white          : #FFFFFF;
 $border-color   : #E0E0E0;
 
 .breadcrumb-nav {
-  padding: 10px 24px;
+  padding: 16px 24px;
   background: $white;
   border-bottom: 1px solid $border-color;
   flex-shrink: 0;
@@ -39,13 +39,12 @@ $border-color   : #E0E0E0;
   to   { opacity: 1; transform: translateX(0); }
 }
 
-// Lien cliquable
 .breadcrumb-link {
   display: flex;
   align-items: center;
   gap: 4px;
   color: $text-muted;
-  font-size: 12.5px;
+  font-size: 15px;
   font-weight: 500;
   cursor: pointer;
   text-decoration: none;
@@ -59,34 +58,31 @@ $border-color   : #E0E0E0;
   }
 }
 
-// Séparateur
 .breadcrumb-separator {
-  font-size: 14px !important;
-  width: 14px !important;
-  height: 14px !important;
+  font-size: 18px !important;
+  width: 18px !important;
+  height: 18px !important;
   color: $border-color;
   flex-shrink: 0;
   user-select: none;
 }
 
-// Item actif (page courante)
 .breadcrumb-current {
   display: flex;
   align-items: center;
   gap: 4px;
   color: $ooredoo-red;
-  font-size: 12.5px;
+  font-size: 15px;
   font-weight: 700;
   padding: 3px 6px;
   background: rgba($ooredoo-red, 0.07);
   border-radius: 5px;
 }
 
-// Icônes
 .breadcrumb-icon {
-  font-size: 14px !important;
-  width: 14px !important;
-  height: 14px !important;
+  font-size: 18px !important;
+  width: 18px !important;
+  height: 18px !important;
   flex-shrink: 0;
-  line-height: 14px !important;
+  line-height: 18px !important;
 }

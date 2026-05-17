@@ -1,9 +1,8 @@
 <div class="container">
 
-  <!-- Table employés -->
   <mat-card class="mat-elevation-z8 table-card">
 
-    <!-- En-tête : titre à gauche, boutons à droite -->
+    <!-- En-tête -->
     <div class="table-header">
       <span class="table-title">Liste des Employés</span>
       <div class="action-buttons" *ngIf="!isManager">
@@ -20,7 +19,7 @@
 
     <mat-divider></mat-divider>
 
-    <!-- Filtres compacts -->
+    <!-- Filtres -->
     <div class="filters-row">
       <mat-form-field appearance="outline" class="filter-field" subscriptSizing="dynamic" floatLabel="always">
         <mat-label>Rechercher</mat-label>
@@ -58,106 +57,120 @@
     </div>
 
     <mat-card-content>
-      <table mat-table [dataSource]="dataSource" matSort class="risk-table">
 
-        <ng-container matColumnDef="matricule">
-          <th mat-header-cell *matHeaderCellDef mat-sort-header>Matricule</th>
-          <td mat-cell *matCellDef="let e">
-            <span class="matricule-badge">{{ e.matricule }}</span>
-          </td>
-        </ng-container>
+      <!-- ✅ SPINNER OPTION B — centre du tableau -->
+      <div class="loading-center" *ngIf="loading">
+        <app-loading-spinner size="lg"></app-loading-spinner>
+        <p class="loading-message">{{ loadingMessage }}</p>
+      </div>
 
-        <ng-container matColumnDef="nom">
-          <th mat-header-cell *matHeaderCellDef mat-sort-header>Employé</th>
-          <td mat-cell *matCellDef="let e">
-            <div class="employee-cell">
-              <div>
-                <div class="emp-name">{{ e.firstName }} {{ e.lastName }}</div>
-                <div class="emp-email">{{ e.email }}</div>
+      <!-- Tableau — caché pendant le chargement -->
+      <ng-container *ngIf="!loading">
+        <table mat-table [dataSource]="dataSource" matSort class="risk-table">
+
+          <ng-container matColumnDef="matricule">
+            <th mat-header-cell *matHeaderCellDef mat-sort-header>Matricule</th>
+            <td mat-cell *matCellDef="let e">
+              <span class="matricule-badge">{{ e.matricule }}</span>
+            </td>
+          </ng-container>
+
+          <ng-container matColumnDef="nom">
+            <th mat-header-cell *matHeaderCellDef mat-sort-header>Employé</th>
+            <td mat-cell *matCellDef="let e">
+              <div class="employee-cell">
+                <div>
+                  <div class="emp-name">{{ e.firstName }} {{ e.lastName }}</div>
+                  <div class="emp-email">{{ e.email }}</div>
+                </div>
               </div>
-            </div>
-          </td>
-        </ng-container>
+            </td>
+          </ng-container>
 
-        <ng-container matColumnDef="departement">
-          <th mat-header-cell *matHeaderCellDef mat-sort-header>Departement</th>
-          <td mat-cell *matCellDef="let e">
-            <span class="dept-badge">{{ formatDept(e.department) }}</span>
-          </td>
-        </ng-container>
+          <ng-container matColumnDef="departement">
+            <th mat-header-cell *matHeaderCellDef mat-sort-header>Departement</th>
+            <td mat-cell *matCellDef="let e">
+              <span class="dept-badge">{{ formatDept(e.department) }}</span>
+            </td>
+          </ng-container>
 
-        <ng-container matColumnDef="poste">
-          <th mat-header-cell *matHeaderCellDef mat-sort-header>Poste</th>
-          <td mat-cell *matCellDef="let e">{{ formatPoste(e.jobRole) }}</td>
-        </ng-container>
+          <ng-container matColumnDef="poste">
+            <th mat-header-cell *matHeaderCellDef mat-sort-header>Poste</th>
+            <td mat-cell *matCellDef="let e">{{ formatPoste(e.jobRole) }}</td>
+          </ng-container>
 
-        <ng-container matColumnDef="risque">
-          <th mat-header-cell *matHeaderCellDef mat-sort-header>Risque</th>
-          <td mat-cell *matCellDef="let e">
-            <mat-chip *ngIf="e.dernierNiveauRisque"
-                      [color]="getRisqueColor(e.dernierNiveauRisque)"
-                      highlighted>
-              {{ e.dernierNiveauRisque }}
-            </mat-chip>
-            <span *ngIf="!e.dernierNiveauRisque" class="no-score">Non évalué</span>
-          </td>
-        </ng-container>
+          <ng-container matColumnDef="risque">
+            <th mat-header-cell *matHeaderCellDef mat-sort-header>Risque</th>
+            <td mat-cell *matCellDef="let e">
+              <mat-chip *ngIf="e.dernierNiveauRisque"
+                        [color]="getRisqueColor(e.dernierNiveauRisque)"
+                        highlighted>
+                {{ e.dernierNiveauRisque }}
+              </mat-chip>
+              <span *ngIf="!e.dernierNiveauRisque" class="no-score">Non évalué</span>
+            </td>
+          </ng-container>
 
-        <ng-container matColumnDef="probabilite">
-          <th mat-header-cell *matHeaderCellDef mat-sort-header>Probabilité</th>
-          <td mat-cell *matCellDef="let e">
-            <span *ngIf="e.derniereProbabilite" class="prob-value">
-              {{ e.derniereProbabilite * 100 | number:'1.1-1' }}%
-            </span>
-            <span *ngIf="!e.derniereProbabilite">—</span>
-          </td>
-        </ng-container>
+          <ng-container matColumnDef="probabilite">
+            <th mat-header-cell *matHeaderCellDef mat-sort-header>Probabilité</th>
+            <td mat-cell *matCellDef="let e">
+              <span *ngIf="e.derniereProbabilite" class="prob-value">
+                {{ e.derniereProbabilite * 100 | number:'1.1-1' }}%
+              </span>
+              <span *ngIf="!e.derniereProbabilite">—</span>
+            </td>
+          </ng-container>
 
-        <ng-container matColumnDef="actions">
-          <th mat-header-cell *matHeaderCellDef>Actions</th>
-          <td mat-cell *matCellDef="let e">
-            <ng-container *ngIf="!isManager">
-              <button mat-icon-button color="primary"
-                      matTooltip="Lancer prédiction ML"
-                      (click)="predict(e, $event)">
-                <mat-icon>psychology</mat-icon>
-              </button>
-              <button mat-icon-button color="accent"
-                      matTooltip="Analyse & Recommandations"
-                      (click)="viewEmployeeDetail(e); $event.stopPropagation()">
-                <mat-icon>insights</mat-icon>
-              </button>
-            </ng-container>
-          </td>
-        </ng-container>
-        
-        <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
-        <tr mat-row *matRowDef="let row; columns: displayedColumns;"
-            class="employee-row"
-            (click)="viewEmployeeDetail(row)"></tr>
-      </table>
+          <ng-container matColumnDef="actions">
+            <th mat-header-cell *matHeaderCellDef>Actions</th>
+            <td mat-cell *matCellDef="let e">
+              <ng-container *ngIf="!isManager">
+                <button mat-icon-button color="primary"
+                        matTooltip="Lancer prédiction ML"
+                        (click)="predict(e, $event)">
+                  <mat-icon>psychology</mat-icon>
+                </button>
 
+                <!-- NOUVEAU : Bouton Simulation -->
+                <button mat-icon-button color="accent"
+                        matTooltip="Simulation (Impact salaire/poste/formation)"
+                        (click)="goToSimulation(e.id, $event)">
+                  <mat-icon>timeline</mat-icon>
+                </button>
+
+                <button mat-icon-button color="accent"
+                        matTooltip="Analyse & Recommandations"
+                        (click)="viewEmployeeDetail(e); $event.stopPropagation()">
+                  <mat-icon>insights</mat-icon>
+                </button>
+              </ng-container>
+            </td>
+          </ng-container>
+
+          <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
+          <tr mat-row *matRowDef="let row; columns: displayedColumns;"
+              class="employee-row"
+              (click)="viewEmployeeDetail(row)"></tr>
+        </table>
+
+
+
+        <div class="empty-state" *ngIf="dataSource.data.length === 0">
+          <mat-icon>people_outline</mat-icon>
+          <p>Aucun employé trouvé</p>
+          <button mat-stroked-button (click)="resetFilters()">Réinitialiser les filtres</button>
+        </div>
+
+        <div class="employee-count">
+          <mat-icon>people</mat-icon>
+          {{ dataSource.data.length }} employé(s)
+        </div>
+
+      </ng-container>
       <mat-paginator [pageSizeOptions]="[5, 10, 25, 50]" [pageSize]="10" showFirstLastButtons>
       </mat-paginator>
-
-      <div class="empty-state" *ngIf="dataSource.data.length === 0 && !loading">
-        <mat-icon>people_outline</mat-icon>
-        <p>Aucun employé trouvé</p>
-        <button mat-stroked-button (click)="resetFilters()">Réinitialiser les filtres</button>
-      </div>
-
-      <div class="employee-count">
-        <mat-icon>people</mat-icon>
-        {{ dataSource.data.length }} employé(s)
-      </div>
 
     </mat-card-content>
   </mat-card>
 
-</div>
-
-<!-- Loading -->
-<div class="loading-container" *ngIf="loading">
-  <mat-icon class="loading-icon">hourglass_empty</mat-icon>
-  <p>Chargement des employés...</p>
 </div>

@@ -1,5 +1,3 @@
-// src/app/layout/app-layout/app-layout.component.ts
-
 import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { Router, RouterOutlet, NavigationEnd } from '@angular/router';
@@ -8,22 +6,32 @@ import { MatButtonModule } from '@angular/material/button';
 import { MatToolbarModule } from '@angular/material/toolbar';
 import { MatTooltipModule } from '@angular/material/tooltip';
 import { filter } from 'rxjs/operators';
+import { MatMenuModule } from '@angular/material/menu';
+import { MatDividerModule } from '@angular/material/divider';
+import {  NavigationStart } from '@angular/router';
 
 import { AuthService } from '../../core/services/auth.service';
 import { DashboardService } from '../../core/services/dashboard.service';
 import { BreadcrumbComponent } from '../../shared/components/breadcrumb/breadcrumb.component';
+import { NotificationPanneauComponent } from '../../shared/components/notification-panneau/notification-panneau.component';
+import {MatProgressSpinnerModule} from '@angular/material/progress-spinner';
 
 @Component({
   selector: 'app-layout',
   standalone: true,
   imports: [
+    NotificationPanneauComponent,
     CommonModule,
     RouterOutlet,
     MatIconModule,
     MatButtonModule,
     MatToolbarModule,
     MatTooltipModule,
-    BreadcrumbComponent,   // ✅ breadcrumb importé ici
+    BreadcrumbComponent,
+    MatDividerModule,
+    MatProgressSpinnerModule,
+    MatMenuModule,
+
   ],
   templateUrl: './app-layout.component.html',
   styleUrl: './app-layout.component.scss'
@@ -37,8 +45,8 @@ export class AppLayoutComponent implements OnInit {
   isAdmin          = false;
   isRH             = false;
   isManager        = false;
-  alertesNonLues   = 0;
   hasScrolled      = false;
+  isImporting      = false;
   currentRoute     = '';
 
   private avatarPalette = [
@@ -50,7 +58,8 @@ export class AppLayoutComponent implements OnInit {
   constructor(
     private authService: AuthService,
     private dashboardService: DashboardService,
-    private router: Router
+    private router: Router,
+
   ) {
     this.isAdmin   = this.authService.isAdmin();
     this.isRH      = this.authService.isRH();
@@ -64,14 +73,19 @@ export class AppLayoutComponent implements OnInit {
 
   ngOnInit(): void {
     this.currentRoute = this.router.url;
-    this.router.events
-      .pipe(filter(event => event instanceof NavigationEnd))
-      .subscribe((event: any) => {
+    this.router.events.subscribe(event => {
+
+      if (event instanceof NavigationStart) {
+        this.isImporting = true;   // ← affiche le spinner
+      }
+
+      if (event instanceof NavigationEnd) {
         this.currentRoute = event.urlAfterRedirects;
         this.hasScrolled  = false;
-      });
+        this.isImporting  = false;  // ← cache le spinner
+      }
 
-    this.loadAlertesNonLues();
+    });
   }
 
   // ─── AVATAR ─────────────────────────────
@@ -93,14 +107,6 @@ export class AppLayoutComponent implements OnInit {
     return this.avatarPalette[Math.abs(hash) % this.avatarPalette.length];
   }
 
-  // ─── ALERTES ────────────────────────────
-  loadAlertesNonLues(): void {
-    this.dashboardService.getStats().subscribe({
-      next: (data) => { this.alertesNonLues = data.alertesNonLues ?? 0; },
-      error: () => {}
-    });
-  }
-
   // ─── SCROLL SHADOW ──────────────────────
   onContentScroll(event: Event): void {
     this.hasScrolled = (event.target as HTMLElement).scrollTop > 10;
@@ -117,7 +123,6 @@ export class AppLayoutComponent implements OnInit {
 
   navigateTo(path: string): void {
     const role = this.authService.getRole();
-
     if (role === 'ROLE_MANAGER' && path === '/team') {
       this.router.navigate(['/employees']);
     } else {
@@ -125,8 +130,17 @@ export class AppLayoutComponent implements OnInit {
     }
   }
 
+  // ─── IMPORT CSV ─────────────────────────
+  importerEmployes(): void {
+    this.router.navigate(['/employees/import']);
+  }
+
+  // ─── LOGOUT ─────────────────────────────
   logout(): void {
     this.authService.logout();
     this.router.navigate(['/login']);
   }
 }
+
+
+

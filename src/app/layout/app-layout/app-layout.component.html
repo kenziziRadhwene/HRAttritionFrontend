@@ -44,17 +44,17 @@
           <mat-icon>people</mat-icon>
           <span class="nav-label">Employés</span>
         </button>
+
         <button class="nav-item"
-                [class.active]="isActiveRoute('/alertes')"
-                (click)="navigateTo('/alertes')"
-                matTooltip="Alertes"
+                (click)="importerEmployes()"
+                matTooltip="Importer des employés"
                 matTooltipPosition="right"
                 [matTooltipDisabled]="!sidebarCollapsed">
           <span class="nav-item-bg"></span>
-          <mat-icon>notifications</mat-icon>
-          <span class="nav-label">Alertes</span>
-          <span class="nav-badge" *ngIf="alertesNonLues > 0">{{ alertesNonLues }}</span>
+          <mat-icon>upload_file</mat-icon>
+          <span class="nav-label">Importer des employés</span>
         </button>
+
         <button class="nav-item"
                 [class.active]="isActiveRoute('/simulation')"
                 (click)="navigateTo('/simulation')"
@@ -145,19 +145,41 @@
         </button>
       </div>
       <div class="toolbar-right">
-        <div class="user-avatar" [style.background]="avatarColor">{{ userInitials }}</div>
-        <span class="toolbar-user">{{ currentUser }}</span>
+        <app-notification-panneau></app-notification-panneau>
+
+        <!-- Avatar cliquable avec MatMenu -->
+        <div class="user-avatar"
+             [matMenuTriggerFor]="userMenu"
+             style="cursor: pointer;">
+          <mat-icon>account_circle</mat-icon>
+        </div>
+
+        <!-- Spinner discret à droite de l'avatar -->
+        <mat-spinner *ngIf="isImporting" diameter="22" class="toolbar-spinner"></mat-spinner>
+
+        <!-- Dropdown Menu -->
+        <mat-menu #userMenu="matMenu" xPosition="before">
+          <div class="user-menu-header">
+            <div class="menu-avatar" [style.background]="avatarColor">
+              <mat-icon>account_circle</mat-icon>
+            </div>
+            <div class="menu-user-info">
+              <span class="menu-user-name">{{ currentUser }}</span>
+            </div>
+          </div>
+          <mat-divider></mat-divider>
+          <button mat-menu-item (click)="logout()">
+            <mat-icon>logout</mat-icon>
+            <span>Déconnexion</span>
+          </button>
+        </mat-menu>
+
         <div class="toolbar-divider"></div>
-        <button mat-icon-button (click)="logout()" matTooltip="Déconnexion" class="logout-btn">
-          <mat-icon>logout</mat-icon>
-        </button>
       </div>
     </mat-toolbar>
 
-    <!-- ✅ BREADCRUMB — affiché sous la toolbar, au-dessus du contenu -->
     <app-breadcrumb></app-breadcrumb>
 
-    <!-- CONTENU DES PAGES -->
     <div class="page-content" (scroll)="onContentScroll($event)">
       <router-outlet></router-outlet>
     </div>

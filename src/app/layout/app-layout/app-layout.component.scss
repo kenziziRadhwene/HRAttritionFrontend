@@ -1,22 +1,22 @@
 // ═══════════════════════════════════════════
 // VARIABLES OOREDOO
 // ═══════════════════════════════════════════
-$ooredoo-red     : #D40000;
+$ooredoo-red: #D40000;
 $ooredoo-red-dark: #AA0000;
 $ooredoo-red-soft: #FFF0F0;
-$ooredoo-red-bg  : #FFF5F5;
-$text-primary    : #000000;
-$text-secondary  : #494848;
-$text-muted      : #888888;
-$border-color    : #E0E0E0;
-$bg-page         : #F7F7F7;
-$white           : #FFFFFF;
+$ooredoo-red-bg: #FFF5F5;
+$text-primary: #000000;
+$text-secondary: #494848;
+$text-muted: #888888;
+$border-color: #E0E0E0;
+$bg-page: #F7F7F7;
+$white: #FFFFFF;
 
-$sidebar-width          : 255px;
+$sidebar-width: 255px;
 $sidebar-collapsed-width: 64px;
-$toolbar-height         : 56px;
-$transition-speed       : 0.28s;
-$transition-ease        : cubic-bezier(0.4, 0, 0.2, 1);
+$toolbar-height: 56px;
+$transition-speed: 0.28s;
+$transition-ease: cubic-bezier(0.4, 0, 0.2, 1);
 
 // ═══════════════════════════════════════════
 // LAYOUT PRINCIPAL
@@ -45,9 +45,8 @@ $transition-ease        : cubic-bezier(0.4, 0, 0.2, 1);
   z-index: 200;
   box-shadow: 2px 0 16px rgba(0, 0, 0, 0.06);
   overflow: hidden;
-  transition:
-    width $transition-speed $transition-ease,
-    min-width $transition-speed $transition-ease;
+  transition: width $transition-speed $transition-ease,
+  min-width $transition-speed $transition-ease;
 }
 
 // ─── BRAND ────────────────────────────────
@@ -64,7 +63,6 @@ $transition-ease        : cubic-bezier(0.4, 0, 0.2, 1);
   justify-content $transition-speed $transition-ease;
 }
 
-// ✅ Wrapper avec height fixe, les 2 logos superposés en absolute
 .brand-logo-wrapper {
   position: relative;
   width: 160px;
@@ -72,7 +70,6 @@ $transition-ease        : cubic-bezier(0.4, 0, 0.2, 1);
   flex-shrink: 0;
   transition: width $transition-speed $transition-ease;
 
-  // Les deux logos : tous les deux absolute, superposés
   .logo-ouverte,
   .logo-ferme {
     position: absolute;
@@ -84,9 +81,13 @@ $transition-ease        : cubic-bezier(0.4, 0, 0.2, 1);
     transition: opacity $transition-speed $transition-ease;
   }
 
-  // ✅ SIDEBAR OUVERTE : logo-ouverte visible, logo-ferme invisible
-  .logo-ouverte { opacity: 1; }
-  .logo-ferme   { opacity: 0; }
+  .logo-ouverte {
+    opacity: 1;
+  }
+
+  .logo-ferme {
+    opacity: 0;
+  }
 }
 
 .brand-divider {
@@ -102,17 +103,25 @@ $transition-ease        : cubic-bezier(0.4, 0, 0.2, 1);
   overflow-y: auto;
   overflow-x: hidden;
 
-  // Scrollbar custom fine Ooredoo
-  &::-webkit-scrollbar       { width: 3px; }
-  &::-webkit-scrollbar-track { background: transparent; }
+  &::-webkit-scrollbar {
+    width: 3px;
+  }
+
+  &::-webkit-scrollbar-track {
+    background: transparent;
+  }
+
   &::-webkit-scrollbar-thumb {
     background: rgba($ooredoo-red, 0.3);
     border-radius: 3px;
-    &:hover { background: rgba($ooredoo-red, 0.6); }
+
+    &:hover {
+      background: rgba($ooredoo-red, 0.6);
+    }
   }
 }
 
-// ─── SECTION TITLES avec ligne décorative ─
+// ─── SECTION TITLES ───────────────────────
 .nav-section-title {
   display: flex;
   align-items: center;
@@ -121,10 +130,9 @@ $transition-ease        : cubic-bezier(0.4, 0, 0.2, 1);
   margin: 0;
   overflow: hidden;
   max-height: 40px;
-  transition:
-    opacity $transition-speed $transition-ease,
-    max-height $transition-speed $transition-ease,
-    padding $transition-speed $transition-ease;
+  transition: opacity $transition-speed $transition-ease,
+  max-height $transition-speed $transition-ease,
+  padding $transition-speed $transition-ease;
 
   .section-title-text {
     font-size: 9.5px;
@@ -162,13 +170,11 @@ $transition-ease        : cubic-bezier(0.4, 0, 0.2, 1);
   text-align: left;
   white-space: nowrap;
   overflow: hidden;
-  transition:
-    color $transition-speed $transition-ease,
-    border-left-color $transition-speed $transition-ease,
-    padding $transition-speed $transition-ease,
-    justify-content $transition-speed $transition-ease;
+  transition: color $transition-speed $transition-ease,
+  border-left-color $transition-speed $transition-ease,
+  padding $transition-speed $transition-ease,
+  justify-content $transition-speed $transition-ease;
 
-  // Fond animé scaleX (ripple custom)
   .nav-item-bg {
     position: absolute;
     inset: 0;
@@ -197,9 +203,8 @@ $transition-ease        : cubic-bezier(0.4, 0, 0.2, 1);
     overflow: hidden;
     max-width: 160px;
     opacity: 1;
-    transition:
-      max-width $transition-speed $transition-ease,
-      opacity $transition-speed $transition-ease;
+    transition: max-width $transition-speed $transition-ease,
+    opacity $transition-speed $transition-ease;
     z-index: 1;
     position: relative;
   }
@@ -207,20 +212,34 @@ $transition-ease        : cubic-bezier(0.4, 0, 0.2, 1);
   &:hover {
     color: $ooredoo-red;
     border-left-color: rgba($ooredoo-red, 0.3);
-    .nav-item-bg { transform: scaleX(1); }
-    mat-icon     { color: $ooredoo-red; transform: scale(1.1); }
+
+    .nav-item-bg {
+      transform: scaleX(1);
+    }
+
+    mat-icon {
+      color: $ooredoo-red;
+      transform: scale(1.1);
+    }
   }
 
   &.active {
     color: $ooredoo-red;
     border-left-color: $ooredoo-red;
     font-weight: 700;
-    .nav-item-bg { background: $ooredoo-red-soft; transform: scaleX(1); }
-    mat-icon     { color: $ooredoo-red; }
+
+    .nav-item-bg {
+      background: $ooredoo-red-soft;
+      transform: scaleX(1);
+    }
+
+    mat-icon {
+      color: $ooredoo-red;
+    }
   }
 }
 
-// ─── BADGE ALERTES avec pulse ─────────────
+// ─── BADGE ────────────────────────────────
 .nav-badge {
   margin-left: auto;
   background: $ooredoo-red;
@@ -235,17 +254,22 @@ $transition-ease        : cubic-bezier(0.4, 0, 0.2, 1);
   position: relative;
   flex-shrink: 0;
   overflow: hidden;
-  transition:
-    opacity $transition-speed $transition-ease,
-    max-width $transition-speed $transition-ease,
-    padding $transition-speed $transition-ease,
-    min-width $transition-speed $transition-ease;
+  transition: opacity $transition-speed $transition-ease,
+  max-width $transition-speed $transition-ease,
+  padding $transition-speed $transition-ease,
+  min-width $transition-speed $transition-ease;
   animation: badge-pulse 2.4s ease-in-out infinite;
 }
 
 @keyframes badge-pulse {
-  0%, 100% { transform: scale(1);     box-shadow: 0 0 0 0   rgba($ooredoo-red, 0.5); }
-  50%       { transform: scale(1.08); box-shadow: 0 0 0 5px rgba($ooredoo-red, 0);   }
+  0%, 100% {
+    transform: scale(1);
+    box-shadow: 0 0 0 0 rgba($ooredoo-red, 0.5);
+  }
+  50% {
+    transform: scale(1.08);
+    box-shadow: 0 0 0 5px rgba($ooredoo-red, 0);
+  }
 }
 
 // ─── FOOTER ───────────────────────────────
@@ -262,11 +286,21 @@ $transition-ease        : cubic-bezier(0.4, 0, 0.2, 1);
 
 .nav-logout {
   color: $ooredoo-red !important;
-  mat-icon { color: $ooredoo-red !important; }
-  .nav-item-bg { background: $ooredoo-red-soft; }
+
+  mat-icon {
+    color: $ooredoo-red !important;
+  }
+
+  .nav-item-bg {
+    background: $ooredoo-red-soft;
+  }
+
   &:hover {
     border-left-color: $ooredoo-red !important;
-    .nav-item-bg { transform: scaleX(1); }
+
+    .nav-item-bg {
+      transform: scaleX(1);
+    }
   }
 }
 
@@ -285,7 +319,7 @@ $transition-ease        : cubic-bezier(0.4, 0, 0.2, 1);
 
 .page-content {
   flex: 1;
-  overflow-y: auto;   // ← scroll autorisé par défaut pour toutes les pages
+  overflow-y: auto;
   display: flex;
   flex-direction: column;
   min-height: 0;
@@ -333,35 +367,76 @@ $transition-ease        : cubic-bezier(0.4, 0, 0.2, 1);
     transition: transform 0.3s $transition-ease;
   }
 
-  &:hover .toggle-icon { transform: scale(1.15); }
+  &:hover .toggle-icon {
+    transform: scale(1.15);
+  }
 }
 
-// ─── AVATAR INITIALES ─────────────────────
+// ─── AVATAR ───────────────────────────────
 .user-avatar {
-  width: 30px;
-  height: 30px;
+  width: 34px;
+  height: 34px;
   border-radius: 50%;
   display: flex;
   align-items: center;
   justify-content: center;
-  font-size: 12px;
-  font-weight: 800;
-  color: $white;
-  letter-spacing: 0.5px;
-  flex-shrink: 0;
-  border: 2px solid rgba(255, 255, 255, 0.4);
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
-  text-transform: uppercase;
+  cursor: pointer;
+
+  transition: opacity 0.2s ease;
+
+  mat-icon {
+    color: $white;
+    font-size: 28px;
+    width: 28px;
+    height: 28px;
+  }
+
+  &:hover {
+    opacity: 0.8;
+  }
 }
 
-.toolbar-user {
-  font-size: 13px;
-  color: rgba(255, 255, 255, 0.9);
-  font-weight: 500;
-  max-width: 180px;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: nowrap;
+// ─── TOOLBAR SPINNER ──────────────────────
+.toolbar-spinner {
+  ::ng-deep circle {
+    stroke: $white !important;
+  }
+}
+
+// ─── USER MENU DROPDOWN ───────────────────
+.user-menu-header {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 12px 16px;
+  pointer-events: none;
+
+  .menu-avatar {
+    width: 38px;
+    height: 38px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+
+    mat-icon {
+      color: $ooredoo-red;
+      font-size: 36px;
+      width: 36px;
+      height: 36px;
+    }
+  }
+
+  .menu-user-name {
+    font-size: 13px;
+    font-weight: 600;
+    color: $text-primary;
+    max-width: 180px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
 }
 
 .toolbar-divider {
@@ -369,12 +444,6 @@ $transition-ease        : cubic-bezier(0.4, 0, 0.2, 1);
   height: 20px;
   background: rgba(255, 255, 255, 0.25);
   margin: 0 4px;
-}
-
-.logout-btn {
-  color: rgba(255, 255, 255, 0.85) !important;
-  transition: color 0.2s ease !important;
-  &:hover { color: $white !important; }
 }
 
 // ═══════════════════════════════════════════
@@ -396,15 +465,18 @@ $transition-ease        : cubic-bezier(0.4, 0, 0.2, 1);
     justify-content: center;
   }
 
-  // ✅ SIDEBAR FERMÉE : logo-ferme visible, logo-ouverte invisible
   .brand-logo-wrapper {
-    width: 36px; // juste assez pour le logo-ferme (carré/icône)
+    width: 36px;
 
-    .logo-ouverte { opacity: 0; } // caché
-    .logo-ferme   { opacity: 1; } // visible
+    .logo-ouverte {
+      opacity: 0;
+    }
+
+    .logo-ferme {
+      opacity: 1;
+    }
   }
 
-  // Section titles cachés
   .nav-section-title {
     opacity: 0;
     max-height: 0;
@@ -412,7 +484,6 @@ $transition-ease        : cubic-bezier(0.4, 0, 0.2, 1);
     pointer-events: none;
   }
 
-  // Items centrés
   .nav-item {
     padding: 11px 0;
     justify-content: center;
@@ -439,3 +510,7 @@ $transition-ease        : cubic-bezier(0.4, 0, 0.2, 1);
     }
   }
 }
+
+// ═══════════════════════════════════════════
+// SPINNER OVERLAY (supprimé)
+// ═══════════════════════════════════════════

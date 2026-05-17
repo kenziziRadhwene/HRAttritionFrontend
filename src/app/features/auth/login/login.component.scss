@@ -1,16 +1,26 @@
+body {
+  overflow: hidden;
+  margin: 0;
+}
+
+
+
 .login-container {
-  min-height: 100vh;
+  height: 100vh;
   display: flex;
   align-items: center;
   justify-content: center;
   background: #f0f2f5;
   padding: 20px;
+  box-sizing: border-box;
+  overflow: hidden;
 }
 
 .login-card {
   width: 100%;
-  max-width: 860px;
-  border-radius: 16px !important;
+  max-width: 1000px;
+  height: 500px;
+  border-radius: 5px !important;
   box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3) !important;
   overflow: hidden;
   display: flex !important;        // <-- layout horizontal
@@ -21,7 +31,7 @@
 // ─── Panneau gauche ───────────────────────────────────────────
 .login-left-panel {
   width: 45%;
-  background: #ffffff;
+  background: #ED1C24;  // ← nouvelle valeur
   display: flex;
   flex-direction: column;
   align-items: center;
@@ -35,7 +45,7 @@
     justify-content: center;
 
     .company-logo {
-      width: 200px;
+      width: 250px;
       height: auto;
       object-fit: contain;
     }
@@ -49,13 +59,14 @@
   flex-direction: column;
   justify-content: center;
   padding: 64px 40px;
-  background: #f0f2f5;
+  background: #ffffff;  // ← nouvelle valeur
 
   .form-title {
     font-size: 24px;
     font-weight: 700;
     color: #212121;
     margin: 0 0 6px 0;
+
   }
 
   .form-subtitle {

@@ -1,0 +1,65 @@
+<div class="notif-wrapper">
+
+  <button class="cloche-btn" (click)="toggle()" aria-label="Notifications">
+    <mat-icon>notifications</mat-icon>
+    <span class="badge" *ngIf="nbNonLues > 0">{{ nbNonLues }}</span>
+  </button>
+
+  <div class="panneau" *ngIf="ouvert">
+
+    <div class="panneau-header">
+      <span class="panneau-titre">Notifications</span>
+      <button mat-icon-button (click)="fermer()">
+        <mat-icon>close</mat-icon>
+      </button>
+    </div>
+
+    <div class="notif-list" *ngIf="notifications.length > 0; else vide">
+      <div class="notif-item" *ngFor="let n of notifications"
+           [class.critique]="n.type === 'critique'"
+           [class.planifie]="n.type === 'planifie'">
+
+        <mat-icon class="icon"
+                  [class.info]="n.type === 'recalcul'"
+                  [class.danger]="n.type === 'critique'"
+                  [class.muted]="n.type === 'planifie'">
+          {{ getIcon(n.type) }}
+        </mat-icon>
+
+        <div class="notif-content">
+
+          <ng-container *ngIf="n.type === 'recalcul'">
+            <span class="titre">{{ n.message }}</span>
+            <span class="sub">{{ n.valeur }} employés évalués</span>
+          </ng-container>
+
+          <ng-container *ngIf="n.type === 'critique'">
+            <span class="titre">{{ n.valeur }} {{ n.message }}</span>
+            <button mat-stroked-button class="btn-voir"
+                    routerLink="/employees"
+                    [queryParams]="{risque: 'ELEVE'}"
+                    (click)="fermer()">
+              Voir les prédictions
+            </button>
+          </ng-container>
+
+          <ng-container *ngIf="n.type === 'planifie'">
+            <span class="titre">{{ n.message }}</span>
+            <span class="sub">{{ n.valeur | date:'d MMM yyyy' }}</span>
+          </ng-container>
+
+        </div>
+      </div>
+    </div>
+
+    <ng-template #vide>
+      <div class="vide">
+        <mat-icon>notifications_none</mat-icon>
+        <span>Aucune notification</span>
+      </div>
+    </ng-template>
+
+  </div>
+
+  <div class="overlay" *ngIf="ouvert" (click)="fermer()"></div>
+</div>

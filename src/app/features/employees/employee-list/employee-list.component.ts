@@ -23,6 +23,7 @@ import { BatchReportDialogComponent, BatchReportData } from '../batch-report-dia
 import { MatDividerModule } from '@angular/material/divider';
 import Swal from 'sweetalert2';
 import {AuthService} from '../../../core/services/auth.service';
+import {LoadingSpinnerComponent} from '../../../shared/components/loading-spinner/loading-spinner.component';
 
 @Component({
   selector: 'app-employee-list',
@@ -45,6 +46,7 @@ import {AuthService} from '../../../core/services/auth.service';
     MatSelectModule,
     MatPaginatorModule,
     MatSortModule,
+    LoadingSpinnerComponent,
     MatDialogModule
   ],
   templateUrl: './employee-list.component.html',
@@ -68,13 +70,15 @@ export class EmployeeListComponent implements OnInit, AfterViewInit {
   departments: string[] = [];
   riskLevels = ['FAIBLE', 'MOYEN', 'ÉLEVÉ'];
 
-  // ── Colonne 'anciennete' supprimée ──
   displayedColumns = [
     'matricule', 'nom', 'departement',
     'poste', 'risque', 'probabilite', 'actions'
   ];
 
   batchInProgress = false;
+
+  // Message fixe pour le chargement
+  loadingMessage = 'Chargement des employés...';
 
   @ViewChild(MatPaginator) paginator!: MatPaginator;
   @ViewChild(MatSort) sort!: MatSort;
@@ -85,7 +89,6 @@ export class EmployeeListComponent implements OnInit, AfterViewInit {
     private router: Router,
     private dialog: MatDialog,
     private authService: AuthService
-
   ) {}
 
   ngOnInit(): void {
@@ -95,7 +98,7 @@ export class EmployeeListComponent implements OnInit, AfterViewInit {
     if (this.isManager) {
       this.displayedColumns = [
         'matricule', 'nom',
-        'poste', 'risque', 'probabilite'  // ← 'departement' supprimé
+        'poste', 'risque', 'probabilite'
       ];
     }
 
@@ -109,15 +112,14 @@ export class EmployeeListComponent implements OnInit, AfterViewInit {
 
   loadEmployees(): void {
     this.loading = true;
+    this.loadingMessage = 'Chargement des employés...';
+
     this.employeeService.getAll().subscribe({
       next: (data) => {
         this.employees = data;
-
-        // ← filtre automatique si manager
         if (this.isManager) {
           this.employees = data.filter(e => e.department === this.managerDepartement);
         }
-
         this.dataSource.data = this.employees;
         this.extractDepartments();
         this.loading = false;
@@ -268,11 +270,16 @@ export class EmployeeListComponent implements OnInit, AfterViewInit {
     }
   }
 
+
+  // Ajoutez cette méthode après viewEmployeeDetail() ou avant la fin de la classe
+  goToSimulation(employeeId: number, event: Event): void {
+    event.stopPropagation();
+    this.router.navigate(['/simulation'], { queryParams: { employeeId: employeeId } });
+  }
+
   getAnciennete(employee: Employee): number {
     return employee.yearsAtCompany || 0;
   }
-
-  // ── Raccourcissement des noms de département ──
 
   formatDept(dept: string): string {
     const map: { [key: string]: string } = {
@@ -289,9 +296,6 @@ export class EmployeeListComponent implements OnInit, AfterViewInit {
       .replace(/_/g, ' ')
       .replace(/\b\w/g, c => c.toUpperCase());
   }
-
-
-
 
   formatPoste(poste: string): string {
     const map: { [key: string]: string } = {

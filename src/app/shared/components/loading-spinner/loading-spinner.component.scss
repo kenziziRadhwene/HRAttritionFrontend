@@ -1,0 +1,22 @@
+@keyframes spin { to { transform: rotate(360deg); } }
+
+.spinner-wrap {
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.orbit-ring {
+  position: absolute;
+  border: 4px solid rgba(221, 16, 16, 0.15);
+  border-top-color: #DD1010;
+  border-radius: 50%;
+  animation: spin 1.1s linear infinite;
+}
+
+.logo-svg { position: relative; z-index: 2; }
+
+.size-sm { .orbit-ring { width: 56px; height: 56px; } .logo-svg { width: 32px; height: 32px; } }
+.size-md { .orbit-ring { width: 80px; height: 80px; } .logo-svg { width: 46px; height: 46px; } }
+.size-lg { .orbit-ring { width: 110px; height: 110px; border-width: 5px; } .logo-svg { width: 64px; height: 64px; } }

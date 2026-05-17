@@ -1,254 +1,189 @@
-<!-- Toolbar -->
-<mat-toolbar color="primary" class="toolbar">
-  <button mat-icon-button (click)="goBack()">
-    <mat-icon>arrow_back</mat-icon>
-  </button>
-  <span class="logo">Ooredoo</span>
-  <span class="separator">|</span>
-  <span class="page-title">Simulation ML — Scénarios de Rétention</span>
-</mat-toolbar>
-
 <div class="container">
 
-  <!-- Sélection employé -->
-  <mat-card class="selection-card">
-    <mat-card-header>
-      <mat-card-title>
-        <mat-icon>science</mat-icon>
-        Lancer une simulation
-      </mat-card-title>
-      <mat-card-subtitle>
-        Comparez l'impact de différentes actions RH sur le risque de départ
-      </mat-card-subtitle>
-    </mat-card-header>
+  <mat-card class="selection-card" *ngIf="employee">
     <mat-card-content>
-      <div class="selection-form">
 
-        <mat-form-field appearance="outline" class="employee-select">
-          <mat-label>Sélectionner un employé</mat-label>
-          <mat-select [(ngModel)]="selectedEmployeeId">
-            <mat-option *ngFor="let e of employees" [value]="e.id">
-              <div class="option-content">
-                <strong>{{ e.firstName }} {{ e.lastName }}</strong>
-                <span> — {{ e.matricule }} — {{ e.dernierNiveauRisque }}</span>
-              </div>
-            </mat-option>
-          </mat-select>
-          <mat-icon matPrefix>person_search</mat-icon>
-        </mat-form-field>
-
+      <!-- En-tête -->
+      <div class="selection-header">
+        <div class="selection-info">
+          <div class="selection-title">
+            <mat-icon>science</mat-icon>
+            <span>Simulation des décisions RH</span>
+          </div>
+        </div>
+        <div class="selection-center">
+          <span class="emp-name">{{ employee.firstName }}</span>
+          <span class="emp-meta">{{ employee.matricule }} — {{ employee.department }}</span>
+        </div>
         <button mat-raised-button
                 color="primary"
                 class="run-btn"
-                (click)="lancerComparaison()"
-                [disabled]="loading || !selectedEmployeeId">
+                [disabled]="loading"
+                (click)="lancerSimulation(employee.id!)">
           <mat-icon>{{ loading ? 'hourglass_empty' : 'play_arrow' }}</mat-icon>
           {{ loading ? 'Simulation en cours...' : 'Lancer la simulation' }}
         </button>
-
       </div>
+
+      <mat-divider></mat-divider>
+
+      <!-- Message avant simulation -->
+      <div *ngIf="!comparaison && !loading" class="selection-bottom">
+        <mat-icon color="primary">info</mat-icon>
+        <span>Cliquez sur le bouton pour simuler l'impact des décisions RH sur cet employé.</span>
+      </div>
+
+      <div *ngIf="loading" class="loading-row">
+        <mat-icon class="spin">hourglass_empty</mat-icon>
+        <span>Simulation en cours...</span>
+      </div>
+      
+
+      <!-- Résultats directement dans la card -->
+      <ng-container *ngIf="comparaison">
+
+
+
+        <!-- Tableau scénarios -->
+        <table class="sim-table">
+          <thead>
+          <tr>
+            <th>Scénario</th>
+            <th>Avant</th>
+            <th>Après</th>
+            <th>Impact</th>
+            <th>Risque simulé</th>
+            <th>Recommandation</th>
+            <th></th>
+          </tr>
+          </thead>
+          <tbody>
+
+          <!-- Salaire +10% -->
+          <tr [class.recommended]="isMeilleureSalaire(comparaison.simulationSalaire10)">
+            <td><div class="scenario-name"><mat-icon>payments</mat-icon> Augmentation +10%</div></td>
+            <td class="before">{{ comparaison.simulationSalaire10.probabiliteActuelle * 100 | number:'1.1-1' }}%</td>
+            <td [class.after-good]="comparaison.simulationSalaire10.impactPourcentage > 0.1"
+                [class.after-mid]="comparaison.simulationSalaire10.impactPourcentage <= 0.1">
+              {{ comparaison.simulationSalaire10.probabiliteSimulee * 100 | number:'1.1-1' }}%
+            </td>
+            <td class="impact-pos">{{ getImpactPct(comparaison.simulationSalaire10.impactPourcentage) }}</td>
+            <td>
+              <mat-chip [color]="getRisqueColor(comparaison.simulationSalaire10.niveauRisqueSimule)" highlighted>
+                {{ comparaison.simulationSalaire10.niveauRisqueSimule }}
+              </mat-chip>
+            </td>
+            <td class="rec-text">{{ comparaison.simulationSalaire10.recommandation }}</td>
+            <td>
+                <span class="best-badge" *ngIf="isMeilleureSalaire(comparaison.simulationSalaire10)">
+                  <mat-icon>star</mat-icon> Recommandé
+                </span>
+            </td>
+          </tr>
+
+          <!-- Salaire +20% -->
+          <tr [class.recommended]="isMeilleureSalaire(comparaison.simulationSalaire20)">
+            <td><div class="scenario-name"><mat-icon>payments</mat-icon> Augmentation +20%</div></td>
+            <td class="before">{{ comparaison.simulationSalaire20.probabiliteActuelle * 100 | number:'1.1-1' }}%</td>
+            <td [class.after-good]="comparaison.simulationSalaire20.impactPourcentage > 0.1"
+                [class.after-mid]="comparaison.simulationSalaire20.impactPourcentage <= 0.1">
+              {{ comparaison.simulationSalaire20.probabiliteSimulee * 100 | number:'1.1-1' }}%
+            </td>
+            <td class="impact-pos">{{ getImpactPct(comparaison.simulationSalaire20.impactPourcentage) }}</td>
+            <td>
+              <mat-chip [color]="getRisqueColor(comparaison.simulationSalaire20.niveauRisqueSimule)" highlighted>
+                {{ comparaison.simulationSalaire20.niveauRisqueSimule }}
+              </mat-chip>
+            </td>
+            <td class="rec-text">{{ comparaison.simulationSalaire20.recommandation }}</td>
+            <td>
+                <span class="best-badge" *ngIf="isMeilleureSalaire(comparaison.simulationSalaire20)">
+                  <mat-icon>star</mat-icon> Recommandé
+                </span>
+            </td>
+          </tr>
+
+          <!-- Salaire +30% -->
+          <tr [class.recommended]="isMeilleureSalaire(comparaison.simulationSalaire30)">
+            <td><div class="scenario-name"><mat-icon>payments</mat-icon> Augmentation +30%</div></td>
+            <td class="before">{{ comparaison.simulationSalaire30.probabiliteActuelle * 100 | number:'1.1-1' }}%</td>
+            <td [class.after-good]="comparaison.simulationSalaire30.impactPourcentage > 0.1"
+                [class.after-mid]="comparaison.simulationSalaire30.impactPourcentage <= 0.1">
+              {{ comparaison.simulationSalaire30.probabiliteSimulee * 100 | number:'1.1-1' }}%
+            </td>
+            <td class="impact-pos">{{ getImpactPct(comparaison.simulationSalaire30.impactPourcentage) }}</td>
+            <td>
+              <mat-chip [color]="getRisqueColor(comparaison.simulationSalaire30.niveauRisqueSimule)" highlighted>
+                {{ comparaison.simulationSalaire30.niveauRisqueSimule }}
+              </mat-chip>
+            </td>
+            <td class="rec-text">{{ comparaison.simulationSalaire30.recommandation }}</td>
+            <td>
+                <span class="best-badge" *ngIf="isMeilleureSalaire(comparaison.simulationSalaire30)">
+                  <mat-icon>star</mat-icon> Recommandé
+                </span>
+            </td>
+          </tr>
+
+          <!-- Formation -->
+          <tr [class.recommended]="isMeilleure('FORMATION')">
+            <td><div class="scenario-name"><mat-icon>school</mat-icon> Formation</div></td>
+            <td class="before">{{ comparaison.simulationFormation.probabiliteActuelle * 100 | number:'1.1-1' }}%</td>
+            <td [class.after-good]="comparaison.simulationFormation.impactPourcentage > 0.1"
+                [class.after-mid]="comparaison.simulationFormation.impactPourcentage <= 0.1">
+              {{ comparaison.simulationFormation.probabiliteSimulee * 100 | number:'1.1-1' }}%
+            </td>
+            <td class="impact-pos">{{ getImpactPct(comparaison.simulationFormation.impactPourcentage) }}</td>
+            <td>
+              <mat-chip [color]="getRisqueColor(comparaison.simulationFormation.niveauRisqueSimule)" highlighted>
+                {{ comparaison.simulationFormation.niveauRisqueSimule }}
+              </mat-chip>
+            </td>
+            <td class="rec-text">{{ comparaison.simulationFormation.recommandation }}</td>
+            <td>
+                <span class="best-badge" *ngIf="isMeilleure('FORMATION')">
+                  <mat-icon>star</mat-icon> Recommandé
+                </span>
+            </td>
+          </tr>
+
+          <!-- Changement de poste -->
+          <tr [class.recommended]="isMeilleure('CHANGEMENT_POSTE')">
+            <td><div class="scenario-name"><mat-icon>work</mat-icon> Changement de poste</div></td>
+            <td class="before">{{ comparaison.simulationPoste.probabiliteActuelle * 100 | number:'1.1-1' }}%</td>
+            <td [class.after-good]="comparaison.simulationPoste.impactPourcentage > 0.1"
+                [class.after-mid]="comparaison.simulationPoste.impactPourcentage <= 0.1">
+              {{ comparaison.simulationPoste.probabiliteSimulee * 100 | number:'1.1-1' }}%
+            </td>
+            <td class="impact-pos">{{ getImpactPct(comparaison.simulationPoste.impactPourcentage) }}</td>
+            <td>
+              <mat-chip [color]="getRisqueColor(comparaison.simulationPoste.niveauRisqueSimule)" highlighted>
+                {{ comparaison.simulationPoste.niveauRisqueSimule }}
+              </mat-chip>
+            </td>
+            <td class="rec-text">{{ comparaison.simulationPoste.recommandation }}</td>
+            <td>
+                <span class="best-badge" *ngIf="isMeilleure('CHANGEMENT_POSTE')">
+                  <mat-icon>star</mat-icon> Recommandé
+                </span>
+            </td>
+          </tr>
+
+          </tbody>
+        </table>
+
+        <!-- Footer recommandation -->
+        <div class="rec-footer">
+          <mat-icon class="rec-icon">lightbulb</mat-icon>
+          <div>
+            <strong>Meilleure action recommandée :</strong>
+            {{ comparaison.meilleureAction }}
+          </div>
+        </div>
+
+      </ng-container>
+
     </mat-card-content>
   </mat-card>
 
-  <!-- Résultats -->
-  <div *ngIf="comparaison" class="results-container">
-
-    <!-- En-tête résultats -->
-    <mat-card class="summary-card">
-      <mat-card-content>
-        <div class="summary-content">
-          <div class="summary-left">
-            <div class="avatar-large">
-              {{ comparaison.employeeNom.split(' ')[0][0] }}{{ comparaison.employeeNom.split(' ')[1][0] }}
-            </div>
-            <div>
-              <h2>{{ comparaison.employeeNom }}</h2>
-              <p>{{ comparaison.employeeMatricule }}</p>
-            </div>
-          </div>
-          <div class="summary-right">
-            <div class="prob-actuelle">
-              <span class="prob-value">
-                {{ comparaison.probabiliteActuelle * 100 | number:'1.1-1' }}%
-              </span>
-              <span class="prob-label">Probabilité actuelle</span>
-            </div>
-            <mat-chip color="warn" highlighted>
-              <mat-icon matChipAvatar>dangerous</mat-icon>
-              {{ comparaison.niveauRisqueActuel }}
-            </mat-chip>
-          </div>
-        </div>
-      </mat-card-content>
-    </mat-card>
-
-    <!-- 5 Scénarios -->
-    <div class="scenarios-grid">
-
-      <!-- Scénario Salaire +10% -->
-      <mat-card class="scenario-card"
-                [class.best]="isMeilleureSalaire(comparaison.simulationSalaire10)">
-        <mat-card-header>
-          <mat-icon mat-card-avatar>payments</mat-icon>
-          <mat-card-title>Augmentation Salaire +10%</mat-card-title>
-          <mat-card-subtitle>
-            {{ comparaison.simulationSalaire10.descriptionScenario }}
-          </mat-card-subtitle>
-          <div class="best-badge" *ngIf="isMeilleureSalaire(comparaison.simulationSalaire10)">
-            <mat-icon>star</mat-icon> Recommandé
-          </div>
-        </mat-card-header>
-        <mat-card-content>
-          <ng-container *ngTemplateOutlet="scenarioResult;
-            context: { sim: comparaison.simulationSalaire10 }">
-          </ng-container>
-        </mat-card-content>
-      </mat-card>
-
-      <!-- Scénario Salaire +20% -->
-      <mat-card class="scenario-card"
-                [class.best]="isMeilleureSalaire(comparaison.simulationSalaire20)">
-        <mat-card-header>
-          <mat-icon mat-card-avatar>payments</mat-icon>
-          <mat-card-title>Augmentation Salaire +20%</mat-card-title>
-          <mat-card-subtitle>
-            {{ comparaison.simulationSalaire20.descriptionScenario }}
-          </mat-card-subtitle>
-          <div class="best-badge" *ngIf="isMeilleureSalaire(comparaison.simulationSalaire20)">
-            <mat-icon>star</mat-icon> Recommandé
-          </div>
-        </mat-card-header>
-        <mat-card-content>
-          <ng-container *ngTemplateOutlet="scenarioResult;
-            context: { sim: comparaison.simulationSalaire20 }">
-          </ng-container>
-        </mat-card-content>
-      </mat-card>
-
-      <!-- Scénario Salaire +30% -->
-      <mat-card class="scenario-card"
-                [class.best]="isMeilleureSalaire(comparaison.simulationSalaire30)">
-        <mat-card-header>
-          <mat-icon mat-card-avatar>payments</mat-icon>
-          <mat-card-title>Augmentation Salaire +30%</mat-card-title>
-          <mat-card-subtitle>
-            {{ comparaison.simulationSalaire30.descriptionScenario }}
-          </mat-card-subtitle>
-          <div class="best-badge" *ngIf="isMeilleureSalaire(comparaison.simulationSalaire30)">
-            <mat-icon>star</mat-icon> Recommandé
-          </div>
-        </mat-card-header>
-        <mat-card-content>
-          <ng-container *ngTemplateOutlet="scenarioResult;
-            context: { sim: comparaison.simulationSalaire30 }">
-          </ng-container>
-        </mat-card-content>
-      </mat-card>
-
-      <!-- Scénario Formation -->
-      <mat-card class="scenario-card"
-                [class.best]="isMeilleure('FORMATION')">
-        <mat-card-header>
-          <mat-icon mat-card-avatar>school</mat-icon>
-          <mat-card-title>Formation</mat-card-title>
-          <mat-card-subtitle>
-            {{ comparaison.simulationFormation.descriptionScenario }}
-          </mat-card-subtitle>
-          <div class="best-badge" *ngIf="isMeilleure('FORMATION')">
-            <mat-icon>star</mat-icon> Recommandé
-          </div>
-        </mat-card-header>
-        <mat-card-content>
-          <ng-container *ngTemplateOutlet="scenarioResult;
-            context: { sim: comparaison.simulationFormation }">
-          </ng-container>
-        </mat-card-content>
-      </mat-card>
-
-      <!-- Scénario Poste -->
-      <mat-card class="scenario-card"
-                [class.best]="isMeilleure('CHANGEMENT_POSTE')">
-        <mat-card-header>
-          <mat-icon mat-card-avatar>work</mat-icon>
-          <mat-card-title>Changement de Poste</mat-card-title>
-          <mat-card-subtitle>
-            {{ comparaison.simulationPoste.descriptionScenario }}
-          </mat-card-subtitle>
-          <div class="best-badge" *ngIf="isMeilleure('CHANGEMENT_POSTE')">
-            <mat-icon>star</mat-icon> Recommandé
-          </div>
-        </mat-card-header>
-        <mat-card-content>
-          <ng-container *ngTemplateOutlet="scenarioResult;
-            context: { sim: comparaison.simulationPoste }">
-          </ng-container>
-        </mat-card-content>
-      </mat-card>
-
-    </div>
-
-    <!-- Meilleure recommandation -->
-    <mat-card class="recommendation-card">
-      <mat-card-content>
-        <div class="recommendation-content">
-          <mat-icon class="rec-icon">lightbulb</mat-icon>
-          <div>
-            <h3>Meilleure Action Recommandée</h3>
-            <p>{{ comparaison.meilleureAction }}</p>
-            <mat-chip color="primary" highlighted>
-              {{ comparaison.typeSimulationRecommande }}
-            </mat-chip>
-          </div>
-        </div>
-      </mat-card-content>
-    </mat-card>
-
-  </div>
 </div>
-
-<!-- Template résultat scénario -->
-<ng-template #scenarioResult let-sim="sim">
-  <div class="scenario-content">
-    <div class="prob-comparison">
-      <div class="prob-item">
-        <span class="prob-label">Avant</span>
-        <span class="prob-val before">
-          {{ sim.probabiliteActuelle * 100 | number:'1.1-1' }}%
-        </span>
-      </div>
-      <mat-icon class="arrow-icon"
-                [color]="getImpactColor(sim.impactPourcentage)">
-        {{ getImpactIcon(sim.impactPourcentage) }}
-      </mat-icon>
-      <div class="prob-item">
-        <span class="prob-label">Après</span>
-        <span class="prob-val after"
-              [class.improved]="sim.impactPourcentage > 0">
-          {{ sim.probabiliteSimulee * 100 | number:'1.1-1' }}%
-        </span>
-      </div>
-    </div>
-
-    <mat-divider></mat-divider>
-
-    <div class="impact-row">
-      <span>Impact :</span>
-      <strong [class.positive]="sim.impactPourcentage > 0"
-              [class.negative]="sim.impactPourcentage <= 0">
-        {{ getImpactPct(sim.impactPourcentage) }}
-      </strong>
-    </div>
-
-    <div class="niveau-row">
-      <mat-chip [color]="getRisqueColor(sim.niveauRisqueActuel)" highlighted>
-        {{ sim.niveauRisqueActuel }}
-      </mat-chip>
-      <mat-icon>arrow_forward</mat-icon>
-      <mat-chip [color]="getRisqueColor(sim.niveauRisqueSimule)" highlighted>
-        {{ sim.niveauRisqueSimule }}
-      </mat-chip>
-    </div>
-
-    <p class="recommandation-text">{{ sim.recommandation }}</p>
-  </div>
-</ng-template>
