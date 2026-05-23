@@ -1,295 +1,219 @@
-$ooredoo-red     : #D40000;
-$ooredoo-red-soft: #FFF0F0;
-$ooredoo-red-bg  : #FFF5F5;
-$text-primary    : #000000;
-$text-secondary  : #494848;
-$text-muted      : #888888;
-$border-color    : #E0E0E0;
-$bg-page         : #F7F7F7;
-$white           : #FFFFFF;
+// ── Palette ──
+$red:            #D40000;
+$red-dark:       #AA0000;
+$red-soft:       #FFF0F0;
+$text:           #000000;
+$text-secondary: #494848;
+$text-muted:     #888888;
+$border:         #E0E0E0;
+$bg:             #F7F7F7;
+$white:          #FFFFFF;
+$green:          #2e7d32;
+$green-soft:     #e8f5e9;
+$green-lighter:  #f1f8e9;
+$blue:           #1565c0;
+$blue-soft:      #e3f2fd;
+$orange:         #e65100;
+$orange-soft:    #fff3e0;
 
-// ═══════════ LAYOUT ═══════════
-.app-layout {
-  display: flex;
-  height: 100vh;
+// ── Page ──
+.page-container {
+  max-width: 1300px;
+  margin: 0 auto;
+  padding: 24px;
+  background: $bg;
+  min-height: calc(100vh - 104px);
+}
+
+// ── Global Card ──
+.global-card {
+  border-radius: 3px !important;
+  box-shadow: 0 2px 16px rgba(0,0,0,0.08) !important;
+  background: $white !important;
+  padding: 0 !important;
   overflow: hidden;
-}
 
-// ═══════════ SIDEBAR ═══════════
-.sidebar {
-  width: 255px;
-  min-width: 255px;
-  background: $white;
-  border-right: 1px solid $border-color;
-  display: flex;
-  flex-direction: column;
-  height: 100vh;
-  position: fixed;
-  left: 0; top: 0;
-  z-index: 200;
-  box-shadow: 2px 0 8px rgba(0,0,0,0.06);
-
-  .sidebar-brand {
-    background: $ooredoo-red;
-    padding: 20px 18px 16px;
-
-    .brand-name {
-      display: block;
-      font-size: 24px;
-      font-weight: 900;
-      letter-spacing: 3px;
-      color: $white;
-      font-style: italic;
-    }
-
-    .brand-subtitle {
-      display: block;
-      font-size: 10px;
-      color: rgba(255,255,255,0.75);
-      letter-spacing: 0.5px;
-      margin-top: 4px;
-      text-transform: uppercase;
-    }
-  }
-}
-
-.sidebar-nav {
-  flex: 1;
-  padding: 8px 0;
-  overflow-y: auto;
-}
-
-.nav-section-title {
-  font-size: 10px;
-  font-weight: 700;
-  letter-spacing: 1.5px;
-  text-transform: uppercase;
-  color: $text-muted;
-  padding: 14px 18px 5px;
-  margin: 0;
-}
-
-.nav-item {
-  display: flex;
-  align-items: center;
-  gap: 12px;
-  width: 100%;
-  padding: 11px 18px;
-  background: transparent;
-  border: none;
-  border-left: 3px solid transparent;
-  cursor: pointer;
-  color: $text-secondary;
-  font-size: 13.5px;
-  font-family: inherit;
-  text-align: left;
-  transition: all 0.18s ease;
-
-  mat-icon {
-    font-size: 20px;
-    width: 20px;
-    height: 20px;
-    color: $text-muted;
-  }
-
-  &:hover {
-    background: $ooredoo-red-bg;
-    color: $ooredoo-red;
-    border-left-color: rgba(212,0,0,0.4);
-    mat-icon { color: $ooredoo-red; }
-  }
-
-  &.active {
-    background: $ooredoo-red-soft;
-    color: $ooredoo-red;
-    border-left-color: $ooredoo-red;
-    font-weight: 700;
-    mat-icon { color: $ooredoo-red; }
-  }
-}
-
-.sidebar-footer {
-  padding-bottom: 8px;
-  mat-divider { margin-bottom: 6px; }
-}
-
-.nav-logout {
-  color: $ooredoo-red !important;
-  mat-icon { color: $ooredoo-red !important; }
-  &:hover {
-    background: $ooredoo-red-soft !important;
-    border-left-color: $ooredoo-red !important;
-  }
-}
-
-// ═══════════ MAIN ═══════════
-.main-content {
-  margin-left: 255px;
-  flex: 1;
-  display: flex;
-  flex-direction: column;
-  overflow-y: auto;
-  height: 100vh;
-  background: $bg-page;
-}
-
-// ═══════════ TOOLBAR ═══════════
-.toolbar {
-  background: $ooredoo-red !important;
-  position: sticky;
-  top: 0;
-  z-index: 100;
-  flex-shrink: 0;
-  height: 56px;
-
-  .toolbar-left {
+  .global-header {
     display: flex;
     align-items: center;
-    gap: 10px;
-    color: $white;
+    justify-content: space-between;
+    padding: 16px 24px;
+    background: $white;
 
-    .toolbar-title {
-      font-size: 15px;
-      font-weight: 600;
+    .global-header-left {
+      display: flex;
+      flex-direction: column;
+      gap: 3px;
+
+      .global-header-title {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        font-size: 15px;
+        font-weight: 700;
+        color: $text;
+
+        .global-header-icon {
+          width: 32px;
+          height: 32px;
+          border-radius: 8px;
+          background: $red-soft;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+
+          mat-icon {
+            font-size: 18px;
+            width: 18px;
+            height: 18px;
+            color: $red;
+          }
+        }
+      }
+
+      .global-header-desc {
+        font-size: 12px;
+        color: $text-muted;
+        margin: 0;
+        padding-left: 42px;
+      }
     }
+
+    .global-header-actions {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      flex-shrink: 0;
+
+      .format-btn {
+        height: 36px;
+        border-radius: 6px !important;
+        font-size: 13px;
+        font-weight: 600;
+        color: $text-secondary !important;
+        border-color: $border !important;
+
+        mat-icon {
+          font-size: 16px;
+          width: 16px;
+          height: 16px;
+          margin-right: 4px;
+        }
+      }
+
+      .template-btn {
+        height: 36px;
+        border-radius: 6px !important;
+        font-size: 13px;
+        font-weight: 600;
+        background: $red !important;
+        color: $white !important;
+
+        &:hover { background: $red-dark !important; }
+
+        mat-icon {
+          font-size: 16px;
+          width: 16px;
+          height: 16px;
+          margin-right: 4px;
+        }
+      }
+    }
+  }
+
+  .global-body {
+    padding: 20px 24px;
+    background: $white;
   }
 }
 
-// ═══════════ PAGE ═══════════
-.page-container {
-  padding: 24px;
-  flex: 1;
-}
-
+// ── Layout 2 colonnes ──
 .import-layout {
   display: grid;
   grid-template-columns: 1fr 1fr;
-  gap: 24px;
+  gap: 20px;
   align-items: start;
 }
 
-// ═══════════ INFO CARD ═══════════
-.info-card {
-  border-radius: 10px !important;
-  margin-bottom: 20px;
-  box-shadow: 0 1px 6px rgba(0,0,0,0.07) !important;
+// ── Card header icon ──
+.card-header-icon {
+  width: 32px;
+  height: 32px;
+  border-radius: 8px;
+  background: $red-soft;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-right: 12px;
+  flex-shrink: 0;
 
-  mat-card-title {
-    font-size: 15px;
-    color: $ooredoo-red;
-  }
-
-  .columns-list {
-    display: flex;
-    flex-direction: column;
-    gap: 10px;
-
-    .col-item {
-      display: flex;
-      align-items: center;
-      gap: 8px;
-      font-size: 13px;
-      padding: 6px 10px;
-      border-radius: 6px;
-
-      mat-icon { font-size: 18px; width: 18px; height: 18px; }
-
-      &.required {
-        background: #e8f5e9;
-        color: #2e7d32;
-        mat-icon { color: #2e7d32; }
-      }
-
-      &.optional {
-        background: #e3f2fd;
-        color: #1565c0;
-        mat-icon { color: #1565c0; }
-      }
-
-      &.ignored {
-        background: #f5f5f5;
-        color: $text-muted;
-        mat-icon { color: $text-muted; }
-      }
-    }
-  }
-
-  .legend {
-    display: flex;
-    gap: 16px;
-    flex-wrap: wrap;
-
-    .legend-item {
-      display: flex;
-      align-items: center;
-      gap: 4px;
-      font-size: 12px;
-
-      mat-icon { font-size: 16px; width: 16px; height: 16px; }
-
-      &.required { color: #2e7d32; }
-      &.optional  { color: #1565c0; }
-      &.ignored   { color: $text-muted; }
-    }
+  mat-icon {
+    font-size: 18px;
+    width: 18px;
+    height: 18px;
+    color: $red;
   }
 }
 
-// ═══════════ UPLOAD CARD ═══════════
+// ── Upload Card ──
 .upload-card {
   border-radius: 10px !important;
   box-shadow: 0 1px 6px rgba(0,0,0,0.07) !important;
+  border: 1px solid $border !important;
+  background: $white !important;
 
-  mat-card-title {
-    font-size: 15px;
-    color: $ooredoo-red;
-  }
+  mat-card-title    { font-size: 14px !important; font-weight: 700 !important; color: $text !important; }
+  mat-card-subtitle { font-size: 12px !important; color: $text-muted !important; }
+  mat-card-header   { padding: 16px 16px 0 !important; }
+  mat-card-content  { padding: 12px 16px 16px !important; }
 }
 
+// ── Drop Zone ──
 .drop-zone {
-  border: 2px dashed $border-color;
+  border: 2px dashed $border;
   border-radius: 10px;
-  padding: 40px 24px;
+  padding: 36px 24px;
   text-align: center;
   cursor: pointer;
   transition: all 0.2s ease;
-  background: $bg-page;
+  background: $bg;
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: 8px;
+  gap: 6px;
 
   &:hover, &.drag-over {
-    border-color: $ooredoo-red;
-    background: $ooredoo-red-soft;
+    border-color: $red;
+    background: $red-soft;
   }
 
   &.file-selected {
-    border-color: #2e7d32;
-    background: #f1f8e9;
+    border-color: $green;
+    background: $green-lighter;
     border-style: solid;
   }
 
   .drop-icon {
-    font-size: 48px;
-    width: 48px;
-    height: 48px;
+    font-size: 44px;
+    width: 44px;
+    height: 44px;
     color: $text-muted;
-    margin-bottom: 8px;
+    margin-bottom: 4px;
 
-    &.success-icon { color: #2e7d32; }
+    &.success-icon { color: $green; }
   }
 
   .drop-text {
-    font-size: 15px;
+    font-size: 14px;
     font-weight: 600;
-    color: $text-primary;
+    color: $text;
     margin: 0;
 
-    &.file-name { color: #2e7d32; }
+    &.file-name { color: $green; }
   }
 
   .drop-subtext {
-    font-size: 13px;
+    font-size: 12px;
     color: $text-muted;
     margin: 0;
   }
@@ -298,39 +222,39 @@ $white           : #FFFFFF;
     font-size: 11px;
     color: $text-muted;
     background: #eeeeee;
-    padding: 3px 10px;
+    padding: 2px 10px;
     border-radius: 10px;
-    margin-top: 4px;
+    margin-top: 2px;
   }
 }
 
+// ── Upload Actions ──
 .upload-actions {
   display: flex;
-  gap: 12px;
-  margin-top: 20px;
+  gap: 10px;
+  margin-top: 16px;
 
   .import-btn {
     flex: 1;
-    background: $ooredoo-red !important;
+    background: $red !important;
     color: $white !important;
     font-weight: 600;
     border-radius: 6px !important;
-    height: 44px;
+    height: 40px;
+    &:hover { background: $red-dark !important; }
   }
 
   .reset-btn {
-    height: 44px;
+    height: 40px;
     border-radius: 6px !important;
     color: $text-secondary !important;
+    border-color: $border !important;
   }
 }
 
-.progress-bar {
-  margin-top: 16px;
-  border-radius: 4px;
-}
+.progress-bar { margin-top: 12px; border-radius: 4px; }
 
-// ═══════════ PLACEHOLDER ═══════════
+// ── Placeholder ──
 .placeholder {
   display: flex;
   flex-direction: column;
@@ -340,26 +264,27 @@ $white           : #FFFFFF;
   color: $text-muted;
   background: $white;
   border-radius: 10px;
-  border: 1px dashed $border-color;
+  border: 1px dashed $border;
 
   mat-icon {
-    font-size: 56px;
-    width: 56px;
-    height: 56px;
+    font-size: 52px;
+    width: 52px;
+    height: 52px;
     margin-bottom: 16px;
-    opacity: 0.4;
+    opacity: 0.35;
   }
 
   .spin-icon {
     animation: spin 1.5s linear infinite;
-    color: $ooredoo-red;
+    color: $red;
     opacity: 0.7;
   }
 
   p {
-    font-size: 14px;
+    font-size: 13px;
     text-align: center;
-    max-width: 260px;
+    max-width: 220px;
+    line-height: 1.6;
   }
 }
 
@@ -368,20 +293,25 @@ $white           : #FFFFFF;
   to   { transform: rotate(360deg); }
 }
 
-// ═══════════ RÉSULTATS ═══════════
-.result-card, .errors-card {
+// ── Result Card ──
+.result-card {
   border-radius: 10px !important;
   margin-bottom: 16px;
   box-shadow: 0 1px 6px rgba(0,0,0,0.07) !important;
+  border: 1px solid $border !important;
 
-  mat-card-title { font-size: 15px; color: $ooredoo-red; }
+  mat-card-title    { font-size: 14px !important; font-weight: 700 !important; color: $text !important; }
+  mat-card-subtitle { font-size: 12px !important; color: $text-muted !important; }
+  mat-card-header   { padding: 16px 16px 0 !important; }
+  mat-card-content  { padding: 12px 16px 16px !important; }
 }
 
+// ── KPI Grid ──
 .kpi-grid {
   display: grid;
   grid-template-columns: repeat(2, 1fr);
-  gap: 12px;
-  margin-bottom: 20px;
+  gap: 10px;
+  margin-bottom: 16px;
 }
 
 .kpi-item {
@@ -389,48 +319,32 @@ $white           : #FFFFFF;
   padding: 14px;
   display: flex;
   flex-direction: column;
-  position: relative;
-  overflow: hidden;
+  align-items: flex-start;
+  gap: 4px;
 
   mat-icon {
-    position: absolute;
-    right: 12px;
-    top: 12px;
-    font-size: 32px;
-    width: 32px;
-    height: 32px;
-    opacity: 0.15;
+    font-size: 20px;
+    width: 20px;
+    height: 20px;
+    opacity: 0.7;
+    margin-bottom: 4px;
   }
 
   .kpi-value {
-    font-size: 32px;
+    font-size: 30px;
     font-weight: 700;
     line-height: 1;
   }
 
   .kpi-label {
-    font-size: 12px;
-    margin-top: 4px;
+    font-size: 11px;
     font-weight: 500;
+    opacity: 0.8;
   }
 
-  &.kpi-total  {
-    background: #e3f2fd;
-    color: #1565c0;
-    border-left: 4px solid #1565c0;
-  }
-
-  &.kpi-cree   {
-    background: #e8f5e9;
-    color: #2e7d32;
-    border-left: 4px solid #2e7d32;
-  }
-
-  &.kpi-maj    {
-    background: #fff3e0;
-    color: #e65100;
-    border-left: 4px solid #f57c00;
-  }
+  &.kpi-total { background: $blue-soft;   color: $blue;   border-left: 4px solid $blue; }
+  &.kpi-cree  { background: $green-soft;  color: $green;  border-left: 4px solid $green; }
+  &.kpi-maj   { background: $orange-soft; color: $orange; border-left: 4px solid $orange; }
 
   &.kpi-erreur {
     background: #f5f5f5;
@@ -438,20 +352,21 @@ $white           : #FFFFFF;
     border-left: 4px solid #ccc;
 
     &.has-errors {
-      background: $ooredoo-red-soft;
-      color: $ooredoo-red;
-      border-left-color: $ooredoo-red;
+      background: $red-soft;
+      color: $red;
+      border-left-color: $red;
     }
   }
 }
 
+// ── Success Bar ──
 .success-bar-wrap {
   display: flex;
   align-items: center;
-  gap: 12px;
+  gap: 10px;
 
   .success-label {
-    font-size: 13px;
+    font-size: 12px;
     color: $text-secondary;
     white-space: nowrap;
     font-weight: 500;
@@ -460,82 +375,51 @@ $white           : #FFFFFF;
   mat-progress-bar { flex: 1; }
 
   .success-pct {
-    font-size: 13px;
+    font-size: 12px;
     font-weight: 700;
-    color: $ooredoo-red;
+    color: $red;
     min-width: 36px;
     text-align: right;
   }
 }
 
-.error-list {
-  max-height: 200px;
-  overflow-y: auto;
-  display: flex;
-  flex-direction: column;
-  gap: 8px;
-
-  .error-item {
-    display: flex;
-    align-items: flex-start;
-    gap: 8px;
-    padding: 8px 12px;
-    background: $ooredoo-red-soft;
-    border-radius: 6px;
-    font-size: 12px;
-    color: $ooredoo-red;
-
-    mat-icon {
-      font-size: 16px;
-      width: 16px;
-      height: 16px;
-      flex-shrink: 0;
-      margin-top: 1px;
-    }
-  }
-}
-
+// ── Post Actions ──
 .post-actions {
   display: flex;
-  gap: 12px;
+  gap: 10px;
 
   .goto-btn {
-    background: $ooredoo-red !important;
+    background: $red !important;
     color: $white !important;
     font-weight: 600;
     border-radius: 6px !important;
+    &:hover { background: $red-dark !important; }
   }
 }
 
+// ── Annule Card ──
 .annule-card {
   border-radius: 10px !important;
   margin-bottom: 16px;
-  border-left: 5px solid $ooredoo-red !important;
-  background: $ooredoo-red-soft !important;
+  border-left: 5px solid $red !important;
+  background: $red-soft !important;
+
+  mat-card-content { padding: 16px !important; }
 
   .annule-content {
     display: flex;
     align-items: flex-start;
-    gap: 16px;
+    gap: 14px;
 
     mat-icon {
-      font-size: 36px;
-      width: 36px;
-      height: 36px;
-      color: $ooredoo-red;
+      font-size: 30px;
+      width: 30px;
+      height: 30px;
+      color: $red;
       flex-shrink: 0;
     }
 
-    h3 {
-      margin: 0 0 6px;
-      color: $ooredoo-red;
-      font-size: 16px;
-    }
-
-    p {
-      margin: 0;
-      font-size: 13px;
-      color: $text-secondary;
-    }
+    h3 { margin: 0 0 4px; color: $red; font-size: 14px; font-weight: 700; }
+    p  { margin: 0; font-size: 12px; color: $text-secondary; line-height: 1.5; }
   }
 }

@@ -54,49 +54,6 @@
           <mat-icon>upload_file</mat-icon>
           <span class="nav-label">Importer des employés</span>
         </button>
-
-        <button class="nav-item"
-                [class.active]="isActiveRoute('/simulation')"
-                (click)="navigateTo('/simulation')"
-                matTooltip="Simulation ML"
-                matTooltipPosition="right"
-                [matTooltipDisabled]="!sidebarCollapsed">
-          <span class="nav-item-bg"></span>
-          <mat-icon>science</mat-icon>
-          <span class="nav-label">Simulation ML</span>
-        </button>
-      </ng-container>
-
-      <p class="nav-section-title">
-        <span class="section-title-text">Analyse</span>
-        <span class="section-title-line"></span>
-      </p>
-      <button class="nav-item"
-              [class.active]="isActiveRoute('/recommandations')"
-              (click)="navigateTo('/recommandations')"
-              matTooltip="Recommandations"
-              matTooltipPosition="right"
-              [matTooltipDisabled]="!sidebarCollapsed">
-        <span class="nav-item-bg"></span>
-        <mat-icon>lightbulb</mat-icon>
-        <span class="nav-label">Recommandations</span>
-      </button>
-
-      <ng-container *ngIf="isAdmin || isManager">
-        <p class="nav-section-title">
-          <span class="section-title-text">Équipe</span>
-          <span class="section-title-line"></span>
-        </p>
-        <button class="nav-item"
-                [class.active]="isActiveRoute('/team')"
-                (click)="navigateTo('/team')"
-                matTooltip="Vue Équipe"
-                matTooltipPosition="right"
-                [matTooltipDisabled]="!sidebarCollapsed">
-          <span class="nav-item-bg"></span>
-          <mat-icon>groups</mat-icon>
-          <span class="nav-label">Vue Équipe</span>
-        </button>
       </ng-container>
 
       <ng-container *ngIf="isAdmin">
@@ -145,7 +102,6 @@
         </button>
       </div>
       <div class="toolbar-right">
-        <app-notification-panneau></app-notification-panneau>
 
         <!-- Avatar cliquable avec MatMenu -->
         <div class="user-avatar"

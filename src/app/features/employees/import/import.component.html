@@ -1,150 +1,109 @@
-<div class="app-layout">
+<div class="page-container">
 
+  <mat-card class="global-card">
 
+    <!-- En-tête -->
+    <div class="global-header">
+      <div class="global-header-left">
+        <div class="global-header-title">
 
+          <span>Import des données RH</span>
+        </div>
+        <p class="global-header-desc">
+          Importez vos données employés depuis un fichier CSV
+        </p>
+      </div>
 
-  <!-- ═══════════ CONTENU ═══════════ -->
-  <div class="main-content">
+      <!-- Boutons à droite -->
+      <div class="global-header-actions">
+        <button mat-stroked-button class="format-btn" (click)="voirFormat()">
+          <mat-icon>visibility</mat-icon>
+          Voir le format attendu
+        </button>
+        <button mat-raised-button class="template-btn" (click)="telechargerModele()">
+          <mat-icon>download</mat-icon>
+          Télécharger le modèle
+        </button>
+      </div>
+    </div>
 
+    <mat-divider></mat-divider>
 
+    <div class="global-body">
 
-    <div class="page-container">
-
+      <!-- Les deux colonnes -->
       <div class="import-layout">
 
-        <!-- Colonne gauche : upload -->
-        <div class="left-col">
+        <!-- Colonne gauche : Upload -->
+        <mat-card class="upload-card">
 
-          <!-- Instructions -->
-          <mat-card class="info-card">
-            <mat-card-header>
-              <mat-icon mat-card-avatar>info</mat-icon>
-              <mat-card-title>Format attendu</mat-card-title>
-              <mat-card-subtitle>
-                Fichier CSV compatible avec le dataset IBM HR
-              </mat-card-subtitle>
-            </mat-card-header>
-            <mat-card-content>
-              <div class="columns-list">
-                <div class="col-item required">
-                  <mat-icon>check_circle</mat-icon>
-                  <span>EmployeeNumber, Age, Gender, MaritalStatus</span>
-                </div>
-                <div class="col-item required">
-                  <mat-icon>check_circle</mat-icon>
-                  <span>Department, JobRole, JobLevel, BusinessTravel</span>
-                </div>
-                <div class="col-item required">
-                  <mat-icon>check_circle</mat-icon>
-                  <span>MonthlyIncome, OverTime, YearsAtCompany</span>
-                </div>
-                <div class="col-item optional">
-                  <mat-icon>radio_button_unchecked</mat-icon>
-                  <span>JobSatisfaction, WorkLifeBalance, PerformanceRating</span>
-                </div>
-                <div class="col-item ignored">
-                  <mat-icon>remove_circle_outline</mat-icon>
-                  <span>Attrition, EmployeeCount, Over18 (ignorés)</span>
-                </div>
-              </div>
 
-              <mat-divider style="margin: 16px 0"></mat-divider>
+          <mat-card-content>
 
-              <div class="legend">
-                <span class="legend-item required">
-                  <mat-icon>check_circle</mat-icon> Obligatoire
-                </span>
-                <span class="legend-item optional">
-                  <mat-icon>radio_button_unchecked</mat-icon> Optionnel
-                </span>
-                <span class="legend-item ignored">
-                  <mat-icon>remove_circle_outline</mat-icon> Ignoré
-                </span>
-              </div>
-            </mat-card-content>
-          </mat-card>
+            <div class="drop-zone"
+                 [class.drag-over]="isDragOver"
+                 [class.file-selected]="selectedFile"
+                 (dragover)="onDragOver($event)"
+                 (dragleave)="onDragLeave($event)"
+                 (drop)="onDrop($event)"
+                 (click)="fileInput.click()">
 
-          <!-- Zone upload -->
-          <mat-card class="upload-card">
-            <mat-card-header>
-              <mat-icon mat-card-avatar>cloud_upload</mat-icon>
-              <mat-card-title>Sélectionner un fichier</mat-card-title>
-            </mat-card-header>
-            <mat-card-content>
+              <input #fileInput
+                     type="file"
+                     accept=".csv"
+                     style="display:none"
+                     (change)="onFileSelected($event)">
 
-              <!-- Drop zone -->
-              <div class="drop-zone"
-                   [class.drag-over]="isDragOver"
-                   [class.file-selected]="selectedFile"
-                   (dragover)="onDragOver($event)"
-                   (dragleave)="onDragLeave($event)"
-                   (drop)="onDrop($event)"
-                   (click)="fileInput.click()">
+              <ng-container *ngIf="!selectedFile">
+                <mat-icon class="drop-icon">upload_file</mat-icon>
+                <p class="drop-text">Glissez-déposez votre fichier CSV ici</p>
+                <p class="drop-subtext">ou cliquez pour sélectionner</p>
+                <span class="drop-hint">Format accepté : .csv</span>
+              </ng-container>
 
-                <input #fileInput
-                       type="file"
-                       accept=".csv"
-                       style="display:none"
-                       (change)="onFileSelected($event)">
+              <ng-container *ngIf="selectedFile">
+                <mat-icon class="drop-icon success-icon">check_circle</mat-icon>
+                <p class="drop-text file-name">{{ selectedFile.name }}</p>
+                <p class="drop-subtext">{{ getFileSize() }}</p>
+                <span class="drop-hint">Cliquez pour changer de fichier</span>
+              </ng-container>
 
-                <ng-container *ngIf="!selectedFile">
-                  <mat-icon class="drop-icon">upload_file</mat-icon>
-                  <p class="drop-text">
-                    Glissez-déposez votre fichier CSV ici
-                  </p>
-                  <p class="drop-subtext">ou cliquez pour sélectionner</p>
-                  <span class="drop-hint">Formats acceptés : .csv</span>
-                </ng-container>
+            </div>
 
-                <ng-container *ngIf="selectedFile">
-                  <mat-icon class="drop-icon success-icon">check_circle</mat-icon>
-                  <p class="drop-text file-name">{{ selectedFile.name }}</p>
-                  <p class="drop-subtext">{{ getFileSize() }}</p>
-                  <span class="drop-hint">
-                    Cliquez pour changer de fichier
-                  </span>
-                </ng-container>
+            <div class="upload-actions">
+              <button mat-raised-button
+                      class="import-btn"
+                      [disabled]="!selectedFile || loading"
+                      (click)="lancerImport()">
+                <mat-icon>{{ loading ? 'hourglass_empty' : 'play_arrow' }}</mat-icon>
+                {{ loading ? 'Import en cours...' : "Lancer l'import" }}
+              </button>
 
-              </div>
+              <button mat-stroked-button
+                      class="reset-btn"
+                      [disabled]="loading || (!selectedFile && !result)"
+                      (click)="reinitialiser()">
+                <mat-icon>refresh</mat-icon>
+                Réinitialiser
+              </button>
+            </div>
 
-              <!-- Actions -->
-              <div class="upload-actions">
-                <button mat-raised-button
-                        class="import-btn"
-                        [disabled]="!selectedFile || loading"
-                        (click)="lancerImport()">
-                  <mat-icon>{{ loading ? 'hourglass_empty' : 'play_arrow' }}</mat-icon>
-                  {{ loading ? 'Import en cours...' : 'Lancer l\'import' }}
-                </button>
+            <mat-progress-bar
+              *ngIf="loading"
+              mode="indeterminate"
+              class="progress-bar">
+            </mat-progress-bar>
 
-                <button mat-stroked-button
-                        class="reset-btn"
-                        [disabled]="loading"
-                        (click)="reinitialiser()">
-                  <mat-icon>refresh</mat-icon>
-                  Réinitialiser
-                </button>
-              </div>
+          </mat-card-content>
+        </mat-card>
 
-              <!-- Progress bar -->
-              <mat-progress-bar
-                *ngIf="loading"
-                mode="indeterminate"
-                class="progress-bar">
-              </mat-progress-bar>
-
-            </mat-card-content>
-          </mat-card>
-
-        </div>
-
-        <!-- Colonne droite : résultats -->
+        <!-- Colonne droite : Placeholder / Résultats -->
         <div class="right-col">
 
-          <!-- Placeholder si pas de résultat -->
+          <!-- Placeholder -->
           <div class="placeholder" *ngIf="!result && !loading">
-            <mat-icon>analytics</mat-icon>
-            <p>Le rapport d'import s'affichera ici après l'exécution</p>
+            <mat-icon>cloud_upload</mat-icon>
+            <p>Sélectionnez un fichier CSV et lancez l'import pour voir le rapport ici</p>
           </div>
 
           <!-- Loading -->
@@ -156,59 +115,53 @@
           <!-- Résultats -->
           <ng-container *ngIf="result && !loading">
 
-            <!-- ⭐ Bandeau d'annulation (nouveau) -->
+            <!-- Annulation -->
             <mat-card class="annule-card" *ngIf="result.annule">
               <mat-card-content>
                 <div class="annule-content">
                   <mat-icon>cancel</mat-icon>
                   <div>
                     <h3>Import annulé</h3>
-                    <p>
-                      Le taux d'erreurs dépasse 20% —
-                      aucune donnée n'a été insérée en base.
-                      Corrigez votre fichier et relancez l'import.
-                    </p>
+                    <p>Le taux d'erreurs dépasse 20% — aucune donnée n'a été insérée. Corrigez votre fichier et relancez l'import.</p>
                   </div>
                 </div>
               </mat-card-content>
             </mat-card>
 
-            <!-- KPI résultats -->
+            <!-- KPIs -->
             <mat-card class="result-card">
               <mat-card-header>
-                <mat-icon mat-card-avatar>assessment</mat-icon>
+                <div class="card-header-icon">
+                  <mat-icon>assessment</mat-icon>
+                </div>
                 <mat-card-title>Rapport d'import</mat-card-title>
-                <mat-card-subtitle>
-                  {{ result.totalLignes }} lignes traitées
-                </mat-card-subtitle>
+                <mat-card-subtitle>{{ result.totalLignes }} lignes traitées</mat-card-subtitle>
               </mat-card-header>
               <mat-card-content>
 
                 <div class="kpi-grid">
                   <div class="kpi-item kpi-total">
+                    <mat-icon>list</mat-icon>
                     <span class="kpi-value">{{ result.totalLignes }}</span>
                     <span class="kpi-label">Total lignes</span>
-                    <mat-icon>list</mat-icon>
                   </div>
                   <div class="kpi-item kpi-cree">
+                    <mat-icon>person_add</mat-icon>
                     <span class="kpi-value">{{ result.crees }}</span>
                     <span class="kpi-label">Créés</span>
-                    <mat-icon>person_add</mat-icon>
                   </div>
                   <div class="kpi-item kpi-maj">
+                    <mat-icon>update</mat-icon>
                     <span class="kpi-value">{{ result.misAJour }}</span>
                     <span class="kpi-label">Mis à jour</span>
-                    <mat-icon>update</mat-icon>
                   </div>
-                  <div class="kpi-item kpi-erreur"
-                       [class.has-errors]="result.erreurs > 0">
+                  <div class="kpi-item kpi-erreur" [class.has-errors]="result.erreurs > 0">
+                    <mat-icon>error_outline</mat-icon>
                     <span class="kpi-value">{{ result.erreurs }}</span>
                     <span class="kpi-label">Erreurs</span>
-                    <mat-icon>error_outline</mat-icon>
                   </div>
                 </div>
 
-                <!-- Barre de succès -->
                 <div class="success-bar-wrap">
                   <span class="success-label">Taux de succès</span>
                   <mat-progress-bar
@@ -217,56 +170,30 @@
                     color="primary">
                   </mat-progress-bar>
                   <span class="success-pct">
-                    {{ ((result.crees + result.misAJour) / result.totalLignes * 100)
-                    | number:'1.0-0' }}%
+                    {{ ((result.crees + result.misAJour) / result.totalLignes * 100) | number:'1.0-0' }}%
                   </span>
                 </div>
 
               </mat-card-content>
             </mat-card>
 
-            <!-- Détails erreurs -->
-            <mat-card class="errors-card" *ngIf="result.detailsErreurs?.length > 0">
-              <mat-card-header>
-                <mat-icon mat-card-avatar style="color:#D40000">
-                  warning
-                </mat-icon>
-                <mat-card-title>Détails des erreurs</mat-card-title>
-                <mat-card-subtitle>
-                  {{ result.detailsErreurs.length }} erreur(s) détectée(s)
-                </mat-card-subtitle>
-              </mat-card-header>
-              <mat-card-content>
-                <div class="error-list">
-                  <div class="error-item"
-                       *ngFor="let err of result.detailsErreurs">
-                    <mat-icon>error_outline</mat-icon>
-                    <span>{{ err }}</span>
-                  </div>
-                </div>
-              </mat-card-content>
-            </mat-card>
-
             <!-- Actions post-import -->
             <div class="post-actions">
-              <button mat-raised-button
-                      class="goto-btn"
-                      (click)="navigateTo('/employees')">
+              <button mat-raised-button class="goto-btn" (click)="navigateTo('/employees')">
                 <mat-icon>people</mat-icon>
                 Voir les employés importés
               </button>
-              <button mat-stroked-button
-                      (click)="reinitialiser()">
-                <mat-icon>upload_file</mat-icon>
-                Importer un autre fichier
+              <button mat-stroked-button (click)="reinitialiser()">
+                <mat-icon>refresh</mat-icon>
+                Nouvel import
               </button>
             </div>
 
           </ng-container>
-
         </div>
-      </div>
 
+      </div>
     </div>
-  </div>
+  </mat-card>
+
 </div>

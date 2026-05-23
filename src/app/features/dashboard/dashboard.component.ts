@@ -105,7 +105,6 @@ export class DashboardComponent implements OnInit {
         borderColor: '#D40000', borderWidth: 1, padding: 8,
         callbacks: {
           title: (items) => {
-            // label complet dans le tooltip
             const idx = items[0].dataIndex;
             return (items[0].chart.data.labels?.[idx] as string) ?? '';
           },
@@ -179,9 +178,19 @@ export class DashboardComponent implements OnInit {
     plugins: {
       legend: { display: false },
       tooltip: {
+        backgroundColor: '#1a1a2e',
+        titleColor: '#fff',
+        bodyColor: '#ccc',
+        borderColor: '#D40000',
+        borderWidth: 1,
+        padding: 10,
         callbacks: {
-          title: (items) => items[0]?.label ?? '',
-          label: (ctx) => ` Contribution : ${ctx.parsed.x}%`,
+          // Affiche le label complet (non tronqué) dans le tooltip
+          title: (items) => {
+            const key = items[0]?.label ?? '';
+            return this.facteurTooltips[key] ?? key;
+          },
+          label: (ctx) => ` Impact sur le risque de départ : ${ctx.parsed.x}%`,
         },
       },
     },
@@ -194,7 +203,7 @@ export class DashboardComponent implements OnInit {
       },
       y: {
         grid: { display: false },
-        afterFit: (axis: any) => { axis.width = 160; },
+        afterFit: (axis: any) => { axis.width = 210; },
         ticks: {
           color: '#494848',
           font: { size: 10 },
@@ -229,7 +238,8 @@ export class DashboardComponent implements OnInit {
         beginAtZero: true,
         grid: { color: 'rgba(0,0,0,0.05)' },
         ticks: { color: '#888', font: { size: 9 } },
-        title: { display: true, text: 'Taux de risque global (%)', color: '#888', font: { size: 9 } },      },
+        title: { display: true, text: 'Taux de risque global (%)', color: '#888', font: { size: 9 } },
+      },
     },
   };
 
@@ -320,7 +330,7 @@ export class DashboardComponent implements OnInit {
       datasets: [{
         data: [data.risqueEleve, data.risqueMoyen, data.risqueFaible],
         backgroundColor: ['#D40000', '#FFB347', '#43A047'],
-        borderColor: '#FFFFFF', // ← toutes les bordures en blanc
+        borderColor: '#FFFFFF',
         borderWidth: 2,
         hoverOffset: 8,
       }],
@@ -359,37 +369,57 @@ export class DashboardComponent implements OnInit {
     };
   }
 
-  // Abréviations pour les labels de facteurs trop longs
+  // ══════════════════════════════════════════════════════
+  // Labels affichés sur le graphique (courts, lisibles)
+  // Formulés comme des CAUSES d'attrition
+  // ══════════════════════════════════════════════════════
   private readonly facteurAbbr: { [key: string]: string } = {
-    // ── visibles sur la capture ──
-    'Catégorie socioprofessionnelle':          'Catégorie socio.',
-    'Satisfaction au travail':                 'Satisfaction',
-    'Heures supplémentaires × Niveau':         'Heures sup × Niv.',
-    'Équilibre vie professionnelle':           'Équilibre vie pro',
-    'Satisfaction environnement':              'Satisfaction env.',
-    'Années dans l\'entreprise':               'Années entreprise',
-    'Nombre d\'entreprises':                   'Nb entreprises',
-    'Âge':                                     'Âge',
-    // ── autres cas possibles ──
-    'Ancienneté dans le poste':                'Ancienneté poste',
-    'Ancienneté dans l\'entreprise':           'Ancienneté entr.',
-    'Nombre d\'absences':                      'Nb absences',
-    'Dernier salaire annuel':                  'Salaire annuel',
-    'Nombre de formations':                    'Nb formations',
-    'Distance domicile-travail':               'Distance domicile',
-    'Années d\'expérience':                    'Expérience (ans)',
-    'Heures supplémentaires':                  'Heures supp.',
+    'Ancienneté':              'Stagnation dans le poste',
+    'Satisfaction':            'Insatisfaction au travail',
+    'Surcharge':               'Surcharge de travail',
+    'Équilibre vie':           'Déséquilibre vie pro / perso',
+    'Ambiance travail':        'Mauvaise ambiance de travail',
+    'Années entreprise':       'Faible ancienneté dans l\'entreprise',
+    'Mobilité':                'Profil multi-employeurs',
+    'Tranche d\'âge à risque': 'Tranche d\'âge à risque',
+  };
+
+  // ══════════════════════════════════════════════════════
+  // Descriptions complètes affichées dans le TOOLTIP au survol
+  // ══════════════════════════════════════════════════════
+  private readonly facteurTooltips: { [key: string]: string } = {
+    'Poste peu valorisant':          'Le poste occupé (CSP) est associé à un fort risque de départ',
+    'Insatisfaction au travail':     'L\'employé exprime une faible satisfaction vis-à-vis de son travail',
+    'Surcharge selon le grade':      'Les heures supplémentaires sont élevées par rapport au niveau hiérarchique',
+    'Surcharge de travail':          'Volume d\'heures supplémentaires excessif par rapport à la norme',
+    'Déséquilibre vie pro / perso':  'Mauvais équilibre entre vie professionnelle et vie personnelle',
+    'Mauvaises conditions de travail': 'Insatisfaction liée à l\'environnement physique ou organisationnel',
+    'Faible ancienneté':             'L\'employé est dans l\'entreprise depuis peu de temps',
+    'Stagnation dans le poste':      'L\'employé occupe le même poste depuis trop longtemps sans évolution',
+    'Profil multi-employeurs':       'L\'employé a travaillé dans de nombreuses entreprises, signe d\'instabilité',
+    'Tranche d\'âge à risque':       'La tranche d\'âge de l\'employé est statistiquement plus sujette au départ',
+    'Trajet domicile trop long':     'La distance domicile-travail est un facteur de démotivation',
+    'Rémunération insuffisante':     'Le salaire perçu est en dessous des attentes ou du marché',
+    'Manque de formation':           'L\'employé n\'a pas bénéficié de suffisamment de formations',
+    'Absentéisme élevé':             'Un nombre élevé d\'absences est un signal précurseur de départ',
+    'Expérience insuffisante':       'Le niveau d\'expérience de l\'employé le rend plus vulnérable au départ',
   };
 
   buildBarFacteurs(data: DashboardStats): void {
     if (!data.topFacteursRisque?.length) return;
-    const labels = data.topFacteursRisque.map(f => f.featureLabel);
+
+    // Traduit le featureLabel backend en label RH clair
+    const labels = data.topFacteursRisque.map(f =>
+      this.facteurAbbr[f.featureLabel] ?? f.featureLabel
+    );
     const values = data.topFacteursRisque.map(f => f.pourcentage);
+
     const colors = values.map((_, i) => {
       const ratio = i / Math.max(values.length - 1, 1);
       const g = Math.round(ratio * 107);
       return `rgba(212,${g},0,0.85)`;
     });
+
     this.barFacteursData = {
       labels,
       datasets: [{

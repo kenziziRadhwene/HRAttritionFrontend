@@ -1,0 +1,60 @@
+<div class="dialog-container">
+
+  <!-- En-tête -->
+  <div class="dialog-header">
+    <div class="dialog-header-left">
+      <div class="dialog-icon">
+        <mat-icon>info</mat-icon>
+      </div>
+      <div>
+        <h2 class="dialog-title">Format attendu</h2>
+        <p class="dialog-subtitle">Fichier CSV — dataset IBM HR</p>
+      </div>
+    </div>
+    <button mat-icon-button (click)="fermer()">
+      <mat-icon>close</mat-icon>
+    </button>
+  </div>
+
+  <mat-divider></mat-divider>
+
+  <!-- Contenu -->
+  <mat-dialog-content class="dialog-content">
+
+    <!-- Colonnes obligatoires -->
+    <p class="section-label required-label">
+      <mat-icon>check_circle</mat-icon>
+      Colonnes obligatoires
+    </p>
+    <div class="columns-list">
+      <span class="col-item required" *ngFor="let col of colonnesObligatoires">
+        {{ col }}
+      </span>
+    </div>
+
+    <mat-divider class="section-divider"></mat-divider>
+
+    <!-- Colonnes optionnelles -->
+    <p class="section-label optional-label">
+      <mat-icon>radio_button_unchecked</mat-icon>
+      Colonnes optionnelles
+    </p>
+    <div class="columns-list">
+      <span class="col-item optional" *ngFor="let col of colonnesOptionnelles">
+        {{ col }}
+      </span>
+    </div>
+
+  </mat-dialog-content>
+
+  <mat-divider></mat-divider>
+
+  <!-- Actions -->
+  <mat-dialog-actions class="dialog-actions">
+    <button mat-raised-button class="close-btn" (click)="fermer()">
+      <mat-icon>close</mat-icon>
+      Fermer
+    </button>
+  </mat-dialog-actions>
+
+</div>

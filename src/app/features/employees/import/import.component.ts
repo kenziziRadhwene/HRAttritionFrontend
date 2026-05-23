@@ -9,7 +9,9 @@ import { MatProgressBarModule } from '@angular/material/progress-bar';
 import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
 import { MatDividerModule } from '@angular/material/divider';
 import { MatChipsModule } from '@angular/material/chips';
+import { MatDialog, MatDialogModule } from '@angular/material/dialog';
 import { EmployeeService } from '../../../core/services/employee.service';
+import { FormatDialogComponent } from './format-dialog/format-dialog.component';
 
 @Component({
   selector: 'app-import',
@@ -23,7 +25,8 @@ import { EmployeeService } from '../../../core/services/employee.service';
     MatProgressBarModule,
     MatSnackBarModule,
     MatDividerModule,
-    MatChipsModule
+    MatChipsModule,
+    MatDialogModule
   ],
   templateUrl: './import.component.html',
   styleUrl: './import.component.scss'
@@ -39,7 +42,8 @@ export class ImportComponent {
   constructor(
     private employeeService: EmployeeService,
     private snackBar: MatSnackBar,
-    private router: Router
+    private router: Router,
+    private dialog: MatDialog
   ) {}
 
   // ── Drag & Drop ──────────────────────
@@ -121,6 +125,33 @@ export class ImportComponent {
     });
   }
 
+  // ── Format Dialog ─────────────────────
+  voirFormat(): void {
+    this.dialog.open(FormatDialogComponent, {
+      width: '560px',
+      panelClass: 'format-dialog'
+    });
+  }
+
+  // ── Télécharger le modèle ─────────────
+  telechargerModele(): void {
+    const headers = [
+      'EmployeeNumber', 'Age', 'Gender', 'MaritalStatus', 'Department',
+      'JobRole', 'JobLevel', 'BusinessTravel', 'MonthlyIncome', 'OverTime',
+      'YearsAtCompany', 'JobSatisfaction', 'WorkLifeBalance',
+      'PerformanceRating', 'EnvironmentSatisfaction', 'RelationshipSatisfaction'
+    ].join(',');
+
+    const blob = new Blob([headers + '\n'], { type: 'text/csv;charset=utf-8;' });
+    const url  = URL.createObjectURL(blob);
+    const a    = document.createElement('a');
+    a.href     = url;
+    a.download = 'modele_import_rh.csv';
+    a.click();
+    URL.revokeObjectURL(url);
+  }
+
+  // ── Réinitialiser ─────────────────────
   reinitialiser(): void {
     this.selectedFile = null;
     this.result       = null;
