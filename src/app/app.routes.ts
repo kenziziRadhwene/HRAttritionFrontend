@@ -1,3 +1,5 @@
+// src/app/app.routes.ts
+
 import { Routes } from '@angular/router';
 import { authGuard } from './core/guards/auth.guard';
 import { roleGuard } from './core/guards/role.guard';
@@ -26,14 +28,25 @@ export const routes: Routes = [
     canActivate: [authGuard],
     children: [
 
+      // ── Dashboard RH ──
       {
         path: 'dashboard',
-        canActivate: [roleGuard(['ROLE_ADMIN', 'ROLE_RESPONSABLE_RH'])],
+        canActivate: [roleGuard(['ROLE_RESPONSABLE_RH'])],
         loadComponent: () =>
           import('./features/dashboard/dashboard.component')
             .then(m => m.DashboardComponent)
       },
 
+      // ── Dashboard Admin ──
+      {
+        path: 'admin-dashboard',
+        canActivate: [roleGuard(['ROLE_ADMIN'])],
+        loadComponent: () =>
+          import('./features/admin-dashboard/admin-dashboard.component')
+            .then(m => m.AdminDashboardComponent)
+      },
+
+      // ── Dashboard Manager ──
       {
         path: 'manager-dashboard',
         canActivate: [roleGuard(['ROLE_MANAGER'])],
@@ -42,6 +55,7 @@ export const routes: Routes = [
             .then(m => m.ManagerDashboardComponent)
       },
 
+      // ── Employés ──
       {
         path: 'employees',
         canActivate: [roleGuard(['ROLE_ADMIN', 'ROLE_RESPONSABLE_RH', 'ROLE_MANAGER'])],
@@ -49,7 +63,6 @@ export const routes: Routes = [
           import('./features/employees/employee-list/employee-list.component')
             .then(m => m.EmployeeListComponent)
       },
-
       {
         path: 'employees/import',
         canActivate: [roleGuard(['ROLE_ADMIN', 'ROLE_RESPONSABLE_RH'])],
@@ -57,7 +70,6 @@ export const routes: Routes = [
           import('./features/employees/import/import.component')
             .then(m => m.ImportComponent)
       },
-
       {
         path: 'employees/:id/historique',
         canActivate: [roleGuard(['ROLE_ADMIN', 'ROLE_RESPONSABLE_RH', 'ROLE_MANAGER'])],
@@ -65,7 +77,6 @@ export const routes: Routes = [
           import('./features/employees/employee-historique/employee-historique.component')
             .then(m => m.EmployeeHistoriqueComponent)
       },
-
       {
         path: 'employees/:id',
         canActivate: [roleGuard(['ROLE_ADMIN', 'ROLE_RESPONSABLE_RH', 'ROLE_MANAGER'])],
@@ -74,6 +85,7 @@ export const routes: Routes = [
             .then(m => m.EmployeeDetailComponent)
       },
 
+      // ── Alertes ──
       {
         path: 'alertes',
         canActivate: [roleGuard(['ROLE_ADMIN', 'ROLE_RESPONSABLE_RH'])],
@@ -82,6 +94,7 @@ export const routes: Routes = [
             .then(m => m.AlerteListComponent)
       },
 
+      // ── Simulation ──
       {
         path: 'simulation',
         canActivate: [roleGuard(['ROLE_ADMIN', 'ROLE_RESPONSABLE_RH'])],
@@ -90,6 +103,7 @@ export const routes: Routes = [
             .then(m => m.SimulationComparaisonComponent)
       },
 
+      // ── Recommandations ──
       {
         path: 'recommandations',
         canActivate: [roleGuard(['ROLE_ADMIN', 'ROLE_RESPONSABLE_RH', 'ROLE_MANAGER'])],
@@ -98,6 +112,7 @@ export const routes: Routes = [
             .then(m => m.RecommandationsComponent)
       },
 
+      // ── Équipe ──
       {
         path: 'team',
         canActivate: [roleGuard(['ROLE_ADMIN', 'ROLE_MANAGER'])],
@@ -106,6 +121,7 @@ export const routes: Routes = [
             .then(m => m.TeamViewComponent)
       },
 
+      // ── Gestion utilisateurs ──
       {
         path: 'users',
         canActivate: [roleGuard(['ROLE_ADMIN'])],
@@ -113,7 +129,6 @@ export const routes: Routes = [
           import('./features/users/users.component')
             .then(m => m.UsersComponent)
       },
-
       {
         path: 'users/new',
         canActivate: [roleGuard(['ROLE_ADMIN'])],
@@ -121,13 +136,21 @@ export const routes: Routes = [
           import('./features/users/user-form/user-form.component')
             .then(m => m.UserFormComponent)
       },
-
       {
         path: 'users/edit/:id',
         canActivate: [roleGuard(['ROLE_ADMIN'])],
         loadComponent: () =>
           import('./features/users/user-form/user-form.component')
             .then(m => m.UserFormComponent)
+      },
+
+      // ── Journal d'audit (Admin uniquement) ──
+      {
+        path: 'audit-logs',
+        canActivate: [roleGuard(['ROLE_ADMIN'])],
+        loadComponent: () =>
+          import('./features/audit-logs/audit-log-list/audit-log-list.component')
+            .then(m => m.AuditLogListComponent)
       },
     ]
   },

@@ -1,0 +1,249 @@
+// src/app/features/audit-logs/audit-log-list/audit-log-list.component.scss
+
+$red: #D40000;
+
+// ─── Container ────────────────────────────────────────────────
+.container {
+  padding: 16px 24px;
+  max-width: 1400px;
+  margin: 0 auto;
+}
+
+// ─── Carte ────────────────────────────────────────────────────
+.table-card {
+  background-color: #ffffff !important;
+  overflow-x: auto;
+
+  // En-tête
+  .table-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 12px 16px;
+
+    .table-title {
+      font-size: 16px;
+      font-weight: 700;
+      color: #000;
+    }
+
+    .total-badge {
+      background: rgba(212, 0, 0, 0.08);
+      color: $red;
+      font-size: 0.78rem;
+      font-weight: 600;
+      padding: 3px 10px;
+      border-radius: 20px;
+      border: 1px solid rgba(212, 0, 0, 0.15);
+    }
+  }
+
+  // Filtres
+  .filters-row {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    padding: 30px 16px 8px;
+    flex-wrap: wrap;
+
+    .filter-field {
+      flex: 1;
+      min-width: 140px;
+
+      ::ng-deep {
+        .mat-mdc-text-field-wrapper {
+          padding: 0 8px !important;
+        }
+        .mat-mdc-form-field-infix {
+          min-height: unset !important;
+          padding-top: 8px !important;
+          padding-bottom: 8px !important;
+        }
+        .mat-mdc-floating-label {
+          font-size: 12px !important;
+        }
+        .mdc-text-field--outlined .mdc-notched-outline__leading,
+        .mdc-text-field--outlined .mdc-notched-outline__trailing,
+        .mdc-text-field--outlined .mdc-notched-outline__notch {
+          border-width: 1px !important;
+        }
+        input.mat-mdc-input-element,
+        .mat-mdc-select-value-text,
+        .mat-mdc-select-placeholder {
+          font-size: 12px !important;
+          line-height: 1.2 !important;
+        }
+      }
+    }
+
+    .mat-mdc-icon-button {
+      width: 30px !important;
+      height: 30px !important;
+      padding: 0 !important;
+
+      mat-icon {
+        font-size: 18px;
+        width: 18px;
+        height: 18px;
+      }
+    }
+  }
+
+  // Compteur sous le tableau
+  .log-count {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    padding: 8px 16px;
+    font-size: 13px;
+    color: #555;
+    font-weight: 500;
+    border-top: 1px solid #e0e0e0;
+
+    mat-icon {
+      font-size: 18px;
+      width: 18px;
+      height: 18px;
+      color: $red;
+    }
+  }
+}
+
+// ─── Tableau ──────────────────────────────────────────────────
+.audit-table {
+  background-color: #ffffff !important;
+  width: 100%;
+
+  .mat-mdc-header-cell {
+    color: #000000 !important;
+    font-weight: 700 !important;
+    font-size: 12px !important;
+    text-transform: uppercase !important;
+    letter-spacing: 0.5px !important;
+    border-bottom: 2px solid #424242 !important;
+  }
+
+  .mat-mdc-cell {
+    border-bottom: 1px solid #e0e0e0 !important;
+  }
+
+  .mat-mdc-row:last-child .mat-mdc-cell {
+    border-bottom: none !important;
+  }
+
+  .log-row {
+    transition: background-color 0.2s;
+
+    &:hover {
+      background-color: #fff0f0 !important;
+    }
+  }
+}
+
+// ─── Cellules ─────────────────────────────────────────────────
+.index-text {
+  color: #bbb;
+  font-size: 0.78rem;
+  font-family: monospace;
+}
+
+.date-text {
+  color: #555;
+  font-family: monospace;
+  font-size: 0.82rem;
+  white-space: nowrap;
+}
+
+.employee-cell {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+
+  .emp-name  { font-weight: 500; color: #000; font-size: 0.85rem; }
+  .emp-email { font-size: 11px; color: #888; }
+}
+
+
+
+// ─── Badges ───────────────────────────────────────────────────
+.badge {
+  display: inline-block;
+  padding: 3px 10px;
+  border-radius: 20px;
+  font-size: 0.75rem;
+  font-weight: 600;
+  white-space: nowrap;
+
+  &.badge-admin   { background: rgba(212, 0, 0, 0.08);    color: $red; }
+  &.badge-rh      { background: rgba(25, 118, 210, 0.08); color: #1565c0; }
+  &.badge-manager { background: rgba(56, 142, 60, 0.08);  color: #2e7d32; }
+
+  &.badge-danger  { background: rgba(211, 47, 47, 0.08);  color: #c62828; }
+  &.badge-success { background: rgba(46, 125, 50, 0.08);  color: #1b5e20; }
+  &.badge-warning { background: rgba(245, 124, 0, 0.08);  color: #e65100; }
+  &.badge-info    { background: rgba(2, 136, 209, 0.08);  color: #01579b; }
+  &.badge-default { background: #f0f0f0; color: #666; }
+}
+
+.details-text {
+  color: #666;
+  font-size: 0.82rem;
+  cursor: default;
+}
+
+.ip-text {
+  font-family: monospace;
+  font-size: 0.8rem;
+  color: #888;
+  background: #f5f5f5;
+  padding: 2px 7px;
+  border-radius: 4px;
+}
+
+// ─── États ────────────────────────────────────────────────────
+.loading-center {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 60px 24px;
+  gap: 16px;
+}
+
+.loading-message {
+  font-size: 14px;
+  color: #888;
+  margin: 0;
+}
+
+.error-state {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
+  padding: 60px 24px;
+  color: $red;
+
+  mat-icon {
+    font-size: 2rem;
+    width: 2rem;
+    height: 2rem;
+  }
+
+  p { margin: 0; font-size: 0.9rem; }
+}
+
+.empty-state {
+  text-align: center;
+  padding: 48px;
+
+  mat-icon {
+    font-size: 64px;
+    width: 64px;
+    height: 64px;
+    color: #ccc;
+  }
+
+  p { margin: 16px 0; color: #666; }
+}

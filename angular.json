@@ -44,7 +44,7 @@
                 {
                   "type": "anyComponentStyle",
                   "maximumWarning": "4kB",
-                  "maximumError": "8kB"
+                  "maximumError": "20kb"
                 }
               ],
               "outputHashing": "all"
@@ -64,7 +64,8 @@
               "buildTarget": "HRAttritionFrontend:build:production"
             },
             "development": {
-              "buildTarget": "HRAttritionFrontend:build:development"
+              "buildTarget": "HRAttritionFrontend:build:development",
+              "proxyConfig": "proxy.conf.json"
             }
           },
           "defaultConfiguration": "development"

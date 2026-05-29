@@ -1,0 +1,130 @@
+<div class="loading-state" *ngIf="loading">
+  <mat-spinner diameter="40"></mat-spinner>
+  <p>Chargement du tableau de bord…</p>
+</div>
+
+<div class="error-state" *ngIf="error && !loading">
+  <mat-icon>error_outline</mat-icon>
+  <p>Impossible de charger les données.</p>
+  <button class="btn-retry" (click)="loadDashboard()">Réessayer</button>
+</div>
+
+<div class="dashboard-container" *ngIf="stats && !loading">
+  <div class="main-layout">
+
+    <!-- ── COLONNE GAUCHE (GRAPHICS) ── -->
+    <div class="left-column">
+
+      <mat-card class="chart-card">
+        <mat-card-header>
+          <mat-card-title>
+            <mat-icon>donut_large</mat-icon>
+            Répartition des utilisateurs
+          </mat-card-title>
+        </mat-card-header>
+        <mat-card-content>
+          <div class="chart-wrapper">
+            <canvas #doughnutChart></canvas>
+          </div>
+          <div class="role-totals">
+            <div class="role-total-item" *ngFor="let entry of stats.repartitionParRole | keyvalue">
+              <span class="role-dot" [ngClass]="getRoleBadgeClass(entry.key)"></span>
+              <span class="role-total-label">{{ getRoleLabel(entry.key) }}</span>
+              <span class="role-total-count">{{ entry.value }}</span>
+            </div>
+          </div>
+        </mat-card-content>
+      </mat-card>
+
+      <mat-card class="line-chart-card">
+        <mat-card-content>
+          <div class="line-chart-header">
+            <mat-icon>show_chart</mat-icon>
+            <span>Évolution 7 derniers jours</span>
+          </div>
+          <div class="line-chart-wrapper">
+            <canvas #lineChart></canvas>
+          </div>
+        </mat-card-content>
+      </mat-card>
+
+    </div>
+
+    <!-- ── COLONNE DROITE (KPIs & TABLE) ── -->
+    <div class="right-column">
+
+      <!-- KPI 1 : UTILISATEURS (Bordure & Fond Icône Rouge) -->
+      <mat-card class="kpi-card welcome-card">
+        <mat-card-content>
+          <div class="kpi-content">
+            <div class="kpi-icon-wrapper">
+              <mat-icon class="kpi-icon">group</mat-icon>
+            </div>
+            <div class="kpi-text">
+              <span class="kpi-label">UTILISATEURS</span>
+              <span class="kpi-value">{{ stats.totalUtilisateurs }}</span>
+            </div>
+          </div>
+        </mat-card-content>
+      </mat-card>
+
+      <!-- KPI 2 : ACTIONS AUJOURD'HUI (Bordure & Fond Icône Verte) -->
+      <mat-card class="kpi-card action-card">
+        <mat-card-content>
+          <div class="kpi-content">
+            <div class="kpi-icon-wrapper">
+              <mat-icon class="kpi-icon">bolt</mat-icon>
+            </div>
+            <div class="kpi-text">
+              <span class="kpi-label">Actions aujourd'hui</span>
+              <span class="kpi-value">{{ stats.actionsAujourdhui }}</span>
+            </div>
+          </div>
+        </mat-card-content>
+      </mat-card>
+
+      <!-- TABLEAU DES DERNIÈRES ACTIONS -->
+      <mat-card class="table-card">
+        <mat-card-header>
+          <mat-card-title>
+            <mat-icon>history</mat-icon>
+            5 dernières actions
+          </mat-card-title>
+        </mat-card-header>
+        <mat-card-content>
+          <div class="table-wrapper">
+            <table class="actions-table">
+              <thead>
+              <tr>
+                <th>Utilisateur</th>
+                <th>Rôle</th>
+                <th>Action</th>
+                <th>Date</th>
+              </tr>
+              </thead>
+              <tbody>
+              <tr *ngFor="let action of stats.dernieresActions">
+                <td>
+                  <div>
+                    <strong>{{ action.utilisateur }}</strong><br/>
+                    <small>{{ action.email }}</small>
+                  </div>
+                </td>
+                <td>
+                    <span class="badge" [ngClass]="getRoleBadgeClass(action.role)">
+                      {{ getRoleLabel(action.role) }}
+                    </span>
+                </td>
+                <td>{{ action.actionLabel }}</td>
+                <td>{{ formatDate(action.createdAt) }}</td>
+              </tr>
+              </tbody>
+            </table>
+          </div>
+        </mat-card-content>
+      </mat-card>
+
+    </div>
+
+  </div>
+</div>

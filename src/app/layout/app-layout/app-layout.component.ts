@@ -1,20 +1,18 @@
 import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { Router, RouterOutlet, NavigationEnd } from '@angular/router';
+import { Router, RouterOutlet, NavigationEnd, NavigationStart } from '@angular/router';
 import { MatIconModule } from '@angular/material/icon';
 import { MatButtonModule } from '@angular/material/button';
 import { MatToolbarModule } from '@angular/material/toolbar';
 import { MatTooltipModule } from '@angular/material/tooltip';
-import { filter } from 'rxjs/operators';
 import { MatMenuModule } from '@angular/material/menu';
 import { MatDividerModule } from '@angular/material/divider';
-import {  NavigationStart } from '@angular/router';
+import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 
 import { AuthService } from '../../core/services/auth.service';
 import { DashboardService } from '../../core/services/dashboard.service';
 import { BreadcrumbComponent } from '../../shared/components/breadcrumb/breadcrumb.component';
 import { NotificationPanneauComponent } from '../../shared/components/notification-panneau/notification-panneau.component';
-import {MatProgressSpinnerModule} from '@angular/material/progress-spinner';
 
 @Component({
   selector: 'app-layout',
@@ -30,8 +28,7 @@ import {MatProgressSpinnerModule} from '@angular/material/progress-spinner';
     BreadcrumbComponent,
     MatDividerModule,
     MatProgressSpinnerModule,
-    MatMenuModule,
-
+    MatMenuModule
   ],
   templateUrl: './app-layout.component.html',
   styleUrl: './app-layout.component.scss'
@@ -58,8 +55,7 @@ export class AppLayoutComponent implements OnInit {
   constructor(
     private authService: AuthService,
     private dashboardService: DashboardService,
-    private router: Router,
-
+    private router: Router
   ) {
     this.isAdmin   = this.authService.isAdmin();
     this.isRH      = this.authService.isRH();
@@ -74,17 +70,14 @@ export class AppLayoutComponent implements OnInit {
   ngOnInit(): void {
     this.currentRoute = this.router.url;
     this.router.events.subscribe(event => {
-
       if (event instanceof NavigationStart) {
-        this.isImporting = true;   // ← affiche le spinner
+        this.isImporting = true;
       }
-
       if (event instanceof NavigationEnd) {
         this.currentRoute = event.urlAfterRedirects;
         this.hasScrolled  = false;
-        this.isImporting  = false;  // ← cache le spinner
+        this.isImporting  = false;
       }
-
     });
   }
 
@@ -121,13 +114,9 @@ export class AppLayoutComponent implements OnInit {
     this.sidebarCollapsed = !this.sidebarCollapsed;
   }
 
+  // Nettoyage de la condition obsolète du rôle manager /team
   navigateTo(path: string): void {
-    const role = this.authService.getRole();
-    if (role === 'ROLE_MANAGER' && path === '/team') {
-      this.router.navigate(['/employees']);
-    } else {
-      this.router.navigate([path]);
-    }
+    this.router.navigate([path]);
   }
 
   // ─── IMPORT CSV ─────────────────────────
@@ -141,6 +130,3 @@ export class AppLayoutComponent implements OnInit {
     this.router.navigate(['/login']);
   }
 }
-
-
-

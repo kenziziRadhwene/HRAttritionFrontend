@@ -34,7 +34,7 @@ export class NotificationPanneauComponent implements OnInit {
   }
 
   chargerCount(): void {
-    this.http.get<{nonLues: number}>('http://localhost:8080/api/notifications/count')
+    this.http.get<{nonLues: number}>('/api/notifications/count')
       .subscribe({ next: (res) => { this.nbNonLues = res.nonLues; } });
   }
 
@@ -48,13 +48,13 @@ export class NotificationPanneauComponent implements OnInit {
   }
 
   chargerNotifications(): void {
-    this.http.get<NotificationItem[]>('http://localhost:8080/api/notifications')
+    this.http.get<NotificationItem[]>('/api/notifications')
       .subscribe({
         next: (data: NotificationItem[]) => {
           this.notifications = data;
           // Marquer comme lues après ouverture
           if (this.nbNonLues > 0) {
-            this.http.put('http://localhost:8080/api/notifications/marquer-lues', {})
+            this.http.put('/api/notifications/marquer-lues', {})
               .subscribe({ next: () => { this.nbNonLues = 0; } });
           }
         }

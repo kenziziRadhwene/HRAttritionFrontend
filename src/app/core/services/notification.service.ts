@@ -6,7 +6,7 @@ import { NotificationPanneau } from '../../shared/models/notification.model';
 @Injectable({ providedIn: 'root' })
 export class NotificationService {
 
-  private url = 'http://localhost:8080/api/notifications/panneau';
+  private url = '/api/notifications/panneau';
 
   constructor(private http: HttpClient) {}
 

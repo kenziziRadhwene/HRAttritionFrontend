@@ -1,0 +1,378 @@
+@use 'sass:color';
+
+// ==========================================================================
+// CONFIGURATION & THEME (Charte Graphique Claire)
+// ==========================================================================
+$rouge:   #ED1C24;
+$orange:  #FF6B00;
+$vert:    #2E7D32;
+$texte:   #494848;
+$gris:    #888888;
+$bg:      #f5f6fa;
+$white:   #ffffff;
+$border-color: rgba(0, 0, 0, 0.06);
+
+// Alignement parfait avec les couleurs du Donut Chart.js
+$color-admin:   #ED1C24; // Rouge
+$color-rh:      #FF6B00; // Orange
+$color-manager: #0288d1; // Bleu
+$color-user:    #706fd3; // Violet
+
+// ==========================================================================
+// CONTENEURS DE STATS (Loading / Error)
+// ==========================================================================
+.loading-state, .error-state {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  min-height: 400px;
+  color: $gris;
+  gap: 12px;
+
+  p {
+    font-size: 1.1rem;
+    margin: 0;
+    font-weight: 500;
+  }
+}
+
+.error-state {
+  mat-icon {
+    font-size: 48px;
+    height: 48px;
+    width: 48px;
+    color: $rouge;
+  }
+
+  .btn-retry {
+    background: $rouge;
+    color: $white;
+    border: none;
+    padding: 8px 24px;
+    border-radius: 4px;
+    cursor: pointer;
+    font-weight: 600;
+    transition: background 0.2s;
+
+    &:hover {
+      background: color.adjust($rouge, $lightness: -8%);
+    }
+  }
+}
+
+// ==========================================================================
+// CONTENEUR PRINCIPAL DU DASHBOARD
+// ==========================================================================
+.dashboard-container {
+  padding: 16px;
+  background-color: $bg;
+  min-height: 100vh;
+  color: $texte;
+  font-family: 'Roboto', sans-serif;
+  box-sizing: border-box;
+
+  .main-layout {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 12px;
+    align-items: start;
+
+    @media (max-width: 1100px) {
+      grid-template-columns: 1fr;
+    }
+  }
+
+  // ── COLONNE GAUCHE (Donut + Évolution) ──
+  .left-column {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+  }
+
+  // ── COLONNE DROITE (KPI 1 + KPI 2 + Tableau) ──
+  .right-column {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+  }
+
+  // ==========================================================================
+  // STYLISATION DES COMPOSANTS & CARTES
+  // ==========================================================================
+  mat-card {
+    background: $white !important;
+    color: $texte !important;
+    border-radius: 4px !important;
+    border: none;
+    box-shadow: 0 2px 12px rgba(0, 0, 0, 0.06) !important;
+    display: flex;
+    flex-direction: column;
+    box-sizing: border-box;
+    transition: transform 0.2s, box-shadow 0.2s;
+
+    mat-card-header {
+      padding: 16px 16px 4px 16px;
+
+      mat-card-title {
+        font-size: 16px !important;
+        font-weight: 600 !important;
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        color: $texte;
+
+        mat-icon {
+          color: $gris;
+        }
+      }
+    }
+
+    mat-card-content {
+      padding: 16px !important;
+    }
+  }
+
+  // ── CARTES KPIs (Style Minimaliste & Professionnel) ──
+  .kpi-card {
+    height: 115px;
+    background: $white !important;
+
+    &:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1) !important;
+    }
+
+    mat-card-content {
+      height: 100%;
+      display: flex;
+      align-items: center;
+    }
+
+    .kpi-content {
+      display: flex;
+      align-items: center;
+      gap: 20px;
+      width: 100%;
+
+      // Conteneur / Fond de l'icône
+      .kpi-icon-wrapper {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        width: 48px;
+        height: 48px;
+        border-radius: 6px; // Légèrement arrondi pour matcher le style flat des cartes
+      }
+
+      .kpi-icon {
+        font-size: 26px;
+        height: 26px;
+        width: 26px;
+        color: $white !important; // Icônes toujours blanches
+      }
+
+      .kpi-text {
+        display: flex;
+        flex-direction: column;
+
+        .kpi-label {
+          font-size: 12px;
+          font-weight: 600;
+          text-transform: uppercase;
+          letter-spacing: 0.5px;
+          color: $gris;
+        }
+        .kpi-value {
+          font-size: 26px;
+          font-weight: 800;
+          line-height: 1;
+          margin-top: 4px;
+          color: $texte;
+        }
+      }
+    }
+
+    // KPI 1 : Utilisateurs (Rouge)
+    &.welcome-card {
+      border-left: 5px solid $rouge !important;
+
+      .kpi-icon-wrapper {
+        background-color: $rouge; // Fond rouge pour l'icône
+      }
+    }
+
+    // KPI 2 : Actions aujourd'hui (Vert)
+    &.action-card {
+      border-left: 5px solid $vert !important;
+
+      .kpi-icon-wrapper {
+        background-color: $vert; // Fond vert pour l'icône
+      }
+    }
+  }
+
+  // ── GRAPHISME DOUGHNUT (Haut Gauche) ──
+  .chart-card {
+    .chart-wrapper {
+      position: relative;
+      height: 200px;
+      margin: 8px 0 16px 0;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+    }
+
+    .role-totals {
+      display: flex;
+      gap: 12px;
+      justify-content: space-between;
+      border-top: 1px solid $border-color;
+      padding-top: 14px;
+
+      .role-total-item {
+        display: flex;
+        align-items: center;
+        gap: 6px;
+        font-size: 0.85rem;
+
+        .role-dot {
+          width: 9px;
+          height: 9px;
+          border-radius: 50%;
+          display: inline-block;
+
+          &.badge-admin { background-color: $color-admin; }
+          &.badge-rh { background-color: $color-rh; }
+          &.badge-manager { background-color: $color-manager; }
+          &.badge-user { background-color: $color-user; }
+        }
+
+        .role-total-label {
+          color: $gris;
+          text-transform: capitalize;
+          font-weight: 500;
+        }
+
+        .role-total-count {
+          font-weight: 700;
+          color: $texte;
+        }
+      }
+    }
+  }
+
+  // ── GRAPHISME EVOLUTION LIGNES (Bas Gauche) ──
+  .line-chart-card {
+    &:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 5px 15px rgba(0, 0, 0, 0.08) !important;
+    }
+
+    .line-chart-header {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      font-size: 16px;
+      font-weight: 600;
+      color: $texte;
+      margin-bottom: 12px;
+
+      mat-icon {
+        color: $rouge;
+      }
+    }
+
+    .line-chart-wrapper {
+      height: 242px;
+    }
+    canvas {
+      width: 100% !important;
+      height: 100% !important;
+    }
+  }
+
+  // ── TABLEAU DES 5 DERNIÈRES ACTIONS (Bas Droite) ──
+  .table-card {
+    flex-grow: 1;
+
+    .table-wrapper {
+      overflow-x: auto;
+    }
+
+    .actions-table {
+      width: 100%;
+      border-collapse: collapse;
+      text-align: left;
+      font-size: 0.88rem;
+
+      thead tr {
+        border-bottom: 2px solid $border-color;
+
+        th {
+          padding: 12px 8px;
+          color: $gris;
+          font-weight: 600;
+          font-size: 0.78rem;
+          text-transform: uppercase;
+          letter-spacing: 0.5px;
+        }
+      }
+
+      tbody tr {
+        border-bottom: 1px solid $border-color;
+        transition: background-color 0.2s;
+
+        &:hover {
+          background-color: rgba(0, 0, 0, 0.01);
+        }
+
+        &:last-child {
+          border-bottom: none;
+        }
+
+        td {
+          padding: 12px 8px;
+          vertical-align: middle;
+          color: $texte;
+
+          strong { color: $texte; }
+          small { color: $gris; }
+        }
+      }
+    }
+  }
+
+  // ==========================================================================
+  // BADGES ROLES DE LA TABLE
+  // ==========================================================================
+  .badge {
+    display: inline-block;
+    padding: 4px 8px;
+    border-radius: 4px;
+    font-size: 0.72rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+
+    &.badge-admin {
+      background-color: rgba($color-admin, 0.12);
+      color: $color-admin;
+    }
+
+    &.badge-rh {
+      background-color: rgba($color-rh, 0.12);
+      color: color.adjust($color-rh, $lightness: -10%);
+    }
+
+    &.badge-manager {
+      background-color: rgba($color-manager, 0.12);
+      color: $color-manager;
+    }
+
+    &.badge-user {
+      background-color: rgba($color-user, 0.12);
+      color: $color-user;
+    }
+  }
+}
